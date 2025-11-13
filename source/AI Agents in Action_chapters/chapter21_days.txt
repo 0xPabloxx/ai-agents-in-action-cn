@@ -1,0 +1,86 @@
+Chapter 21: days
+Starting Page: 277
+================================================================================
+
+jumps back to the present
+Alex
+leaves
+Alex
+returns?
+Alex
+arrives
+Alex
+leaves
+???
+The problem statement:
+The statement is vague as
+to what time Alex returns
+to the battle. Is it the same
+time he left?
+jumps back to witness end of battle
+battle lasts 10 days
+Figure 10.3
+The complexity of the time travel problems we intend to solve using LLMs with reasoning and
+planning
+
+254
+CHAPTER 10
+Agent reasoning and evaluation
+Inputs:
+statement  : the statement problem to be solved
+expected : the expected solution to the problem
+LLM: cot (the prompt used to solve the problem)
+inputs: statement
+outputs: the predicted answer given the problem statement
+LLM: evaluate_answer (the prompt used to evaluate the solution)
+inputs:
+statement: -> input.statement
+expected: -> input.expected
+predicted: -> output.cot
+outputs: a score of how well the problem was answered
+Listing 10.7
+chain-of-thought-prompting flow
+LLM prompt that uses chain of
+thought to answer a given problem
+LLM prompt that evaluates
+the efﬁcacy of the answer
+Figure 10.4
+The flow of the CoT
+
+255
+10.2
+Reasoning in prompt engineering
+Outputs:
+statement: -> input.statement
+expected: -> input.expected
+predicted: -> output.cot
+evaluation_score: output.evaluate_answer
+### Example Output
+{
+"evaluation_score": "0.5",
+"expected": "After the final jump, Max finds himself
+in the year 1980 and he is 75 years old.",
+"predicted": " Max starts in the year 2300 and
+travels backward in 40-year increments, spending 5 years
+in each period. The journeys will be as follows:
+\n\n- From 2300 to 2260: Max is 25 + 5 = 30 years old.
+\n- From 2260 to 2220: Max is 30 + 5 = 35 years old.
+\n- From 2220 to 2180: Max is 35 + 5 = 40 years old.
+\n- From 2180 to 2140: Max is 40 + 5 = 45 years old.
+\n- From 2140 to 2100: Max is 45 + 5 = 50 years old.
+\n- From 2100 to 2060: Max is 50 + 5 = 55 years old.
+\n- From 2060 to 2020: Max is 55 + 5 = 60 years old.
+\n- From 2020 to 1980: Max is 60 + 5 = 65 years old.
+\n- From 1980 to 1940: Max is 65 + 5 = 70 years old.
+\n- From 1940 to 1900: Max is 70 + 5"
+}
+Dig into the inputs and check the problem statement; try to evaluate the problem
+yourself. Then, run the flow by pressing Shift-F5. You should see output similar to that
+shown in listing 10.7.
+Open the cot.jinja2 prompt file as shown in listing 10.8. This prompt gives a few
+examples of time travel problems and then the thought-out and reasoned solution.
+The process of showing the LLM the steps to complete the problem provides the rea-
+soning mechanism.
+system:
+"In a time travel movie, Sarah travels back in time to
+prevent a historic event from happening. She arrives

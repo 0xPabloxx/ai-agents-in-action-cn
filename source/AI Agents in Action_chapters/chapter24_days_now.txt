@@ -1,0 +1,1435 @@
+Chapter 24: days now.
+Starting Page: 280
+================================================================================
+
+Waiting for the Battle to End: The battle lasts 10 days. Since he's
+already witnessed 3 days of it, he needs to wait for 7 more days.
+Conclusion: Alex spends a total of 3 (initial wait) + 3 (before the
+first jump) + 20 (50 years ago) + 7 (after returning) = 33 days in the
+past before he sees the end of the battle.
+Think step by step but only show the final answer to the statement.
+user:
+{{statement}}
+You may note that the solution to figure 10.3 is also provided as an example in listing
+10.8. It’s also helpful to go back and review listing 10.7 for the reply from the LLM
+about the problem. From this, you can see the reasoning steps the LLM applied to get
+its final answer.
+Now, we can look at the prompt that evaluates how well the solution solved the
+problem. Open evaluate_answer.jinja2, shown in listing 10.9, to review the prompt
+used. The prompt is simple, uses zero-shot prompting, and allows the LLM to general-
+ize how it should score the expected and predicted. We could provide examples and
+scores, thus changing this to an example of a few-shot classification.
+system:
+Please confirm that expected and predicted results are
+the same for the given problem.
+Listing 10.9
+evaluate_answer.jinja2
+A few example
+problem
+statements
+The solution
+to the problem
+statement, output
+as a sequence of
+reasoning steps
+The problem statement the
+LLM is directed to solve
+The rules for
+evaluating the
+solution
+
+257
+10.2
+Reasoning in prompt engineering
+Return a score from 0 to 1 where 1 is a perfect match and 0 is no match.
+Please just return the score and not the explanation.
+user:
+Problem: {{problem}}
+Expected result: {{expected}}
+Predicted result: {{predicted}}
+Looking at the LLM output shown earlier in listing 10.7, you can see why the evalua-
+tion step may get confusing. Perhaps a fix to this could be suggesting to the LLM to
+provide the final answer in a single statement. In the next section, we move on to
+another example of prompt reasoning.
+10.2.2 Zero-shot CoT prompting
+As our time travel demonstrates, CoT prompting can be expensive in terms of prompt
+generation for a specific class of problem. While not as effective, there are techniques
+similar to CoT that don’t use examples and can be more generalized. This section will
+examine a straightforward phrase employed to elicit reasoning in LLMs.
+Open prompt_flow/zero-shot-cot-prompting/flow.dag.yaml in the VS Code
+prompt flow visual editor. This flow is very similar to the previous CoT, as shown in fig-
+ure 10.4. The next lsting shows the YAML pseudocode that describes the flow.
+Inputs:
+statement  : the statement problem to be solved
+expected : the expected solution to the problem
+
+LLM: cot (the prompt used to solve the problem)
+inputs: statement
+outputs: the predicted answer given the problem statement
+
+LLM: evaluate_answer (the prompt used to evaluate the solution)
+inputs:
+statement: -> input.statement
+expected: -> input.expected
+predicted: -> output.cot
+
+outputs: a score of how well the problem was answered
+
+
+Outputs:
+statement: -> input.statement
+expected: -> input.expected
+predicted: -> output.cot
+Listing 10.10
+zero-shot-CoT-prompting flow
+Direction to only
+return the score
+and nothing else
+The initial
+problem
+statement
+The expected or
+grounded answer
+The output from the
+CoT prompt earlier
+
+258
+CHAPTER 10
+Agent reasoning and evaluation
+evaluation_score: output.evaluate_answer
+
+### Example Output
+{
+"evaluation_score": "1",
+"expected": "After the final jump,
+➥ Max finds himself in the year 1980 and
+he is 75 years old.",
+"predicted": "Max starts in…
+➥ Therefore, after the final jump,
+➥ Max is 75 years old and in the year 1980.",
+"statement": "In a complex time travel …"
+}
+Run/test the flow in VS Code by pressing Shift-F5 while in the visual editor. The flow
+will run, and you should see output similar to that shown in listing 10.10. This exercise
+example performs better than the previous example on the same problem.
+Open the cot.jinja2 prompt in VS Code, as shown in listing 10.11. This is a much
+simpler prompt than the previous example because it only uses zero-shot. However, one
+key phrase turns this simple prompt into a powerful reasoning engine. The line in the
+prompt Let’s think step by step triggers the LLM to consider internal context show-
+ing reasoning. This, in turn, directs the LLM to reason out the problem in steps.
+system:
+You are an expert in solving time travel problems.
+You are given a time travel problem and you have to solve it.
+Let's think step by step.
+Please finalize your answer in a single statement.
+user:
+{{statement}}
+Similar phrases asking the LLM to think about the steps or asking it to respond in
+steps also extract reasoning. We’ll demonstrate a similar but more elaborate tech-
+nique in the next section.
+10.2.3 Step by step with prompt chaining
+We can extend the behavior of asking an LLM to think step by step into a chain of
+prompts that force the LLM to solve the problem in steps. In this section, we look at a
+technique called prompt chaining that forces an LLM to process problems in steps.
+Open the prompt_flow/prompt-chaining/flow.dag.yaml file in the visual editor,
+as shown in figure 10.5. Prompt chaining breaks up the reasoning method used to
+solve a problem into chains of prompts. This technique forces the LLM to answer the
+problem in terms of steps.
+Listing 10.11
+cot.jinja2
+The final
+evaluation score
+The expected
+answer
+The predicted
+answer (the
+steps have been
+omitted showing
+the final answer)
+The initial problem
+statement
+A magic line
+that formulates
+reasoning from
+the LLM
+Asks the LLM to
+provide a final
+statement of the
+answer
+The problem
+statement the LLM
+is asked to solve
+
+259
+10.2
+Reasoning in prompt engineering
+Listing 10.12 shows the YAML pseudocode that describes the flow in a few more
+details. This flow chains the output of the first LLM block into the second and then
+from the second into the third. Forcing the LLM to process the problem this way
+uncovers the reasoning pattern, but it can also be overly verbose.
+Inputs:
+statement  : the statement problem to be solved
+
+LLM: decompose_steps (the prompt used to decompose the problem)
+inputs:
+statement: -> input.statement
+
+outputs: the breakdown of steps to solve the problem
+LLM: calculate_steps (the prompt used to calculate the steps)
+inputs:
+statement: -> input.statement
+decompose_steps: -> output.decompose_steps
+
+outputs: the calculation for each step
+Listing 10.12
+prompt-chaining flow
+LLM then calculates the
+output for each step.
+LLM calculates the
+solution using the steps.
+LLM prompt ﬁrst decomposes
+the problem into steps.
+Figure 10.5
+The prompt chaining flow
+Start of the chain
+of prompts
+Output from
+the previous
+step injected
+into this step
+
+260
+CHAPTER 10
+Agent reasoning and evaluation
+LLM: calculate_solution (attempts to solve the problem)
+inputs:
+statement: -> input.statement
+decompose_steps: -> output.decompose_steps
+calculate_steps: -> output.calculate_steps
+outputs: the final solution statement
+Outputs:
+statement: -> input.statement
+decompose_steps: -> output.decompose_steps
+calculate_steps: -> output.calculate_steps
+calculate_solution: -> output.calculate_solution
+### Example Output
+{
+"calculate_steps": "1. The days spent by Alex",
+"decompose_steps": "To figure out the …",
+"solution": "Alex spends 13 days in the
+➥ past before the end of the battle.",
+"statement": "In a sci-fi film, Alex …"
+}
+Run the flow by pressing Shift-F5 from the visual editor, and you’ll see the output as
+shown in listing 10.12. The answer is still not correct for the Alex problem, but we can
+see all the work the LLM is doing to reason out the problem.
+Open up all three prompts: decompose_steps.jinja2, calculate_steps.jinja2,
+and calculate_solution.jinja2 (see listings 10.13, 10.14, and 10.15, respectively).
+All three prompts shown in the listings can be compared to show how outputs chain
+together.
+system:
+You are a problem solving AI assistant.
+Your job is to break the users problem down into smaller steps and list
+the steps in the order you would solve them.
+Think step by step, not in generalities.
+Do not attempt to solve the problem, just list the steps.
+user:
+{{statement}}
+system:
+You are a problem solving AI assistant.
+You will be given a list of steps that solve a problem.
+Your job is to calculate the output for each of the steps in order.
+Do not attempt to solve the whole problem,
+Listing 10.13
+decompose_steps.jinja2
+Listing 10.14
+calculate_steps.jinja2
+Output from
+two previous
+steps injected
+into this step
+The final solution
+statement,
+although wrong,
+is closer.
+Forces the LLM to
+list only the steps
+and nothing else
+The initial problem
+statement
+
+261
+10.3
+Employing evaluation for consistent solutions
+just list output for each of the steps.
+Think step by step.
+user:
+{{statement}}
+{{steps}}
+system:
+You are a problem solving AI assistant.
+You will be given a list of steps and the calculated output for each step.
+Use the calculated output from each step to determine the final
+solution to the problem.
+Provide only the final solution to the problem in a
+single concise sentence. Do not include any steps
+in your answer.
+user:
+{{statement}}
+{{steps}}
+{{calculated}}
+In this exercise example, we’re not performing any evaluation and scoring. Without
+the evaluation, we can see that this sequence of prompts still has problems solving our
+more challenging time travel problem shown earlier in figure 10.3. However, that
+doesn’t mean this technique doesn’t have value, and this prompting format solves
+some complex problems well.
+What we want to find, however, is a reasoning and planning methodology that can
+solve such complex problems consistently. The following section moves from reason-
+ing to evaluating the best solution.
+10.3
+Employing evaluation for consistent solutions
+In the previous section, we learned that even the best-reasoned plans may not always
+derive the correct solution. Furthermore, we may not always have the answer to con-
+firm if that solution is correct. The reality is that we often want to use some form of
+evaluation to determine the efficacy of a solution.
+Figure 10.6 shows a comparison of the prompt engineering strategies that have been
+devised as a means of getting LLMs to reason and plan. We’ve already covered the two on
+the left: zero-shot direct prompting and CoT prompting. The following example exer-
+cises in this section will look at self-consistency with the CoT and ToT techniques.
+We’ll continue to focus on the complex time travel problem to compare these
+more advanced methods that expand on reasoning and planning with evaluation. In
+the next section, we’ll evaluate self-consistency.
+Listing 10.15
+calculate_solution.jinja2
+Requests that the LLM
+not solve the whole
+problem, just the steps
+Uses the magic statement
+to extract reasoning
+Injects the steps
+produced by the
+decompose_steps step
+Requests that the LLM
+output the final answer
+and not any steps
+The decomposed steps
+The calculated steps
+
+262
+CHAPTER 10
+Agent reasoning and evaluation
+10.3.1 Evaluating self-consistency prompting
+Consistency in prompting is more than just lowering the temperature parameter we
+send to an LLM. Often, we want to generate a consistent plan or solution and still use
+a high temperature to better evaluate all the variations to a plan. By evaluating multi-
+ple different plans, we can get a better sense of the overall value of a solution.
+Self-consistent prompting is the technique of generating multiple plans/solutions for
+a given problem. Then, those plans are evaluated, and the more frequent or consis-
+tent plan is accepted. Imagine three plans generated, where two are similar, but the
+third is different. Using self-consistency, we evaluate the first two plans as the more
+consistent answer.
+Open prompt_flow/self-consistency-prompting/flow.dag.yaml in the VS Code
+prompt flow visual editor. The flow diagram shows the simplicity of the prompt genera-
+tion flow in figure 10.7. Next to it in the diagram is the self-consistency evaluation flow.
+Prompt flow uses a direct acyclic graph (DAG) format to execute the flow logic.
+DAGs are an excellent way of demonstrating and executing flow logic, but because
+they are acyclic, meaning they can’t repeat, they can’t execute loops. However, because
+prompt flow provides a batch processing mechanism, we can use that to simulate
+loops or repetition in a flow.
+Referring to figure 10.6, we can see that self-consistency processes the input three
+times before collecting the results and determining the best plan/reply. We can apply
+this same pattern but use batch processing to generate the outputs. Then, the evalua-
+tion flow will aggregate the results and determine the best answer.
+Open the self-consistency-prompting/cot.jinja2 prompt template in VS
+Code (see listing 10.16). The listing was shortened, as we’ve seen parts before. This
+Input
+Input
+Input
+Input
+Output
+Output
+Output
+Output
+Zero-shot, direct
+prompting
+Chain of thought
+(CoT)
+Self-consistency
+with CoT (CoT-SC)
+Tree of thought
+(ToT)
+Majority vote
+......
+......
+......
+......
+......
+thought
+Figure 10.6
+Comparing the various prompt engineering strategies to enable reasoning and planning from LLMs
+
+263
+10.3
+Employing evaluation for consistent solutions
+prompt uses two (few-shot prompt) examples of a CoT to demonstrate the thought
+reasoning to the LLM.
+system:
+"In a time travel movie, Sarah travels back… "
+Chain of Thought:
+Initial Assumption: …
+Conclusion: Sarah spends 729 days in the past before the day of the event.
+"In a complex time travel movie plot, Max, a 25 year old…"
+Chain of Thought:
+Starting Point: Max starts …
+Conclusion: After the final jump,
+Max finds himself in the year 1980 and he is 75 years old.
+Listing 10.16
+self-consistency-prompting/cot.jinja2
+Self-consistency generation
+Self-consistency evaluation
+This ﬂow evaluates each of the
+prompts and then chooses the
+prompt that is
+consistent.
+the most
+Self-consistency uses a
+chain of thought prompt
+to generate the plans.
+Figure 10.7
+The self-consistency prompt generation beside the evaluation flow
+The Sarah time
+travel problem
+Sample CoT,
+cut for brevity
+The Max time
+travel problem
+Sample CoT,
+cut for brevity
+
+264
+CHAPTER 10
+Agent reasoning and evaluation
+Think step by step,
+but only show the final answer to the statement.
+user:
+{{statement}}
+Open the self-consistency-prompting/flow.dag.yaml file in VS Code. Run the
+example in batch mode by clicking Batch Run (the beaker icon) from the visual edi-
+tor. Figure 10.8 shows the process step by step:
+1
+Click Batch Run.
+2
+Select the JSON Lines (JSONL) input.
+3
+Select statements.jsonl.
+4
+Click the Run link.
+TIP
+If you need to review the process, refer to chapter 9, which covers this
+process in more detail.
+Final guide and
+statement to
+constrain output
+1. Click the
+Batch Run button.
+3. Click the Run link to start
+the batch processing.
+2. Select the local data ﬁle, and
+when prompted with the ﬁle
+dialog, select statements.jsonl.
+Figure 10.8
+The step-by-step process of launching a batch process
+
+265
+10.3
+Employing evaluation for consistent solutions
+Listing 10.17 shows the JSON output from executing the flow in batch mode. The
+statements.jsonl file has five identical Alex time travel problem entries. Using
+identical entries allows us to simulate the prompt executing five times on the dupli-
+cate entry.
+{
+"name": "self-consistency-prompting_default_20240203_100322_912000",
+"created_on": "2024-02-03T10:22:30.028558",
+"status": "Completed",
+"display_name": "self-consistency-prompting_variant_0_202402031022",
+"description": null,
+"tags": null,
+"properties": {
+"flow_path": "…prompt_flow/self-consistency-prompting",
+"output_path": "…/.promptflow/.runs/self-
+➥ consistency-prompting_default_20240203_100322_912000",
+"system_metrics": {
+"total_tokens": 4649,
+"prompt_tokens": 3635,
+"completion_tokens": 1014,
+"duration": 30.033773
+}
+},
+"flow_name": "self-consistency-prompting",
+"data": "…/prompt_flow/self-consistency-prompting/
+➥ statements.jsonl",
+"output": "…/.promptflow/.runs/self-consistency-
+➥ prompting_default_20240203_100322_912000/flow_outputs"
+}
+You can view the flow produced by pressing the Ctrl key and clicking the output link,
+highlighted in listing 10.17. This will open another instance of VS Code, showing a
+folder with all the output from the run. We now want to check the most consistent
+answer. Fortunately, the evaluation feature in prompt flow can help us identify consis-
+tent answers using similarity matching.
+Open self-consistency-evaluation/flow.dag.yaml in VS Code (see figure
+10.7). This flow embeds the predicted answer and then uses an aggregation to deter-
+mine the most consistent answer.
+From the flow, open consistency.py in VS Code, as shown in listing 10.18. The
+code for this tool function calculates the cosine similarity for all pairs of answers.
+Then, it finds the most similar answer, logs it, and outputs that as the answer.
+from promptflow import tool
+from typing import List
+import numpy as np
+from scipy.spatial.distance import cosine
+Listing 10.17
+self-consistency-prompting batch execution output
+Listing 10.18
+consistency.py
+The path where
+the flow was
+executed from
+The folder
+containing the
+outputs of the flow
+(note this path)
+The data used to run
+the flow in batch
+
+266
+CHAPTER 10
+Agent reasoning and evaluation
+@tool
+def consistency(texts: List[str],
+embeddings: List[List[float]]) -> str:
+if len(embeddings) != len(texts):
+raise ValueError("The number of embeddings
+➥ must match the number of texts.")
+mean_embedding = np.mean(embeddings, axis=0)
+similarities = [1 - cosine(embedding, mean_embedding)
+➥ for embedding in embeddings]
+most_similar_index = np.argmax(similarities)
+from promptflow import log_metric
+log_metric(key="highest_ranked_output", value=texts[most_similar_index])
+return texts[most_similar_index]
+We need to run the evaluation flow in batch mode as well. Open self-consistency-
+evaluation/flow.dag.yaml in VS Code and run the flow in batch mode (beaker
+icon). Then, select Existing Run as the flow input, and when prompted, choose the
+top or the last run you just executed as input.
+Again, after the flow completes processing, you’ll see an output like that shown in
+listing 10.17. Ctrl-click on the output folder link to open a new instance of VS Code
+showing the results. Locate and open the metric.json file in VS Code, as shown in
+figure 10.9.
+The answer shown in figure 10.9 is still incorrect for this run. You can continue a
+few more batch runs of the prompt and/or increase the number of runs in a batch
+and then evaluate flows to see if you get better answers. This technique is generally
+more helpful for more straightforward problems but still demonstrates an inability to
+reason out complex problems.
+Self-consistency uses a reflective approach to evaluate the most likely thought.
+However, the most likely thing is certainly not always the best. Therefore, we must con-
+sider a more comprehensive approach in the next section.
+10.3.2 Evaluating tree of thought prompting
+As mentioned earlier, ToT prompting, as shown in figure 10.6, combines self-evalua-
+tion and prompt chaining techniques. As such, it breaks down the sequence of plan-
+ning into a chain of prompts, but at each step in the chain, it provides for multiple
+evaluations. This creates a tree that can be executed and evaluated at each level,
+breadth-first, or from top to bottom, depth-first.
+Figure 10.10 shows the difference between executing a tree using breadth-first or
+depth-first. Unfortunately, due to the DAG execution pattern of prompt flow, we can’t
+quickly implement the depth-first method, but breadth-first works just fine.
+Calculates the mean of
+all the embeddings
+Calculates cosine
+similarity for each
+pair of embeddings
+Finds the index
+of the most
+similar answer
+Logs the output
+as a metric
+Returns the text
+for the most
+similar answer
+
+267
+10.3
+Employing evaluation for consistent solutions
+Select the
+metrics.json output
+Returns the highest ranked output as
+generated by the aggregation in
+consistency.pr, but is the answer right?
+Figure 10.9
+The VS Code is open to the batch run output folder. Highlighted are the metrics.json file and
+the output showing the most similar answer.
+input
+output
+Tree of Thought (ToT)
+......
+Breadth-ﬁrst executes/considers
+a row of thoughts at a time.
+Depth-ﬁrst executes/considers
+a sequence of thoughts from
+beginning to end.
+Figure 10.10
+Breadth-first vs. depth-first execution on a ToT pattern
+
+268
+CHAPTER 10
+Agent reasoning and evaluation
+Open tree-of-thought-evaluation/flow.dag.yaml in VS Code. The visual of the
+flow is shown in figure 10.11. This flow functions like a breadth-first ToT pattern—the
+flow chains together a series of prompts asking the LLM to return multiple plans at
+each step.
+Because the flow executes in a breadth-first style, each level output of the nodes is also
+evaluated. Each node in the flow uses a pair of semantic functions—one to generate
+the answer and the other to evaluate the answer. The semantic function is a custom
+Python flow block that processes multiple inputs and generates multiple outputs.
+Listing 10.19 shows the semantic_function.py tool. This general tool is reused for
+multiple blocks in this flow. It also demonstrates the embedding functionality from
+the SK for direct use within prompt flow.
+@tool
+def my_python_tool(
+input: str,
+input_node: int,
+history: str,
+Listing 10.19
+semantic_function.py
+First asks LLM to create 3 plans,
+but not solutions as an expert
+Each LLM node calculates 3 versions
+of the output for each step in the plan.
+Output from an LLM block is a
+single string, so this block splits
+the text into nodes.
+Splits the output text
+into 3 nodes again
+Each answer node calculates
+the output of the answer.
+Figure 10.11
+ToT pattern expressed and prompt flow
+
+269
+10.3
+Employing evaluation for consistent solutions
+semantic_function: str,
+evaluation_function: str,
+function_name: str,
+skill_name: str,
+max_tokens: int,
+temperature: float,
+deployment_name: str,
+connection: Union[OpenAIConnection,
+AzureOpenAIConnection],
+) -> str:
+if input is None or input == "":
+return ""
+kernel = sk.Kernel(log=sk.NullLogger())
+# code for setting up the kernel and LLM connection omitted
+function = kernel.create_semantic_function(
+semantic_function,
+function_name=function_name,
+skill_name=skill_name,
+max_tokens=max_tokens,
+temperature=temperature,
+top_p=0.5)
+evaluation = kernel.create_semantic_function(
+evaluation_function,
+function_name="Evaluation",
+skill_name=skill_name,
+max_tokens=max_tokens,
+temperature=temperature,
+top_p=0.5)
+async def main():
+query = f"{history}\n{input}"
+try:
+eval = int((await evaluation.invoke_async(query)).result)
+if eval > 25:
+return await function.invoke_async(query)
+except Exception as e:
+raise Exception("Evaluation failed", e)
+try:
+result = asyncio.run(main()).result
+return result
+except Exception as e:
+print(e)
+return ""
+The semantic function tool is used in the tree’s experts, nodes, and answer blocks. At
+each step, the function determines if any text is being input. If there is no text, the
+block returns with no execution. Passing no text to a block means that the previous
+block failed evaluation. By evaluating before each step, ToT short-circuits the execu-
+tion of plans it deems as not being valid.
+Uses a union to allow
+for different types of
+LLM connections
+Checks to see if the input is
+empty or None; if so, the
+function shouldn’t be executed.
+Sets up the
+generation function
+that creates a plan
+Sets up the
+evaluation function
+Runs the evaluate function and
+determines if the input is good
+enough to continue
+If the evaluation
+score is high
+enough,
+generates the
+next step
+
+270
+CHAPTER 10
+Agent reasoning and evaluation
+This may be a complex pattern to grasp at first, so go ahead and run the flow in VS
+Code. Listing 10.20 shows just the answer node output of a run; these results may vary
+from what you see but should be similar. Nodes that return no text either failed evalu-
+ation or their parents did.
+{
+"answer_1_1": "",
+"answer_1_2": "",
+"answer_1_3": "",
+"answer_2_1": "Alex spends a total of 29 days in the past before he
+sees the end of the battle.",
+"answer_2_2": "",
+"answer_2_3": "Alex spends a total of 29 days in the past before he
+sees the end of the battle.",
+"answer_3_1": "",
+"answer_3_2": "Alex spends a total of 29 days in the past before he
+sees the end of the battle.",
+"answer_3_3": "Alex spends a total of 9 days in the past before he
+sees the end of the battle.",
+The output in listing 10.20 shows how only a select set of nodes was evaluated. In most
+cases, the evaluated nodes returned an answer that could be valid. Where no output
+was produced, it means that the node itself or its parent wasn’t valid. When sibling
+nodes all return empty, the parent node fails to evaluate.
+As we can see, ToT is valid for complex problems but perhaps not very practical.
+The execution of this flow can take up to 27 calls to an LLM to generate an output. In
+practice, it may only do half that many calls, but that’s still a dozen or more calls to
+answer a single problem.
+10.4
+Exercises
+Use the following exercises to improve your knowledge of the material:
+Exercise 1—Create Direct Prompting, Few-Shot Prompting, and Zero-Shot
+Prompting
+Objective—Create three different prompts for an LLM to summarize a recent
+scientific article: one using direct prompting, one with few-shot prompting, and
+the last employing zero-shot prompting.
+Tasks:
+– Compare the effectiveness of the summaries generated by each approach.
+– Compare the accuracy of the summaries generated by each approach.
+Exercise 2—Craft Reasoning Prompts
+Objective—Design a set of prompts that require the LLM to solve logical puzzles
+or riddles.
+Listing 10.20
+Output from tree-of-thought-evaluation flow
+Represents that the first
+node plans weren’t valid
+and not executed
+The plan for node 2 and
+answer 2 failed evaluation
+and wasn’t run.
+The plan for this node failed
+to evaluate and wasn’t run.
+
+271
+Summary
+Tasks:
+– Focus on how the structure of your prompt can influence the LLM’s rea-
+soning process.
+– Focus on how the same can influence the correctness of its answers.
+Exercise 3—Evaluation Prompt Techniques
+Objective—Develop an evaluation prompt that asks the LLM to predict the out-
+come of a hypothetical experiment.
+Task:
+– Create a follow-up prompt that evaluates the LLM’s prediction for accuracy
+and provides feedback on its reasoning process.
+Summary
+Direct solution prompting is a foundational method of using prompts to direct
+LLMs toward solving specific problems or tasks, emphasizing the importance of
+clear question-and-answer structures.
+Few-shot prompting provides LLMs with a few examples to guide them in han-
+dling new or unseen content, highlighting its power in enabling the model to
+adapt to unfamiliar patterns.
+Zero-shot learning and prompting demonstrate how LLMs can generalize from
+their training to solve problems without needing explicit examples, showcasing
+their inherent ability to understand and apply knowledge in new contexts.
+Chain of thought prompting guides the LLMs through a reasoning process step
+by step to solve complex problems, illustrating how to elicit detailed reasoning
+from the model.
+Prompt chaining breaks down a problem into a series of prompts that build
+upon each other, showing how to structure complex problem-solving processes
+into manageable steps for LLMs.
+Self-consistency is a prompt technique that generates multiple solutions to a
+problem and selects the most consistent answer through evaluation, emphasiz-
+ing the importance of consistency in achieving reliable outcomes.
+Tree of thought prompting combines self-evaluation and prompt chaining to
+create a comprehensive strategy for tackling complex problems, allowing for a
+systematic exploration of multiple solution paths.
+Advanced prompt engineering strategies provide insights into sophisticated
+techniques such as self-consistency with CoT and ToT, offering methods to
+increase the accuracy and reliability of LLM-generated solutions.
+
+272
+Agent planning
+and feedback
+Now that we’ve examined how large language models (LLMs) can reason and plan,
+this chapter takes this concept a step further by employing planning within an
+agent framework. Planning should be at the core of any agent/assistant platform
+or toolkit. We’ll start by looking at the basics of planning and how to implement a
+planner through prompting. Then, we’ll see how planning operates using the
+OpenAI Assistants platform, which automatically incorporates planning. From
+there, we’ll build and implement a general planner for LLMs.
+Planning can only go so far, and an often-unrecognized element is feedback.
+Therefore, in the last sections of the chapter, we explore feedback and implement
+This chapter covers
+Planning for an LLM and implementing it in
+agents and assistants
+Using the OpenAI Assistants platform via custom
+actions
+Implementing/testing a generic planner on LLMs
+Using the feedback mechanism in advanced
+models
+Planning, reasoning, evaluation, and feedback in
+building agentic systems
+
+273
+11.1
+Planning: The essential tool for all agents/assistants
+it within a planner. You must be familiar with the content of chapter 10, so please
+review it if you need to, and when you’re ready, let’s begin planning.
+11.1
+Planning: The essential tool for all agents/assistants
+Agents and assistants who can’t plan and only follow simple interactions are nothing
+more than chatbots. As we’ve seen throughout this book, our goal isn’t to build bots
+but rather to build autonomous thinking agents—agents that can take a goal, work
+out how to solve it, and then return with the results.
+Figure 11.1 explains the overall planning process that the agent/assistant will
+undertake. This figure was also presented in chapter 1, but let’s review it now in more
+detail. At the top of the figure, a user submits a goal. In an agentic system, the agent
+takes the goal, constructs the plan, executes it, and then returns the results.
+Depending on your interaction with platforms such as ChatGPT and GPTs, Claude,
+and others, you may have already encountered a planning assistant and not even noticed.
+Planning is becoming ubiquitous and is now built into most commercial platforms to
+Agent interface layer (natural language)
+Planning: Agent takes the goal and breaks it into tasks.
+1. Collect data.
+2. Annotate data.
+3. Format data, and create report visualizations.
+4. Present report.
+4. Agent presents the report.
+Please create a report of
+last year’s sales.
+GPT data layer
+Database
+1. Query database using natural
+language.
+GPT functions
+APIs,
+web browsing,
+search, etc.
+All communication via natural language
+2. Annotate data by calling semantic
+functions using natural language.
+External agents
+GPT tools
+3. External agent formats data and
+may write code to generate visuals.
+Figure 11.1
+The agent planning process
+
+274
+CHAPTER 11
+Agent planning and feedback
+make the model appear more intelligent and capable. Therefore, in the next exercise,
+we’ll look at an example to set a baseline and differentiate between an LLM that can’t
+plan and an agent that can.
+For the next exercise, we’ll use Nexus to demonstrate how raw LLMs can’t plan
+independently. If you need assistance installing, setting up, and running Nexus, refer
+to chapter 7. After you have Nexus installed and ready, we can begin running it with
+the Gradio interface, using the commands shown next.
+nexus run gradio
+Gradio is an excellent web interface tool built to demonstrate Python machine learn-
+ing projects. Figure 11.2 shows the Gradio Nexus interface and the process for creat-
+ing an agent and using an agent engine (OpenAI, Azure, and Groq) of your choice.
+You can’t use LM Studio unless the model/server supports tool/action use. Anthropic’s
+Claude supports internal planning, so for the purposes of this exercise, avoid using
+this model.
+Listing 11.1
+Running Nexus with the Gradio interface
+Figure 11.2
+Creating a new agent in Nexus
+1. Select to create a new agent.
+2. Name your agent.
+3. Don’t worry about a system
+prompt or instructions.
+4. Select an engine. Note that each engine needs to
+be conﬁgured correctly to show in the list.
+5. Keep the default engine settings, model,
+temperature,
+, and max tokens.
+top_p
+6. Don’t worry about retrieval or
+advanced options for now.
+7. Click Add Agent when your agent
+conﬁguration is complete.
+When you start conversing
+with your agent,  you will need
+to create a new thread or use
+an existing thread.
+
+275
+11.1
+Planning: The essential tool for all agents/assistants
+After creating the agent, we want to give it specific actions (tools) to undertake or
+complete a goal. Generally, providing only the actions an agent needs to complete its
+goal is best for a few reasons:
+More actions can confuse an agent into deciding which to use or even how to
+solve a goal.
+APIs have limits on the number of tools that can be submitted; at the time of
+writing, hitting this limit is relatively easy.
+Agents may use your actions in ways you didn’t intend unless that’s your goal.
+Be warned, however, that actions can have consequences.
+Safety and security need to be considered. LLMs aren’t going to take over the
+world, but they make mistakes and quickly get off track. Remember, these
+agents will operate independently and may perform any action.
+WARNING
+While writing this book and working with and building agents over
+many hours, I have encountered several instances of agents going rogue with
+actions, from downloading files to writing and executing code when not
+intended, continually iterating from tool to tool, and even deleting files they
+shouldn’t have. Watching an agent emerge new behaviors using actions can
+be fun, but things can quickly go astray.
+For this exercise, we’ll define the goal described in the following listing.
+Search Wikipedia for pages on {topic} and download each page and save it
+to a file called Wikipedia_{topic}.txt
+This goal will demonstrate the following actions:
+
+search_wikipedia(topic)—Searches Wikipedia and returns page IDs for the
+given search term.
+
+get_wikipedia_page(page_id)—Downloads the page content given the page ID.
+
+save_file—Saves the content to a file.
+Set the actions on the agent, as shown in figure 11.3. You’ll also want to make sure the
+Planner is set to None. We’ll look at setting up and using planners soon. You don’t
+have to click Save; the interface automatically saves an agent’s changes.
+After you choose the actions and planner, enter the goal in listing 11.2. Then click
+Create New Thread to instantiate a new conversation. Substitute the topic you want to
+search for in the chat input, and wait for the agent to respond. Here’s an example of
+the goal filled with the topic, but again, use any topic you like:
+Search Wikipedia for pages on Calgary and download each page and save it to
+a file called Wikipedia_Calgary.txt.
+Listing 11.2
+Demonstrating planning: The goal
+
+276
+CHAPTER 11
+Agent planning and feedback
+Figure 11.4 shows the results of submitting the goal to the plain agent. We see the
+agent executed the tool/action to search for the topic but couldn’t execute any
+steps beyond that. If you recall from our discussion and code example of actions in
+chapter 5, OpenAI, Groq, and Azure OpenAI all support parallel actions but not
+sequential or planned actions.
+The LLM can answer reasonably well if you submit a goal with several parallel
+tasks/actions. However, if the actions are sequential, requiring one step to be depen-
+dent on another, it will fail. Remember, parallel actions are standalone actions that
+can be run alongside others.
+Select only the three actions:
+search_wikipedia,
+get_wikipedia_page, and
+save_ﬁle
+Make sure to select
+None for the Planner.
+Figure 11.3
+Selecting the actions for the agent and disabling the planner
+
+277
+11.2
+Understanding the sequential planning process
+Anthropic’s Claude and OpenAI Assistants support sequential action planning. This
+means both models can be called with sequential plans, and the model will execute them
+and return the results. In the next section, we’ll explore sequential planning and then
+demonstrate it in action.
+11.2
+Understanding the sequential planning process
+In the next exercise, we’ll ask an OpenAI assistant to solve the same goal. If you have
+Anthropic/Claude credentials and have the engine configured, you can also try this
+exercise with that model.
+Figure 11.5 shows the difference between executing tasks sequentially (planning)
+and using iteration. If you’ve used GPTs, assistants, or Claude Sonnet 3.5, you’ve likely
+already experienced this difference. These advanced tools already incorporate plan-
+ning by prompt annotations, advanced training, or combining both.
+As LLM and chat services evolve, most models will likely natively support some
+form of planning and tool use. However, most models, including GPT-4o, only sup-
+port action/tool use today.
+Let’s open the GPT Assistants Playground to demonstrate sequential planning in
+action. If you need help, refer to the setup guide in chapter 6. We’ll use the same goal
+but, this time, run it against an assistant (which has built-in planning).
+Figure 11.4
+The results from trying to get the agent/LLM to complete the goal
+
+278
+CHAPTER 11
+Agent planning and feedback
+After you launch the Playground, create a new assistant, and assign it the search_
+wikipedia, get_wikipedia_page, and save_file actions. Figure 11.6 shows the results
+of entering the goal to the assistant. As you can see, the assistant completed all the
+tasks behind the scenes and responded with the user’s final requested output, achiev-
+ing the goal.
+To demonstrate the effectiveness of the OpenAI Assistant’s planner, we added
+another task, summarizing each page, to the goal. The inserted task didn’t have a
+function/tool, but the assistant was savvy enough to use its ability to summarize the
+content. You can see the output of what the assistant produced by opening the [root
+folder]assistants_working_folder/Wikipedia_{topic}.txt file and reviewing the
+contents. Now that we understand how LLMs function without planners and plan-
+ning, we can move on to creating our planners in the next section.
+11.3
+Building a sequential planner
+LLM tools such as LangChain and Semantic Kernel (SK) have many planners using
+various strategies. However, writing our planner is relatively easy, and Nexus also sup-
+ports a plugin-style interface allowing you to add other planners from tools such as
+LangChain and SK, or your derivatives.
+Single prompt as a goal:
+search Wikipedia for topic, return
+the top page, and save to a ﬁle.
+Sequential execution of a goal
+Single prompt as a goal:
+search Wikipedia for topic, return
+the top page, and save to a ﬁle.
+Iterative execution of a goal
+Tasks/plan
+Returns a list of page IDs
+search_wikipedia(topic)
+Returns the page content
+get_wikipedia_page(page_id)
+Collects pages
+save_ le
+ﬁ
+All pages combined
+In a planner, this
+aggregation is
+performed
+internally.
+All tasks are
+performed
+internally by
+the agent.
+User submits a goal.
+search_wikipedia(topic)
+Results are displayed, and the
+agent asks to continue to the
+next step.
+Returns a list of page IDs
+get_wikipedia_page(page_id)
+User responds
+with continue.
+Returns are collected and
+displayed to the user. The agent
+asks for further continuation.
+Returns the page content
+save_ le
+ﬁ
+All pages combined
+User responds
+with continue.
+Goal is complete, and user has the output.
+Iterative
+execution
+is default
+behavior
+for an LLM.
+Sequential
+(planned)
+execution is
+standard in
+GPT
+Assistants
+and Claude.
+Figure 11.5
+The difference between iterative and planned execution
+
+279
+11.3
+Building a sequential planner
+Planners may sound complicated, but they are easily implemented through prompt
+engineering strategies that incorporate planning and reasoning. In chapter 10, we
+covered the basics of reasoning and deriving plans, and now we can put those skills to
+good use.
+Listing 11.3 shows a sequential planner derived from the SK, which is extended to
+incorporate iteration. Prompt annotation planners like those shown in the listing can
+be adapted to fit specific needs or be more general like those shown. This planner
+uses JSON, but planners could use any format an LLM understands, including code.
+
+
+
+No instructions are needed, but
+be sure to select the actions:
+search_wikipedia,
+get_wikipedia_page, and
+save_ﬁle
+Click the Logs tab as the assistant is
+running to see it work through the actions.
+In this example, the goal was extended
+to ask the assistant to summarize the
+content ﬁrst before saving it to a ﬁle.
+This is a single response from
+the assistant, which also
+included summarization of
+the content and conﬁrmation
+of the ﬁle save.
+Nexus and Playground have
+a feature that conﬁrms the
+ﬁle indeed was saved.
+Figure 11.6
+The assistant processing the goal and outputting the results
+
+280
+CHAPTER 11
+Agent planning and feedback
+You are a planner for Nexus.
+Your job is to create a properly formatted JSON plan step by step, to
+satisfy the goal given.
+Create a list of subtasks based off the [GOAL] provided.
+Each subtask must be from within the [AVAILABLE FUNCTIONS] list. Do not
+use any functions that are not in the list.
+Base your decisions on which functions to use from the description and the
+name of the function.
+Sometimes, a function may take arguments. Provide them if necessary.
+The plan should be as short as possible.
+You will also be given a list of corrective, suggestive and epistemic
+feedback from previous plans to help you make your decision.
+For example:
+[SPECIAL FUNCTIONS]
+for-each- prefix
+description: execute a function for each item in a list
+args:
+- function: the function to execute
+- list: the list of items to iterate over
+- index: the arg name for the current item in the list
+[AVAILABLE FUNCTIONS]
+GetJokeTopics
+description: Get a list ([str]) of joke topics
+EmailTo
+description: email the input text to a recipient
+args:
+- text: the text to email
+- recipient: the recipient's email address. Multiple addresses may be
+included if separated by ';'.
+Summarize
+description: summarize input text
+args:
+- text: the text to summarize
+Joke
+description: Generate a funny joke
+args:
+- topic: the topic to generate a joke about
+[GOAL]
+"Get a list of joke topics and generate a different joke for each topic.
+Email the jokes to a friend."
+[OUTPUT]
+{
+"subtasks": [
+{"function": "GetJokeTopics"},
+Listing 11.3
+basic_nexus_planner.py
+The preamble instructions telling the
+agent how to process the examples
+Beginning of the
+three (few-shot)
+examples
+
+281
+11.3
+Building a sequential planner
+{"function": "for-each",
+"args": {
+"list": "output_GetJokeTopics",
+"index": "topic",
+"function":
+{
+"function": "Joke",
+"args": {"topic": "topic"}}}},
+{
+"function": "EmailTo",
+"args": {
+"text": "for-each_output_GetJokeTopics"
+ecipient": "friend"}}
+]
+}
+# 2 more examples are given but omitted from this listing
+[SPECIAL FUNCTIONS]
+for-each
+description: execute a function for each item in a list
+args:
+- function: the function to execute
+- iterator: the list of items to iterate over
+- index: the arg name for the current item in the list
+[AVAILABLE FUNCTIONS]
+{{$available_functions}}
+[GOAL]
+{{$goal}}
+Be sure to only use functions from the list of available functions.
+The plan should be as short as possible.
+And only return the plan in JSON format.
+[OUTPUT]
+Figure 11.7 shows the process of building and running a planning prompt, from
+building to execution to finally returning the results to the user. Planners work by
+building a planning prompt, submitting it to an LLM to construct the plan, parsing
+and executing the plan locally, returning the results to an LLM to evaluate and sum-
+marize, and finally returning the final output back to the user.
+It’s essential to notice a few subtle details about the planning process. Typically, the
+plan is built in isolation by not adding context history. This is done to focus on the
+goal because most planning prompts consume many tokens. Executing the functions
+within the executor is usually done in a local environment and may include calling
+APIs, executing code, or even running machine learning models.
+Listing 11.4 shows the code for the create_plan function from the BasicNexus-
+Planner class; tools such as LangChain and SK use similar patterns. The process loads
+the agent’s actions as a string. The goal and available functions list are then inserted into
+the planner prompt template using the PromptTemplateManager, which is just a wrapper
+Adds the for-each
+special iterative
+function
+Available functions are
+autopopulated from the
+agent’s list of available
+functions.
+The goal is inserted here.
+Where the agent is expected
+to place the output
+
+282
+CHAPTER 11
+Agent planning and feedback
+for the template-handling code. Template handling is done with simple regex but can
+also be more sophisticated using tools such as Jinja2, Handlebars, or Mustache.
+def create_plan(self, nexus, agent, goal: str, prompt: str = PROMPT) -> Plan:
+selected_actions = nexus.get_actions(agent.actions)
+available_functions_string = "\n\n".join(
+format_action(action) for action in selected_actions
+)
+
+context = {}
+context["goal"] = goal
+context["available_functions"] = available_functions_string
+Listing 11.4
+basic_nexus_planner.py (create_plan)
+Execution is typically done
+in an environment local to
+the agent.
+The planning prompt
+adds the list of available
+functions and the goal to
+the prompt template.
+LLM
+LLM
+LLM
+Chat history
+Assembled results
+The plan
+Goal
+“Fetch, summarize, and send”
+Results of executed goal
+Execute the function to query the
+database for access to an API.
+Chat history
+Send the goal along with
+planning prompt.
+No history of other
+context is sent.
+Plan executor
+Each step of the plan is executed,
+and results are passed through LLM
+along with history.
+Use the output and other arguments
+to execute the actions/functions.
+Results are again sent through
+the LLM to summarize the output
+for the user.
+Planning prompt
+Figure 11.7
+The planning process for creating and executing a plan
+Loads the agent’s available actions and
+formats the result string for the planner
+The context will be injected into
+the planner prompt template.
+
+283
+11.3
+Building a sequential planner
+ptm = PromptTemplateManager()
+prompt = ptm.render_prompt(prompt, context)
+plan_text = nexus.execute_prompt(agent, prompt)
+return Plan(prompt=prompt,
+goal=goal,
+plan_text=plan_text)
+The code to execute the plan, shown in listing 11.5, parses the JSON string and exe-
+cutes the functions. When executing the plan, the code detects the particular for-each
+function, which iterates through a list and executes each element in a function. The
+results of each function execution are added to the context. This context is passed to
+each function call and returned as the final output.
+def execute_plan(self, nexus, agent, plan: Plan) -> str:
+context = {}
+plan = plan.generated_plan
+for task in plan["subtasks"]:
+if task["function"] == "for-each":
+list_name = task["args"]["list"]
+index_name = task["args"]["index"]
+inner_task = task["args"]["function"]
+list_value = context.get(list_name, [])
+for item in list_value:
+context[index_name] = item
+result = nexus.execute_task(agent, inner_task, context)
+context[f"for-each_{list_name}_{item}"] = result
+for_each_output = [
+context[f"for-each_{list_name}_{item}"] ➥
+for item in list_value
+]
+context[f"for-each_{list_name}"] = for_each_output
+
+for item in list_value:
+del context[f"for-each_{list_name}_{item}"]
+else:
+result = nexus.execute_task(agent,
+task,
+context)
+context[f"output_{task['function']}"] = result
+return context
+Listing 11.5
+basic_nexus_planner.py (execute_plan)
+A simple template
+manager, similar in
+concept to Jinja2,
+Handlebars, or
+Mustache
+Sends the filled-in
+planner prompt to
+the LLM
+The results (the plan) are wrapped in a
+Plan class and returned for execution.
+Iterates through each
+subtask in the plan
+Handles functions that
+should be iterated
+over and adds full list
+of results to the
+context
+Removes
+individual
+for-each
+context
+entries
+General task
+execution
+Returns the full context, which includes
+the results of each function call
+
+284
+CHAPTER 11
+Agent planning and feedback
+The returned context from the entire execution is sent in a final call to the LLM,
+which summarizes the results and returns a response. If everything goes as planned,
+the LLM will respond with a summary of the results. If there is an error or something
+is missing, the LLM may try to fix the problem or inform the user of the error.
+Let’s now open Nexus again and test a planner in operation. Load up the same
+agent you used last time, but select the planner under the Advanced options this time,
+as shown in figure 11.8. Then, enter the goal prompt as you did before, and let the
+agent take it away.
+After a few minutes, the agent returns with the saved file, and in some cases, it may
+provide extra information, such as the next steps and what to do with the output. This
+is because the agent was given a high-level overview of what it accomplished. Remem-
+ber, though, that plan execution is done at the local level, and only context, plan, and
+goal were sent to the LLM.
+Goal requiring multiple
+steps to complete
+The agent will execute the tasks and
+ﬁnish by outputting the ﬁle as well
+as suggesting next steps.
+Select the basic
+planner.
+Figure 11.8
+The results from requesting to complete the goal in Nexus using the basic planner
+
+285
+11.4
+Reviewing a stepwise planner: OpenAI Strawberry
+This means that plan execution can be completed by any process, not necessarily
+by the agent. Executing a plan outside the LLM reduces the tokens and tool use the
+agent needs to perform. This also means that an LLM doesn’t need to support tools
+usage to use a planner.
+Internally, when a planner is enabled within Nexus, the agent engine tool is
+bypassed. Instead, the planner completes the action execution, and the agent is only
+aware of the actions through the passing of the output context. This can be good for
+models that support tool use but can’t plan. However, a planner may limit functional-
+ity for models that support both tool use and planning, such as Claude.
+In general, you’ll want to understand the capabilities of the LLM you’re using. If
+you’re unsure of those details, then a little trial and error can also work. Ask the agent to
+complete a multistep goal with and without planning enabled, and then see the results.
+Planning allows agents to complete multiple sequential tasks to achieve more com-
+plex goals. The problem with external or prompt planning is that it bypasses the feed-
+back iteration loop, which can help correct problems quickly. Because of this, OpenAI
+and others are now directly integrating reasoning and planning at the LLM level, as
+we’ll see in the next section.
+11.4
+Reviewing a stepwise planner: OpenAI Strawberry
+The release of the o1-preview model, code named Strawberry, introduced a dra-
+matic shift in the type of LLMs becoming available for agentic systems. Strawberry
+was not only proclaimed to be more efficient at math, science, and general calcula-
+tion tasks but also able to engage in reasoning, planning, evaluation, and feedback
+directly in the LLM.
+Consider our time travel problem from chapter 10 and shown again in figure 11.9.
+If you recall, this problem was difficult to solve using GPT-4 and other similar LLMs.
+However, with the application of reasoning and feedback, we were able to produce
+output that was occasionally correct.
+As an experiment, enter this problem into ChatGPT using the o1-preview model,
+as shown in listing 11.6. Sit back for a few seconds and wait for the answer. Yep, the
+model still gets it wrong.
+In a sci-fi film, Alex is a time traveler who decides to go back in time
+to witness a famous historical battle that took place 100 years ago,
+which lasted for 10 days. He arrives three days before the battle starts.
+However, after spending six days in the past, he jumps forward in time
+by 50 years and stays there for 20 days. Then, he travels back to
+witness the end of the battle. How many days does Alex spend in the past
+before he sees the end of the battle?
+While it may be somewhat disappointing to see the model get the wrong answer, it
+does, however, do a far better job of breaking down the problem and demonstrating
+Listing 11.6
+Time travel reasoning/planning problem
+
+286
+CHAPTER 11
+Agent planning and feedback
+its answer. Listing 11.7 shows the sample output from posing the problem in listing
+11.6 to the Strawberry model. Note, you may get a different answer because of the sto-
+chastic nature of the LLM.
+To determine how many days Alex spends in the past before witnessing the
+end of the battle, let's reconstruct the timeline step by step:
+Arrival in the Past:
+Alex arrives 3 days before the battle begins.
+He spends these 3 days waiting for the battle to start.
+During the Battle:
+The battle starts, and Alex experiences the first 3 days of it.
+At this point, he has spent a total of 6 days in the past (3 days before
+the battle and 3 days during the battle).
+Time Jump Forward:
+After these 6 days, Alex jumps 50 years forward in time.
+He spends 20 days in this future time.
+Return to the Past:
+Alex then returns to the past to witness the end of the battle.
+Since the battle lasts 10 days and he left after day 3 of the battle,
+there are 7 days remaining in the battle.
+However, because he was away for 20 days, which is longer than the
+remaining 7 days of the battle, he must return to a point in time before
+the battle ends to witness its conclusion.
+To see the end of the battle, he returns to the past on the last day of
+Listing 11.7
+o1-preview response to time travel problem
+In a sci-ﬁﬁlm, Alex is a time traveler who decides to go back in
+time to witness a famous historical battle that took place 100 years ago,
+which lasted for 10 days. He arrives three days before the battle starts.
+However, after spending six days in the past, he jumps forward in time by

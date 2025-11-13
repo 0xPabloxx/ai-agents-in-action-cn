@@ -1,0 +1,150 @@
+================================================================================
+about this book
+================================================================================
+PDF: AI Agents in Action.pdf
+页码: 19 - 22
+================================================================================
+
+xvii
+about this book
+AI Agents in Action is about building and working with intelligent agent systems—not
+just creating autonomous entities but also developing agents that can effectively tackle
+and solve real-world problems. The book starts with the basics of working with large
+language models (LLMs) to build assistants, multi-agent systems, and agentic behav-
+ioral agents. From there, it explores the key components of agentic systems: retrieval
+systems for knowledge and memory augmentation, action and tool usage, reasoning,
+planning, evaluation, and feedback. The book demonstrates how these components
+empower agents to perform a wide range of complex tasks through practical examples.
+ This journey isn’t just about technology; it’s about reimagining how we approach
+problem solving. I hope this book inspires you to see intelligent agents as partners in
+innovation, capable of transforming ideas into actions in ways that were once thought
+impossible. Together, we’ll explore how AI can augment human potential, enabling us
+to achieve far more than we could alone.
+Who should read this book
+This book is for anyone curious about intelligent agents and how to develop agentic
+systems—whether you’re building your first helpful assistant or diving deeper into
+complex multi-agent systems. No prior experience with agents, agentic systems,
+prompt engineering, or working with LLMs is required. All you need is a basic under-
+standing of Python and familiarity with GitHub repositories. My goal is to make these
+concepts accessible and engaging, empowering anyone who wants to explore the
+world of AI agents to do so with confidence.
+
+ABOUT THIS BOOK
+xviii
+ Whether you’re a developer, researcher, or hobbyist or are simply intrigued by the
+possibilities of AI, this book is for you. I hope that in these pages you’ll find inspira-
+tion, practical guidance, and a new appreciation for the remarkable potential of intel-
+ligent agents. Let this book guide understanding, creating, and unleashing the power
+of AI agents in action.
+How this book is organized: A road map
+This book has 11 chapters. Chapter 1, “Introduction to agents and their world,”
+begins by laying a foundation with fundamental definitions of large language models,
+chat systems, assistants, and autonomous agents. As the book progresses, the discus-
+sion shifts to the key components that make up an agent and how these components
+work together to create truly effective systems. Here is a quick summary of chapters 2
+through 11:
+Chapter 2, “Harnessing the power of large language models”—We start by exploring
+how to use commercial LLMs, such as OpenAI. We then examine tools, such as
+LM Studio, that provide the infrastructure and support for running various
+open source LLMs, enabling anyone to experiment and innovate.
+Chapter 3, “Engaging GPT assistants”—This chapter dives into the capabilities of
+the GPT Assistants platform from OpenAI. Assistants are foundational agent
+types, and we explore how to create practical and diverse assistants, from culi-
+nary helpers to intern data scientists and even a book learning assistant.
+Chapter 4, “Exploring multi-agent systems”—Agentic tools have advanced signifi-
+cantly quickly. Here, we explore two sophisticated multi-agent systems: CrewAI
+and AutoGen. We demonstrate AutoGen’s ability to develop code autono-
+mously and see how CrewAI can bring together a group of joke researchers to
+create humor collaboratively.
+Chapter 5, “Empowering agents with actions”—Actions are fundamental to any
+agentic system. This chapter discusses how agents can use tools and functions to
+execute actions, ranging from database and application programming interface
+(API) queries to generating images. We focus on enabling agents to take mean-
+ingful actions autonomously.
+Chapter 6, “Building autonomous assistants”—We explore the behavior tree—a sta-
+ple in robotics and game systems—as a mechanism to orchestrate multiple
+coordinated agents. We’ll use behavior trees to tackle challenges such as code
+competitions and social media content creation.
+Chapter 7, “Assembling and using an agent platform”—This chapter introduces Nexus,
+a sophisticated platform for orchestrating multiple agents and LLMs. We discuss
+how Nexus facilitates agentic workflows and enables complex interactions between
+agents, providing an example of a fully functioning multi-agent environment.
+Chapter 8, “Understanding agent memory and knowledge”—Retrieval-augmented
+generation (RAG) has become an essential tool for extending the capabilities
+
+ABOUT THIS BOOK
+xix
+of LLM agents. This chapter explores how retrieval mechanisms can serve as
+both a source of knowledge by processing ingested files, and of memory, allow-
+ing agents to recall previous interactions or events.
+Chapter 9, “Mastering agent prompts with prompt flow”—Prompt engineering is cen-
+tral to an agent’s success. This chapter introduces prompt flow, a tool from Mic-
+rosoft that helps automate the testing and evaluation of prompts, enabling
+more robust and effective agentic behavior.
+Chapter 10, “Agent reasoning and evaluation”—Reasoning is crucial to solving
+problems intelligently. In this chapter, we explore various reasoning techniques,
+such as chain of thought (CoT), and show how agents can evaluate reasoning
+strategies even during inference, improving their capacity to solve problems
+autonomously.
+Chapter 11, “Agent planning and feedback”—Planning is perhaps an agent’s most crit-
+ical skill in achieving its goals. We discuss how agents can incorporate planning to
+navigate complex tasks and how feedback loops can be used to refine those plans.
+The chapter concludes by integrating all the key components—actions, memory
+and knowledge, reasoning, evaluation, planning, and feedback—into practical
+examples of agentic systems that solve real-world problems.
+About the code
+The code for this book is spread across several open source projects, many of which
+are hosted by me or by other organizations in GitHub repositories. Throughout this
+book, I strive to make the content as accessible as possible, taking a low-code approach
+to help you focus on core concepts. Many chapters demonstrate how simple prompts
+can generate meaningful code, showcasing the power of AI-assisted development.
+ Additionally, you’ll find a variety of assistant profiles and multi-agent systems that
+demonstrate how to solve real-world problems using generated code. These examples
+are meant to inspire, guide, and empower you to explore what is possible with AI
+agents. I am deeply grateful to the many contributors and the community members
+who have collaborated on these projects, and I encourage you to explore the reposito-
+ries, experiment with the code, and adapt it to your own needs. This book is a testa-
+ment to the power of collaboration and the incredible things we can achieve together.
+ This book contains many examples of source code both in numbered listings and in
+line with normal text. In both cases, source code is formatted in a fixed-width font
+like this to separate it from ordinary text. Sometimes, some of the code is typeset in
+bold to highlight code that has changed from previous steps in the chapter, such as
+when a feature is added to an existing line of code. In many cases, the original source
+code has been reformatted; we’ve added line breaks and reworked indentation to
+accommodate the available page space in the book. In some cases, even this wasn’t
+enough, and listings include line-continuation markers (➥). Additionally, comments in
+the source code have often been removed from the listings when the code is described
+
+ABOUT THIS BOOK
+xx
+in the text. Code annotations accompany many of the listings, highlighting important
+concepts.
+ You can get executable snippets of code from the liveBook (online) version of this
+book at https://livebook.manning.com/book/ai-agents-in-action. The complete code
+for the examples in the book is available for download from the Manning website at
+www.manning.com/books/ai-agents-in-action. In addition, the code developed for this
+book has been placed in three GitHub repositories that are all publicly accessible:
+GPT-Agents (the original book title), at https://github.com/cxbxmxcx/GPT-
+Agents, holds the code for several examples demonstrated in the chapters.
+GPT Assistants Playground, at https://github.com/cxbxmxcx/GPTAssistants
+Playground, is an entire platform and tool dedicated to building OpenAI GPT
+assistants with a helpful web user interface and plenty of tools to develop auton-
+omous agent systems.
+Nexus, at https://github.com/cxbxmxcx/Nexus, is an example of a web-based
+agentic tool that can help you create agentic systems and demonstrate various
+code challenges.
+liveBook discussion forum
+Purchase of AI Agents in Action includes free access to liveBook, Manning’s online
+reading platform. Using liveBook’s exclusive discussion features, you can attach com-
+ments to the book globally or to specific sections or paragraphs. It’s a snap to make
+notes for yourself, ask and answer technical questions, and receive help from the
+author and other users. To access the forum, go to https://livebook.manning.com/
+book/ai-agents-in-action/discussion. You can also learn more about Manning’s forums
+and the rules of conduct at https://livebook.manning.com/discussion.
+ Manning’s commitment to our readers is to provide a venue where a meaningful
+dialogue between individual readers and between readers and the author can take
+place. It isn’t a commitment to any specific amount of participation on the part of the
+author, whose contribution to the forum remains voluntary (and unpaid). We suggest
+you try asking the him challenging questions lest his interest stray! The forum and the
+archives of previous discussions will be accessible from the publisher’s website as long
+as the book is in print.

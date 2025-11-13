@@ -1,0 +1,46 @@
+Chapter 5: Harnessing the power of large language models
+Starting Page: 9
+================================================================================
+
+14
+2.1
+Mastering the OpenAI API
+16
+Connecting to the chat completions model
+16
+■Understanding the
+request and response
+18
+2.2
+Exploring open source LLMs with LM Studio
+20
+Installing and running LM Studio
+20
+■Serving an LLM locally
+with LM Studio
+23
+
+CONTENTS
+viii
+2.3
+Prompting LLMs with prompt engineering
+25
+Creating detailed queries
+28
+■Adopting personas
+29
+Using delimiters
+30
+■Specifying steps
+31
+■Providing
+examples
+32
+■Specifying output length
+33
+2.4
+Choosing the optimal LLM for your specific needs
+34
+2.5
+Exercises
+36

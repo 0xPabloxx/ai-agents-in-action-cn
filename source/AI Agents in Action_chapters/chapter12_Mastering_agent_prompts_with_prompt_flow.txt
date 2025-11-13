@@ -1,0 +1,44 @@
+Chapter 12: Mastering agent prompts with prompt flow
+Starting Page: 13
+================================================================================
+
+212
+9.1
+Why we need systematic prompt engineering
+213
+9.2
+Understanding agent profiles and personas
+216
+9.3
+Setting up your first prompt flow
+217
+Getting started
+218
+■Creating profiles with Jinja2
+templates
+222
+■Deploying a prompt flow API
+223
+9.4
+Evaluating profiles: Rubrics and grounding
+224
+9.5
+Understanding rubrics and grounding
+228
+9.6
+Grounding evaluation with an LLM profile
+230
+9.7
+Comparing profiles: Getting the perfect
+profile
+232
+Parsing the LLM evaluation output
+232
+■Running batch
+processing in prompt flow
+235
+■Creating an evaluation flow
+for grounding
+238
+■Exercises
+242

@@ -1,0 +1,34 @@
+Chapter 10: Assembling and using an agent platform
+Starting Page: 12
+================================================================================
+
+160
+7.1
+Introducing Nexus, not just another agent platform
+161
+Running Nexus
+162
+■Developing Nexus
+163
+7.2
+Introducing Streamlit for chat application
+development
+165
+Building a Streamlit chat application
+165
+■Creating a streaming
+chat application
+168
+7.3
+Developing profiles and personas for agents
+170
+7.4
+Powering the agent and understanding the agent
+engine
+172
+7.5
+Giving an agent actions and tools
+174
+7.6
+Exercises
+178

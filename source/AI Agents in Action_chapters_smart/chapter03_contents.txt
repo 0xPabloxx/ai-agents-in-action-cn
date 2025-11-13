@@ -1,0 +1,460 @@
+================================================================================
+contents
+================================================================================
+PDF: AI Agents in Action.pdf
+页码: 9 - 14
+================================================================================
+
+vii
+contents
+preface
+xiii
+acknowledgments
+xv
+about this book
+xvii
+about the author
+xxi
+about the cover illustration
+xxii
+1 Introduction to agents and their world
+1
+1.1
+Defining agents
+1
+1.2
+Understanding the component systems of an agent
+4
+1.3
+Examining the rise of the agent era: Why agents?
+9
+1.4
+Peeling back the AI interface
+11
+1.5
+Navigating the agent landscape
+12
+2 Harnessing the power of large language models
+14
+2.1
+Mastering the OpenAI API
+16
+Connecting to the chat completions model
+16
+■Understanding the 
+request and response
+18
+2.2
+Exploring open source LLMs with LM Studio
+20
+Installing and running LM Studio
+20
+■Serving an LLM locally 
+with LM Studio
+23
+
+CONTENTS
+viii
+2.3
+Prompting LLMs with prompt engineering
+25
+Creating detailed queries
+28
+■Adopting personas
+29
+Using delimiters
+30
+■Specifying steps
+31
+■Providing 
+examples
+32
+■Specifying output length
+33
+2.4
+Choosing the optimal LLM for your specific needs
+34
+2.5
+Exercises
+36
+3 Engaging GPT assistants
+39
+3.1
+Exploring GPT assistants through ChatGPT
+40
+3.2
+Building a GPT that can do data science
+44
+3.3
+Customizing a GPT and adding custom actions
+49
+Creating an assistant to build an assistant
+49
+■Connecting the 
+custom action to an assistant
+53
+3.4
+Extending an assistant’s knowledge using file uploads
+56
+Building the Calculus Made Easy GPT
+56
+■Knowledge search 
+and more with file uploads
+58
+3.5
+Publishing your GPT
+61
+Expensive GPT assistants
+62
+■Understanding the economics of 
+GPTs
+63
+■Releasing the GPT
+63
+3.6
+Exercises
+65
+4 Exploring multi-agent systems
+68
+4.1
+Introducing multi-agent systems with AutoGen Studio
+69
+Installing and using AutoGen Studio
+70
+■Adding skills in 
+AutoGen Studio
+72
+4.2
+Exploring AutoGen
+77
+Installing and consuming AutoGen
+77
+■Enhancing code output 
+with agent critics
+79
+■Understanding the AutoGen cache
+81
+4.3
+Group chat with agents and AutoGen
+82
+4.4
+Building an agent crew with CrewAI
+84
+Creating a jokester crew of CrewAI agents
+84
+■Observing agents 
+working with AgentOps
+87
+4.5
+Revisiting coding agents with CrewAI
+90
+4.6
+Exercises
+95
+
+CONTENTS
+ix
+5 Empowering agents with actions
+98
+5.1
+Defining agent actions
+99
+5.2
+Executing OpenAI functions
+101
+Adding functions to LLM API calls
+101
+■Actioning function 
+calls
+103
+5.3
+Introducing Semantic Kernel
+107
+Getting started with SK semantic functions
+108
+■Semantic 
+functions and context variables
+109
+5.4
+Synergizing semantic and native functions
+111
+Creating and registering a semantic skill/plugin
+111
+■Applying 
+native functions
+115
+■Embedding native functions within 
+semantic functions
+117
+5.5
+Semantic Kernel as an interactive service agent
+118
+Building a semantic GPT interface
+119
+■Testing semantic 
+services
+121
+■Interactive chat with the semantic service 
+layer
+122
+5.6
+Thinking semantically when writing semantic 
+services
+125
+5.7
+Exercises
+127
+6 Building autonomous assistants
+129
+6.1
+Introducing behavior trees
+130
+Understanding behavior tree execution
+131
+■Deciding on 
+behavior trees
+132
+■Running behavior trees with Python 
+and py_trees
+134
+6.2
+Exploring the GPT Assistants Playground
+136
+Installing and running the Playground
+136
+■Using and 
+building custom actions
+138
+■Installing the assistants 
+database
+140
+■Getting an assistant to run code locally
+140
+Investigating the assistant process through logs
+142
+6.3
+Introducing agentic behavior trees
+143
+Managing assistants with assistants
+143
+■Building a coding 
+challenge ABT
+145
+■Conversational AI systems vs. other 
+methods
+149
+■Posting YouTube videos to X
+150
+Required X setup
+151
+6.4
+Building conversational autonomous multi-agents
+153
+
+CONTENTS
+x
+6.5
+Building ABTs with back chaining
+155
+6.6
+Exercises
+156
+7 Assembling and using an agent platform
+160
+7.1
+Introducing Nexus, not just another agent platform
+161
+Running Nexus
+162
+■Developing Nexus
+163
+7.2
+Introducing Streamlit for chat application 
+development
+165
+Building a Streamlit chat application
+165
+■Creating a streaming 
+chat application
+168
+7.3
+Developing profiles and personas for agents
+170
+7.4
+Powering the agent and understanding the agent 
+engine
+172
+7.5
+Giving an agent actions and tools
+174
+7.6
+Exercises
+178
+8 Understanding agent memory and knowledge
+180
+8.1
+Understanding retrieval in AI applications
+181
+8.2
+The basics of retrieval augmented generation (RAG)
+182
+8.3
+Delving into semantic search and document 
+indexing
+184
+Applying vector similarity search
+184
+■Vector databases and 
+similarity search
+188
+■Demystifying document embeddings
+189
+Querying document embeddings from Chroma
+190
+8.4
+Constructing RAG with LangChain
+192
+Splitting and loading documents with LangChain
+192
+■Splitting 
+documents by token with LangChain
+195
+8.5
+Applying RAG to building agent knowledge
+196
+8.6
+Implementing memory in agentic systems
+200
+Consuming memory stores in Nexus
+202
+■Semantic memory and 
+applications to semantic, episodic, and procedural memory
+204
+8.7
+Understanding memory and knowledge 
+compression
+207
+8.8
+Exercises
+209
+
+CONTENTS
+xi
+9 Mastering agent prompts with prompt flow
+212
+9.1
+Why we need systematic prompt engineering
+213
+9.2
+Understanding agent profiles and personas
+216
+9.3
+Setting up your first prompt flow
+217
+Getting started
+218
+■Creating profiles with Jinja2 
+templates
+222
+■Deploying a prompt flow API
+223
+9.4
+Evaluating profiles: Rubrics and grounding
+224
+9.5
+Understanding rubrics and grounding
+228
+9.6
+Grounding evaluation with an LLM profile
+230
+9.7
+Comparing profiles: Getting the perfect 
+profile
+232
+Parsing the LLM evaluation output
+232
+■Running batch 
+processing in prompt flow
+235
+■Creating an evaluation flow 
+for grounding
+238
+■Exercises
+242
+10 Agent reasoning and evaluation
+244
+10.1
+Understanding direct solution prompting
+245
+Question-and-answer prompting
+246
+■Implementing few-shot 
+prompting
+248
+■Extracting generalities with zero-shot 
+prompting
+250
+10.2
+Reasoning in prompt engineering
+252
+Chain of thought prompting
+253
+■Zero-shot CoT 
+prompting
+257
+■Step by step with prompt chaining
+258
+10.3
+Employing evaluation for consistent solutions
+261
+Evaluating self-consistency prompting
+262
+■Evaluating tree of 
+thought prompting
+266
+10.4
+Exercises
+270
+11 Agent planning and feedback
+272
+11.1
+Planning: The essential tool for all agents/assistants
+273
+11.2
+Understanding the sequential planning process
+277
+11.3
+Building a sequential planner
+278
+11.4
+Reviewing a stepwise planner: OpenAI Strawberry
+285
+
+CONTENTS
+xii
+11.5
+Applying planning, reasoning, evaluation, and feedback to 
+assistant and agentic systems
+288
+Application of assistant/agentic planning
+288
+■Application of 
+assistant/agentic reasoning
+290
+■Application of evaluation to 
+agentic systems
+291
+■Application of feedback to agentic/assistant 
+applications
+293
+11.6
+Exercises
+296
+appendix A
+Accessing OpenAI large language models
+299
+appendix B
+Python development environment
+305
+index
+311

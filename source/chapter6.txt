@@ -1,0 +1,1416 @@
+130 CHAPTER 6 Building autonomous assistants
+ In the final section of the chapter, we’ll examine the use of the AgentOps platform
+to monitor our autonomous behavior-driven agentic systems. This will be an exciting
+chapter with several challenges. Let’s begin by jumping into the next section, which
+introduces behavior trees.
+6.1 Introducing behavior trees
+Behavior trees are a long-established pattern used to control robotics and AI in games.
+Rodney A. Brooks first introduced the concept in his “A Robust Layered Control Sys-
+tem for a Mobile Robot” paper in 1986. This laid the groundwork for a pattern that
+expanded on using the tree and node structure we have today.
+ If you’ve ever played a computer game with nonplayer characters (NPCs) or inter-
+acted with advanced robotic systems, you’ve witnessed behavior trees at work. Figure 6.1
+shows a simple behavior tree. The tree represents all the primary nodes: selector or
+fallback nodes, sequence nodes, action nodes, and condition nodes.
+Table 6.1 describes the functions and purpose of the primary nodes we’ll explore in
+this book. There are other nodes and node types, and you can even create custom
+nodes, but for now, we’ll focus on those in the table.
+Table 6.1 The primary nodes used in behavior trees
+Node Purpose Function Type
+Selector 
+(fallback)
+This node works by selecting the first 
+child that completes successfully. It’s 
+often called the fallback node 
+because it will always fall back to the 
+last successful node that executed.
+The node calls its children in 
+sequence and stops executing 
+when the first child succeeds. 
+When a child node succeeds, it will 
+return success; if no nodes suc-
+ceed, it returns failure.
+Composite
+→
+??
+→ →
+The root node can be any
+composite node, such as
+selector or sequence.
+Execution ﬂows from
+top to bottom and
+then from left to right.
+1
+2
+3 4
+5
+6 7
+Figure 6.1 A simple behavior tree of eating an apple or a pear
+
+1316.1 Introducing behavior trees
+The primary nodes in table 6.1 can provide enough functionality to handle numerous
+use cases. However, understanding behavior trees initially can be daunting. You won’t
+appreciate their underlying complexity until you start using them. Before we build
+some simple trees, we want to look at execution in more detail in the next section.
+6.1.1 Understanding behavior tree execution
+Understanding how behavior trees execute is crucial to designing and implementing
+behavior trees. Unlike most concepts in computer science, behavior trees operate in
+terms of success and failure. When a node in a behavior tree executes, it will return
+either success or failure; this even applies to conditions and selector nodes.
+ Behavior trees execute from top to bottom and left to right. Figure 6.2 shows
+the process and what happens if a node fails or succeeds. In the example, the AI
+the tree controls has an apple but no pear. In the first sequence node, a condition
+checks if the AI has an apple. Because the AI doesn’t have an apple, it aborts the
+sequence and falls back to the selector. The selector then selects its next child
+node, another sequence, that checks if the AI has a pear, and because it does, the
+AI eats the apple.
+Sequence This node executes all of its children 
+in sequence until one node fails or 
+they all complete successfully.
+The node calls each of its children 
+in sequence regardless of whether 
+they fail or succeed. If all children 
+succeed, it returns success, and 
+failure if just one child fails.
+Composite
+Condition Behavior trees don’t use Boolean 
+logic but rather success or failure 
+as a means of control. The condition 
+returns success if the condition is 
+true and false otherwise.
+The node returns success or failure 
+based on a condition.
+Task
+Action This is where the action happens. The node executes and returns suc-
+cess if successful or returns failure 
+otherwise.
+Task
+Decorator They work by controlling the execu-
+tion of child nodes. They are often 
+referred to as conditionals because 
+they can determine whether a node is 
+worth executing or safe to execute. 
+The node controls execution of 
+the child nodes. Decorators can 
+operate as control barrier functions 
+to block or prevent unwanted 
+behaviors.
+Decorator
+Parallel This node executes all of its nodes in 
+parallel. Success or failure is con-
+trolled by a threshold of the number 
+of children needed to succeed to 
+return success.
+The node executes all of its child 
+nodes in sequence regardless of 
+the status of the nodes.
+Composite
+Table 6.1 The primary nodes used in behavior trees  (continued)
+Node Purpose Function Type
+
+132 CHAPTER 6 Building autonomous assistants
+Behavior trees provide control over how an AI system will execute at a macro or micro
+level. Regarding robotics, behavior trees will typically be designed to operate at the
+micro level, where each action or condition is a small event, such as detecting the
+apple. Conversely, behavior trees can also control more macro systems, such as NPCs
+in games, where each action may be a combination of events, like attacking the player.
+ For agentic systems, behavior trees support controlling an agent or assistant at
+your chosen level. We’ll explore controlling agents at the task and, in later chapters,
+the planning levels. After all, with the power of LLMs, agents can construct their own
+behavior tree.
+ Of course, several other forms of AI control could be used to control agentic sys-
+tems. The next section will examine those different systems and compare them to
+behavior trees.
+6.1.2 Deciding on behavior trees
+Numerous other AI control systems have benefits and are worth exploring in con-
+trolling agentic systems. They can demonstrate the benefits of behavior trees and pro-
+vide other options for specific use cases. The behavior tree is an excellent pattern, but
+it isn’t the only one, and it’s worth learning about others.
+ Table 6.2 highlights several other systems we may consider for controlling AI sys-
+tems. Each item in the table describes what the method does, its shortcomings, and its
+possible application to agentic AI control.
+ 
+The root node
+executes according
+to its composite type.
+Sequence nodes execute
+all child nodes in order; if
+a node fails, the sequence
+fails.
+If the previous node in
+a sequence fails, the
+sequence is aborted.
+In this example, the AI has the
+pear, which returns success
+and then eats the pear.
+Node success/failure
+ﬂows back to the
+parent node.
+Selector nodes execute
+all children and return
+success on the ﬁrst child
+that returns success.
+?
+→ →
+1
+2
+3
+4
+6 7
+Figure 6.2 The execution process of a simple behavior tree
+
+1336.1 Introducing behavior trees
+Table 6.2 Comparison of other AI control systems
+Control name Description Shortcomings Control agentic AI?
+Finite state 
+machinea (FSM)
+FSMs model AI using a set 
+of states and transitions 
+triggered by events or 
+conditions.
+FSMs can become 
+unwieldy with increasing 
+complexity.
+FSMs aren’t practical for 
+agents because they don’t 
+scale well.
+Decision treeb Decision trees use a 
+tree-like model of deci-
+sions and their possible 
+consequences.
+Decision trees can suffer 
+from overfitting and lack 
+generalization in complex 
+scenarios.
+Decision trees can be 
+adapted and enhanced 
+with behavior trees.
+Utility-based 
+systemb
+Utility functions evaluate 
+and select the best action 
+based on the current 
+situation.
+These systems require 
+careful design of utility 
+functions to balance 
+priorities.
+This pattern can be 
+adopted within a behavior 
+tree.
+Rule-based 
+systema
+This set of if-then rules 
+define the behavior of 
+the AI.
+These systems can 
+become cumbersome with 
+many rules, leading to 
+potential conflicts.
+These aren’t very practical 
+when paired with agentic 
+systems powered by 
+LLMs.
+Planning sys-
+temc
+Planning systems gener-
+ate a sequence of actions 
+to achieve a specific goal 
+using planning algorithms.
+These systems are com-
+putationally expensive and 
+require significant domain 
+knowledge.
+Agents can already imple-
+ment such patterns on 
+their own as we’ll see in 
+later chapters.
+Behavioral 
+cloningc
+Behavioral cloning 
+refers to learning policies 
+by mimicking expert 
+demonstrations.
+This system may struggle 
+with generalization to 
+unseen situations.
+This can be incorporated 
+into behavior trees or into 
+a specific task.
+Hierarchical 
+Task Network 
+(HTN)d
+HTNs decompose tasks 
+into smaller, manageable 
+subtasks arranged in a 
+hierarchy.
+These are complex to 
+manage and design for 
+very large tasks.
+HTNs allow for better orga-
+nization and execution of 
+complex tasks. This pat-
+tern can be used for larger 
+agentic systems.
+Blackboard 
+systemb
+These systems feature 
+collaborative problem-solv-
+ing using a shared black-
+board for different 
+subsystems.
+These systems are diffi-
+cult to implement and 
+manage communication 
+between subsystems.
+Agentic systems can 
+implement similar pat-
+terns using conversation 
+or group chats/threads.
+Genetic 
+algorithm (GA)d
+These optimization tech-
+niques are inspired by 
+natural selection to 
+evolve solutions to 
+solve problems.
+GAs are computationally 
+intensive and may not 
+always find the optimal 
+solution.
+GAs have potential and 
+could even be used to 
+optimize behavior trees.
+a Not practical when considering complex agentic systems
+b Exists in behavior trees or can easily be incorporated
+c Typically applied at the task or action/condition level
+d Advanced systems that would require heavy lifting when applied to agents
+
+134 CHAPTER 6 Building autonomous assistants
+In later chapters of this book, we’ll investigate some of the patterns discussed in
+table 6.2. Overall, several patterns can be enhanced or incorporated using behavior
+trees as the base. While other patterns, such as FSMs, may be helpful for small experi-
+ments, they lack the scalability of behavior trees.
+ Behavior trees can provide several benefits as an AI control system, including scal-
+ability. The following list highlights other notable benefits of using behavior trees:
+ Modularity and reusability—Behavior trees promote a modular approach to design-
+ing behaviors, allowing developers to create reusable components. Nodes in a
+behavior tree can be easily reused across different parts of the tree or even in
+different projects, enhancing maintainability and reducing development time.
+ Scalability—As systems grow in complexity, behavior trees handle the addition
+of new behaviors more gracefully than other methods, such as FSMs. Behavior
+trees allow for the hierarchical organization of tasks, making it easier to manage
+and understand large behavior sets.
+ Flexibility and extensibility —Behavior trees offer a flexible framework where new
+nodes (actions, conditions, decorators) can be added without drastically alter-
+ing the existing structure. This extensibility makes it straightforward to intro-
+duce new behaviors or modify existing ones to adapt to new requirements.
+ Debugging and visualization —Behavior trees provide a clear and intuitive visual
+representation of behaviors, which is beneficial for debugging and understand-
+ing the decision-making process. Tools that support behavior trees often
+include graphical editors that allow developers to visualize and debug the tree
+structure, making it easier to identify and fix problems.
+ Decoupling of decision logic —Behavior trees separate the decision-making and
+execution logic, promoting a clear distinction between high-level strategy and
+low-level actions. This decoupling simplifies the design and allows for more
+straightforward modifications and testing of specific behavior parts without
+affecting the entire system.
+Having made a strong case for behavior trees, we should now consider how to imple-
+ment them in code. In the next section, we look at how to build a simple behavior
+tree, using Python code.
+6.1.3 Running behavior trees with Python and py_trees
+Because behavior trees have been around for so long and have been incorporated into
+many technologies, creating a sample demonstration is very simple. Of course, the easi-
+est way is to ask ChatGPT or your favorite AI chat tool. Listing 6.1 shows the result of
+using a prompt to generate the code sample and submitting figure 6.1 as the example
+tree. The final code had to be corrected for simple naming and parameter errors.
+NOTE All the code for this chapter can be found by downloading the GPT
+Assistants Playground project at https:/ /mng.bz/Ea0q.
+
+1356.1 Introducing behavior trees
+import py_trees
+class HasApple(py_trees.behaviour.Behaviour):     
+    def __init__(self, name):
+        super(HasApple, self).__init__(name)
+    def update(self):        
+        if True:  
+            return py_trees.common.Status.SUCCESS
+        else:
+            return py_trees.common.Status.FAILURE
+# Other classes omitted…
+has_apple = HasApple(name="Has apple")     
+eat_apple = EatApple(name="Eat apple")     
+sequence_1 = py_trees.composites.Sequence(name="Sequence 1", memory=True)
+sequence_1.add_children([has_apple, eat_apple])                             
+has_pear = HasPear(name="Has pear")        
+eat_pear = EatPear(name="Eat pear")        
+sequence_2 = py_trees.composites.Sequence(name="Sequence 2", memory=True)
+sequence_2.add_children([has_pear, eat_pear])                               
+root = py_trees.composites.Selector(name="Selector", memory=True)
+root.add_children([sequence_1, sequence_2])                                 
+behavior_tree = py_trees.trees.BehaviourTree(root)    
+py_trees.logging.level = py_trees.logging.Level.DEBUG   
+for i in range(1, 4):                                                     
+    print("\n------------------ Tick {0} ------------------".format(i))
+    behavior_tree.tick()                                                  
+### Start of output
+------------------ Tick 1 ------------------
+[DEBUG] Selector             : Selector.tick()
+[DEBUG] Selector             : Selector.tick() [!RUNNING->reset current_child]
+[DEBUG] Sequence 1           : Sequence.tick()
+[DEBUG] Has apple            : HasApple.tick()
+[DEBUG] Has apple            : HasApple.stop(Status.INVALID->Status.SUCCESS)
+[DEBUG] Eat apple            : EatApple.tick()
+Eating apple
+[DEBUG] Eat apple            : EatApple.stop(Status.INVALID->Status.SUCCESS)
+[DEBUG] Sequence 1           : Sequence.stop()[Status.INVALID->Status.SUCCESS]
+The code in listing 6.1 represents the behavior tree in figure 6.1. You can run this
+code as is or alter what the conditions return and then run the tree again. You can
+also change the behavior tree by removing one of the sequence nodes from the root
+selector.
+ Now that we have a basic understanding of behavior trees, we can move on to
+working with agents/assistants. Before doing that, we’ll look at a tool to help us work
+Listing 6.1 first_btree.py
+Creates a class to implement 
+an action or condition
+Creates the action 
+and condition nodes
+Adds the nodes to
+their respective
+parents
+Creates the action 
+and condition nodes
+Creates the whole 
+behavior tree
+Executes one step/tick
+on the behavior tree
+
+136 CHAPTER 6 Building autonomous assistants
+with OpenAI Assistants. This tool will help us wrap our first ABTs around OpenAI
+Assistants.
+6.2 Exploring the GPT Assistants Playground
+For the development of this book, several GitHub projects were created to address var-
+ious aspects of building agents and assistants. One such project, the GPT Assistants
+Playground, is built using Gradio for the interface that mimics the OpenAI Assistants
+Playground but with several extras added.
+ The Playground project was developed as both a teaching and demonstration aid.
+Inside the project, the Python code uses the OpenAI Assistants API to create a chat inter-
+face and an agentic system to build and power assistants. There is also a comprehensive
+collection of actions assistants you can use, and you can easily add your own actions.
+6.2.1 Installing and running the Playground
+The following listing shows installing and running the Playground project from the
+terminal. There is currently no PyPI package to install. 
+# change to a working folder and create a new Python virtual environment
+git clone 
+➥ https://github.com/cxbxmxcx/GPTAssistantsPlayground    
+cd GPTAssistantsPlayground     
+pip install -r requirements.txt     
+You can run the application from the terminal or using Visual Studio Code (VS
+Code), with the latter giving you more control. Before running the application, you
+need to set your OpenAI API key through the command line or by creating an .env
+file, as we’ve done a few times already. Listing 6.3 shows an example of setting the
+environment variable on Linux/Mac or the Git Bash shell (Windows recommended)
+and running the application.
+export OPENAI_API_KEY="your-api-key"     
+python main.py    
+Open your browser to the URL displayed (typically http://127.0.0.1:7860) or what
+is mentioned in the terminal. You’ll see an interface similar to that shown in figure 6.3.
+Listing 6.2 Installing the GPT Assistants Playground
+Listing 6.3 Running the GPT Assistants Playground
+Pulls the 
+source code 
+from GitHub
+Changes directory to the 
+project source code folder
+Installs the
+requirements
+Sets your API key as an 
+environment variable
+Runs the app from the 
+terminal or via VS Code
+
+1376.2 Exploring the GPT Assistants Playground
+If you’ve already defined the OpenAI Assistants, you’ll see them in the Select Assistant
+dropdown.
+If you’ve never defined an assistant, you can create one and choose the various
+options and instructions you need. If you’ve visited the OpenAI Playground, you’ve
+already experienced a similar interface. 
+GPT vs. an assistant
+OpenAI defines a GPT as the assistant you can run and use within the ChatGPT inter-
+face. An assistant can only be consumed through the API and requires custom code
+in most cases. When you run an assistant, you’re charged according to the model
+token usage and any special tools, including the Code Interpreter and files, whereas
+a GPT runs within ChatGPT and is covered by account costs.
+Select an existing Assistant
+or create a new assistant.
+Select from any
+available models.
+Select the Tools
+and Actions.
+The assistant
+can output ﬁles
+created by the
+Code Interpreter.
+Figure 6.3 The GPT Assistants Playground interface being used to learn math
+
+138 CHAPTER 6 Building autonomous assistants
+Each of these features is covered in more detail over the next few sections. We’ll start
+with a look at using and consuming actions in the next section.
+6.2.2 Using and building custom actions
+Actions and tools are the building blocks that empower agents and assistants. Without
+access to tools, agents are functionless chatbots. The OpenAI platform is a leader in
+establishing many of the patterns for tools, as we saw in chapter 3.
+ The Playground provides several custom actions that can be attached to assistants
+through the interface. In this next exercise, we’ll build a simple assistant and attach a
+couple of custom actions to see what is possible.
+ Figure 6.4 shows the expanded Actions accordion, which displays many available
+custom actions. Run the Playground from the terminal or debugger, and create a new
+assistant. Then, select the actions shown in the figure. After you’re done selecting the
+actions, scroll to the bottom, and click Add Assistant to add the assistant. Assistants
+need to be created before they can be used.
+ After you create the assistant, you can ask it to list all available assistants. Listing the
+assistants also gives you the IDs required to call the assistant. You can also call other
+assistants and ask them to complete tasks in their area of specialization.
+ Adding your custom actions is as simple as adding code to a file and dropping it in
+the right folder. Open the playground/assistant_actions folder from the main
+project folder, and you’ll see several files that define the various actions. Open the
+file_actions.py file in VS Code, as shown in listing 6.4.
+ 
+ 
+ 
+(continued)
+The reason for creating a local version of the Playground was an exercise to demon-
+strate the code structure but also provide additional features listed here:
+ Actions (custom actions) —Creating your own actions allows you to add any
+functionality you want to an assistant. As we’ll see, the Playground makes it
+very easy to create your own actions quickly.
+ Code runner—The API does come with a Code Interpreter, but it’s relatively
+expensive ($.03 per run), doesn’t allow you to install your modules, can’t run
+code interactively, and runs slowly. The Playground will enable you to run
+Python code locally in an isolated virtual environment. While not as secure as
+pushing code out to Docker images, it does execute code windowed and out
+of process better than other platforms.
+ Transparency and logging —The Playground provides for comprehensive cap-
+turing of logs and will even show how the assistant uses internal and external
+tools/actions. This can be an excellent way to see what the assistant is doing
+behind the scenes.
+
+1396.2 Exploring the GPT Assistants Playground
+import os
+from playground.actions_manager import agent_action
+OUTPUT_FOLDER = "assistant_outputs"
+@agent_action    
+def save_file(filename, content):     
+    """
+    Save content to a file.     
+    :param filename: The name of the file including extension.
+    :param content: The content to save in the file.
+    """
+    file_path = os.path.join(OUTPUT_FOLDER, filename)
+    with open(file_path, "w", encoding="utf-8") as file:
+        file.write(content)
+    print(f"File '{filename}' saved successfully.")     
+Listing 6.4 playground/assistant_actions/file_actions.py
+Name your assistant
+a memorable name.
+Ask to list the assistants, and you’ll
+see all the assistants you've created.
+Select call_assistant
+and list_assistants.
+The call_assistant action allows
+the assistant to delegate work
+to other assistants.
+You don’t need any
+special instructions.
+Disable or enable the Code
+Interpreter to see the effect.
+Figure 6.4 Selecting and using custom actions in the interface
+This decorator 
+automatically adds the 
+function as an action.
+Give your functions 
+clear names that align 
+with the purpose.
+The description is what 
+the assistant uses to 
+determine the function, 
+so document it well.
+Generally returns 
+a message stating 
+success or failure
+
+140 CHAPTER 6 Building autonomous assistants
+You can add any custom action you want by placing the file in the assistant_actions
+folder and decorating it with the agent_action decorator. Just make sure to give the
+function a good name and enter quality documentation for how the function should
+be used. When the Playground starts up, it loads all the actions in the folder that are
+decorated correctly and have descriptions/documentation.
+ It’s that simple. You can add several custom actions as needed. In the next section,
+we’ll look at a special custom action that allows the assistant to run code locally.
+6.2.3 Installing the assistants database
+To run several of the examples in this chapter, you’ll need to install the assistants data-
+base. Fortunately, this can be easily done through the interface and just by asking
+agents. The upcoming instructions detail the process for installing the assistants and
+are taken directly from the GPT Assistants Playground README. You can install sev-
+eral of the demo assistants located in the assistants.db SQLite database:
+1 Create a new assistant, or use an existing assistant.
+2 Give the assistant the create_manager_assistant action (found under the
+Actions section).
+3 Ask the assistant to create the manager assistant (i.e., “please create the man-
+ager assistant”), and be sure to name the assistant “Manager Assistant.”
+4 Refresh your browser to reload the assistants selector.
+5 Select the new Manager Assistant. This assistant has the instructions and actions
+that will allow it to install assistants from the assistants.db database.
+6 Talk to the Manager Assistant to give you a list of assistants to install, or just ask
+the Manager Assistant to install all available assistants. 
+6.2.4 Getting an assistant to run code locally
+Getting agents and assistants to generate and run executable code has a lot of power.
+Unlike the Code Interpreter, running code locally provides numerous opportunities
+to iterate and tune quickly. We saw this earlier with AutoGen, where the agents could
+keep running the code until it worked as expected.
+ In the Playground, it’s a simple matter to select the custom action run_code, as
+shown in figure 6.5. You’ll also want to choose the run_shell_command action because
+it allows the assistant to pip install any required modules.
+
+1416.2 Exploring the GPT Assistants Playground
+You can now ask an assistant to generate and run the code to be sure it works on your
+behalf. Try this out by adding the custom actions and asking the assistant to generate
+and run code, as shown in figure 6.6. If the code doesn’t work as expected, tell the
+assistant what problems you encountered.
+ Again, the Python code running in the Playground creates a new virtual environ-
+ment in a project subfolder. This system works well if you’re not running any operat-
+ing system–level code or low-level code. If you need something more robust, a good
+option is AutoGen, which uses Docker containers to run isolated code.
+ Adding actions to run code or other tasks can make assistants feel like a black box.
+Fortunately, the OpenAI Assistants API allows you to consume events and see what the
+assistant is doing behind the scenes. In the next section, we’ll see what this looks like.
+Do not select the
+Code Interpreter tool.
+Select both the run_code and
+run_shell_command custom
+actions. Running commands on
+the shell allows an assistant to
+install new packages as required.
+Figure 6.5 Selecting custom actions for the assistant to run Python code
+
+142 CHAPTER 6 Building autonomous assistants
+6.2.5 Investigating the assistant process through logs
+OpenAI added a feature into the Assistants API that allows you to listen to events and
+actions chained through tool/action use. This feature has been integrated into the
+Playground, capturing action and tool use when an assistant calls another assistant. 
+ We can try this by asking an assistant to use a tool and then open the log. A great
+example of how you can do this is by giving an assistant the Code Interpreter tool and
+then asking it to plot an equation. Figure 6.7 shows an example of this exercise.
+ Usually, when the Assistant Code Interpreter tool is enabled, you don’t see any
+code generation or execution. This feature allows you to see all tools and actions used
+by the assistant as they happen. Not only is it an excellent tool for diagnostics, but it
+also provides additional insights into the functions of LLMs.
+ We haven’t reviewed the code to do all this because it’s extensive and will likely
+undergo several changes. That being said, if you plan on working with the Assistants
+API, this project is a good place to start. With the Playground introduced, we can con-
+tinue our journey into ABTs in the next section.
+Any assistant can generate code. Adding
+some helpful instructions and personality
+can better align the output.
+The “snake” game will open a new window
+demonstrating the code is running.
+Note: While the window is open, it will
+block the Gradio interface.
+In this example, the assistant generated
+the code for the game and then realized
+it need to install Pygame. After installing,
+it ran the code, as shown in the side window.
+Figure 6.6 Getting the assistant to generate and run Python code
+
+1436.3 Introducing agentic behavior trees
+6.3 Introducing agentic behavior trees
+Agentic behavior trees (ABTs) implement behavior trees on assistant and agent sys-
+tems. The key difference between regular behavior trees and ABTs is that they use
+prompts to direct actions and conditions. Because prompts may return a high occur-
+rence of random results, we could also name these trees stochastic behavior trees,
+which do exist. For simplicity, we’ll differentiate behavior trees used to control agents,
+referring to them as agentic.
+ Next, we’ll undertake an exercise to create an ABT. The finished tree will be writ-
+ten in Python but will require the setup and configuration of various assistants. We’ll
+cover how to manage assistants using the assistants themselves.
+6.3.1 Managing assistants with assistants
+Fortunately, the Playground can help us quickly manage and create the assistants.
+We’ll first install the Manager Assistant, followed by installing the predefined assis-
+tants. let’s get started with installing the Manager Assistant using the following steps:
+The Logs tab shows
+where ﬁles are saved.
+Code being generated and run in the Code
+Interpreter is shown in the Logs tab.
+Plotting a graph
+is a good test
+Figure 6.7 Internal assistant logs being captured
+
+144 CHAPTER 6 Building autonomous assistants
+1 Open Playground in your browser, and create a new simple assistant or use an
+existing assistant. If you need a new assistant, create it and then select it.
+2 With the assistant selected, open the Actions accordion, and select the create_
+manager_assistant action. You don’t need to save; the interface will update
+the assistant automatically.
+3 Now, in the chat interface, prompt the assistant with the following: “Please cre-
+ate the manager assistant.”
+4 After a few seconds, the assistant will say it’s done. Refresh your browser, and
+confirm that the Manager Assistant is now available. If, for some reason, the
+new assistant isn’t shown, try restarting the Gradio app itself.
+The Manager Assistant is like an admin that has access to everything. When engag-
+ing the Manager Assistant, be sure to be specific about your requests. With the Man-
+ager Assistant active, you can now install new assistants used in the book using the
+following steps:
+1 Select the Manager Assistant. If you’ve modified the Manager Assistant, you can
+delete it and reinstall it anytime. Although it’s possible to have multiple Man-
+ager Assistants, it’s not recommended.
+2 Ask the Manager Assistant what assistants can be installed by typing the follow-
+ing in the chat interface:
+Please list all the installable assistants.
+3 Identify which assistant you want installed when you ask the Manager Assistant
+to install it:
+Please install the Python Coding Assistant.
+You can manage and install any available assistants using the Playground. You can also
+ask the Manager Assistant to save the definitions of all your assistants as JSON:
+Please save all the assistants as JSON to a file called assistants.json.
+The Manager Assistant can access all actions, which should be considered unique and
+used sparingly. When crafting assistants, it’s best to keep them goal specific and limit
+the actions to just what they need. This not only avoids giving the AI too many deci-
+sions but also avoids accidents or mistakes caused by hallucinations.
+ As we go through the remaining exercises in this chapter, you’ll likely need to
+install the required assistants. Alternatively, you can ask the Manager Assistant to
+install all available assistants. Either way, we look at creating an ABT with assistants in
+the next section.
+
+1456.3 Introducing agentic behavior trees
+6.3.2 Building a coding challenge ABT
+Coding challenges provide a good baseline for testing and evaluating agent and assis-
+tant systems. Challenges and benchmarks can quantify how well an agent or agentic
+system operates. We already applied coding challenges to multi-platform agents in
+chapter 4 with AutoGen and CrewAI.
+ For this coding challenge, we’re going a little further and looking at Python cod-
+ing challenges from the Edabit site ( https:/ /edabit.com), which range in complexity
+from beginner to expert. We’ll stick with the expert code challenges because GPT-4o
+and other models are excellent coders. Look at the challenge in the next listing, and
+think about how you would solve it.
+Plant the Grass by AniXDownLoe
+    You will be given a matrix representing a field g 
+and two numbers x, y coordinate.
+    There are three types of possible characters in the matrix:
+        x representing a rock.
+        o representing a dirt space.
+        + representing a grassed space.
+    You have to simulate grass growing from the position (x, y). 
+    Grass can grow in all four directions (up, left, right, down). 
+    Grass can only grow on dirt spaces and can't go past rocks.
+    Return the simulated matrix.
+    Examples
+    simulate_grass([
+    "xxxxxxx",
+    "xooooox",
+    "xxxxoox"
+    "xoooxxx"
+    "xxxxxxx"
+    ], 1, 1) → [
+    "xxxxxxx",
+    "x+++++x",
+    "xxxx++x"
+    "xoooxxx"
+    "xxxxxxx"
+    ]
+    Notes
+    There will always be rocks on the perimeter
+You can use any challenge or coding exercise you want, but here are a few things to
+consider:
+Listing 6.5 Edabit challenge: Plant the Grass
+
+146 CHAPTER 6 Building autonomous assistants
+ The challenge should be testable with quantifiable assertions (pass/fail).
+ Avoid opening windows when asking for a game, building a website, or using
+another interface. At some point, testing full interfaces will be possible, but for
+now, it’s just text output.
+ Avoid long-running challenges, at least initially. Start by keeping the challenges
+concise and short lived. 
+Along with any challenge, you’ll also want a set of tests or assertions to confirm the
+solution works. On Edabit, a challenge typically provides a comprehensive set of tests.
+The following listing shows the additional tests provided with the challenge.
+Test.assert_equals(simulate_grass(
+["xxxxxxx","xooooox","xxxxoox","xoooxxx","xxxxxxx"],
+ 1, 1), 
+["xxxxxxx","x+++++x","xxxx++x","xoooxxx","xxxxxxx"])
+    Test.assert_equals(simulate_grass(
+["xxxxxxx","xoxooox","xxoooox","xooxxxx",
+"xoxooox","xoxooox","xxxxxxx"],
+ 2, 3), ["xxxxxxx","xox+++x","xx++++x","x++xxxx",
+"x+xooox","x+xooox","xxxxxxx"])
+    Test.assert_equals(simulate_grass(
+["xxxxxx","xoxoox","xxooox","xoooox","xoooox","xxxxxx"], 
+1, 1), 
+["xxxxxx","x+xoox","xxooox","xoooox","xoooox","xxxxxx"])
+    Test.assert_equals(simulate_grass(
+["xxxxx","xooox","xooox","xooox","xxxxx"], 
+1, 1),
+["xxxxx","x+++x","x+++x","x+++x","xxxxx"])
+    Test.assert_equals(simulate_grass(
+["xxxxxx","xxxxox","xxooox","xoooxx","xooxxx",
+"xooxxx","xxooox","xxxoxx","xxxxxx"], 
+4, 1),
+["xxxxxx","xxxx+x","xx+++x","x+++xx","x++xxx",
+"x++xxx","xx+++x","xxx+xx","xxxxxx"])
+    Test.assert_equals(simulate_grass(
+["xxxxxxxxxxx", "xoxooooooox", "xoxoxxxxxox", 
+"xoxoxoooxox", "xoxoxoxoxox", "xoxoxoxoxox", 
+"xoxoxxxoxox", "xoxoooooxox", "xoxxxxxxxox", 
+"xooooooooox", "xxxxxxxxxxx"], 1, 1), 
+["xxxxxxxxxxx", "x+x+++++++x", "x+x+xxxxx+x", 
+"x+x+x+++x+x", "x+x+x+x+x+x", "x+x+x+x+x+x", 
+"x+x+xxx+x+x", "x+x+++++x+x", "x+xxxxxxx+x", 
+"x+++++++++x", "xxxxxxxxxxx"])   
+The tests will be run as part of a two-step verification to confirm that the solution
+works. We’ll also use the tests and challenges as written, which will further test the AI. 
+ Figure 6.8 shows the makeup of a straightforward behavior tree that will be used to
+solve various programming challenges. You’ll notice that this ABT uses a different
+Listing 6.6 Plant the Grass tests
+
+1476.3 Introducing agentic behavior trees
+assistant for the actions and conditions. For the first step, the Python coding assistant
+(called the Hacker) generates a solution that is then reviewed by the coding challenge
+Judge (called the Judge), which produces a refined solution that is verified by a differ-
+ent Python coding assistant (called the Verifier).
+Figure 6.8 also shows how each agent converses on which thread. Assistants use mes-
+sage threads, similar to a Slack or Discord channel, where all assistants conversing on
+a thread will see all messages. For this ABT, we keep one main conversation thread for
+the Hacker and Judge to share messages, while the Verifier works on a separate mes-
+sage thread. Keeping the Verifier on its own thread isolates it from the noise of the
+solution-solving efforts.
+ Now, building the ABT in code is a matter of combining the py_trees package and
+the Playground API functions. Listing 6.7 shows an excerpt of code that creates each
+of the action/condition nodes with the assistants and gives them the instructions.
+ 
+ 
+ 
+ 
+→
+Verify solutionHacking solution
+The root node is a sequence.
+Judge solution
+The initial solution will
+be generated by the
+Python oding ssistant, c a
+which will save output to
+solution.py.
+solution.py
+The solution will be judged
+by the oding hallenge c c
+Judge. It will load the
+solution.py, judge it, and
+output a ﬁle called
+judged_solution.py.
+judged_solution.py
+The last step uses a Python
+c a oding ssistant and veriﬁes
+that the solution is correct
+by looking at the
+judged_solution.py ﬁle.
+Main conversation
+thread
+New conversation
+thread
+Assistants use threads to
+capture conversations.
+Figure 6.8 The ABT for the coding challenge
+
+148 CHAPTER 6 Building autonomous assistants
+root = py_trees.composites.Sequence("RootSequence", memory=True)
+thread = api.create_thread()    
+challenge = textwrap.dedent("""
+     
+""")
+judge_test_cases = textwrap.dedent("""
+    
+""")
+hacker = create_assistant_action_on_thread(   
+    thread=thread,     
+    action_name="Hacker",
+    assistant_name="Python Coding Assistant",
+    assistant_instructions=textwrap.dedent(f"""
+    Challenge goal: 
+    {challenge}     
+    Solve the challenge and output the 
+final solution to a file called solution.py        
+    """),
+)
+root.add_child(hacker)
+judge = create_assistant_action_on_thread(    
+    thread=thread,     
+    action_name="Judge solution",
+    assistant_name="Coding Challenge Judge",
+    assistant_instructions=textwrap.dedent(
+        f"""
+    Challenge goal: 
+    {challenge}     
+    Load the solution from the file solution.py.
+    Then confirm is a solution to the challenge 
+and test it with the following test cases:
+    {judge_test_cases}     
+    Run the code for the solution and confirm it passes all the test cases.
+    If the solution passes all tests save the solution to a file called 
+judged_solution.py
+    """,
+    ),
+)
+root.add_child(judge)
+# verifier operates on a different thread, essentially in closed room
+verifier = create_assistant_condition(    
+    condition_name="Verify solution",
+    assistant_name="Python Coding Assistant",
+    assistant_instructions=textwrap.dedent(
+        f"""
+    Challenge goal: 
+    {challenge}     
+    Load the file called judged_solution.py and 
+Listing 6.7 agentic_btree_coding_challenge.py
+Creates a message thread that will 
+be shared by the Hacker and Judge
+The challenge as shown 
+in the example listing 6.5
+The tests as shown in 
+the example listing 6.6
+Creates a message thread that will 
+be shared by the Hacker and Judge
+The challenge as shown 
+in the example listing 6.5
+Creates a message thread that will 
+be shared by the Hacker and Judge
+The challenge as shown 
+in the example listing 6.5
+The tests as shown in 
+the example listing 6.6
+Call creates a 
+new message 
+thread
+The challenge as shown 
+in the example listing 6.5
+
+1496.3 Introducing agentic behavior trees
+verify that the solution is correct by running the code and confirm it passes 
+all the test cases:
+    {judge_test_cases}     
+    If the solution is correct, return only the single word SUCCESS, 
+otherwise 
+return the single word FAILURE.
+    """,
+    ),
+)
+root.add_child(verifier)
+tree = py_trees.trees.BehaviourTree(root)
+while True:
+    tree.tick()
+    time.sleep(20)     
+    if root.status == py_trees.common.Status.SUCCESS:   
+        break
+### Required assistants – 
+### Python Coding Assistant and Coding Challenge Judge 
+### install these assistants through the Playground
+Run the ABT by loading the file in VS Code or using the command line. Follow the out-
+put in the terminal, and watch how the assistants work through each step in the tree.
+ If the solution fails to be verified at the condition node, the process will continue
+per the tree. Even with this simple solution, you could quickly create numerous varia-
+tions. You could extend the tree with more nodes/steps and subtrees. Perhaps you
+want a team of Hackers to break down and analyze the challenge, for example. 
+ This example’s work is done mainly with the Playground code, using the helper
+functions create_assistant_condition and create_assistant_action_on_thread.
+This code uses a couple of classes to integrate the py_trees behavior tree code and
+the OpenAI Assistants code wrapped in the Playground. Review the code within the
+project if you want to understand the lower-level details.
+6.3.3 Conversational AI systems vs. other methods
+We already looked at conversational multi-agent systems in chapter 4 when we looked
+at AutoGen. The ABT can work using a combination of conversations (over threads)
+and other methods, such as file sharing. Having your assistants/agents pass files around
+helps reduce the number of noisy and repetitive thoughts/conversations. In contrast,
+conversational systems benefit from potential emergent behaviors. So, using both can
+help evolve better control and solutions.
+ The simple solution in listing 6.7 could be extended to handle more real-world
+coding challenges and perhaps even to work as a coding ABT. In the next section, we
+build a different ABT to handle a different problem.
+The tests as shown in
+the example listing 6.6
+The sleep time can be 
+adjusted up or down as 
+needed and can be used 
+to throttle the messages 
+sent to an LLM.
+The process will 
+continue until 
+the verification 
+succeeds.
+
+150 CHAPTER 6 Building autonomous assistants
+6.3.4 Posting YouTube videos to X
+In this section’s exercise, we look at an ABT that can do the following:
+1 Search for videos on YouTube for a given topic and return the latest videos.
+2 Download the transcripts for all the videos your search provided.
+3 Summarize the transcripts.
+4 Review the summarized transcripts and select a video to write an X (formerly
+Twitter) post about. 
+5 Write an exciting and engaging post about the video, ensuring it’s less than 280
+characters.
+6 Review the post and then post it on X.
+Figure 6.9 shows the ABT assembled with each of the different assistants. In this exer-
+cise, we use a sequence node for the root, and each assistant performs a different
+action. Also, to keep things simple, each assistant interaction will always occur in a
+new thread. This isolates each assistant’s interaction into a concise conversation that’s
+easier to debug if something goes wrong.
+New thread
+→
+Search YouTube Write post
+This assistant searches
+YouTube for videos,
+downloads and
+summarizes the
+transcripts, and saves
+to a ﬁle.
+youtube
+transcripts.txt
+The assistant loads the
+transcripts, selects a
+relevant video, writes a
+post of less than 280
+characters, and then
+outputs a ﬁle.
+youtube
+twitter
+post.txt
+The assistant loads the
+post, reviews it and posts
+it to Twitter (X).
+New thread New thread
+Assistants always use
+a new thread.
+Post to X
+The root node is a sequence.
+Figure 6.9 The YouTube social media ABT
+
+1516.3 Introducing agentic behavior trees
+6.3.5 Required X setup
+If you plan to run the code in this exercise, you must add your X credentials to the
+.env file. The .env.default file shows an example of how the credentials need to be,
+as shown in listing 6.8. You don’t have to enter your credentials. This means the last
+step, posting, will fail, but you can still look at the file ( youtube_twitter_post.txt)
+to see what was generated.
+X_EMAIL = "twitter email here"
+X_USERNAME = "twitter username here"
+X_PASSWORD = "twitter password here"
+Listing 6.9 shows just the code for creating the assistant actions. This ABT uses three
+different assistants, each with its own task instructions. Note that each assistant has a
+unique set of instructions defining its role. You can review the instructions for each
+assistant by using the Playground.
+root = py_trees.composites.Sequence("RootSequence", memory=True)
+search_term = "GPT Agents"
+search_youtube_action = create_assistant_action(
+    action_name=f"Search YouTube({search_term})",
+    assistant_name="YouTube Researcher v2",
+    assistant_instructions=f"""
+    Search Term: {search_term}
+    Use the query "{search_term}" to search for videos on YouTube.
+    then for each video download the transcript and summarize it 
+for relevance to {search_term}
+    be sure to include a link to each of the videos,
+    and then save all summarizations to a file called youtube_transcripts.txt
+    If you encounter any errors, please return just the word FAILURE.
+    """,
+)
+root.add_child(search_youtube_action)
+write_post_action = create_assistant_action(
+    action_name="Write Post",
+    assistant_name="Twitter Post Writer",
+    assistant_instructions="""
+    Load the file called youtube_transcripts.txt,
+Listing 6.8 Configuring credentials
+YouTube search and spam
+If you plan to run this exercise for real and let it post to your X account, be aware that
+YouTube has a bit of a spam problem. The assistants have been configured to try to
+avoid video spam, but some of it may get through. Building a working ABT that can
+wade through videos while avoiding spam has some suitable applications.
+Listing 6.9 agentic_btree_video_poster_v1.py
+
+152 CHAPTER 6 Building autonomous assistants
+    analyze the contents for references to search term at the top and 
+then select
+    the most exciting and relevant video related to: 
+    educational, entertaining, or informative, to post on Twitter.
+    Then write a Twitter post that is relevant to the video,
+    and include a link to the video, along
+    with exciting highlights or mentions, 
+    and save it to a file called youtube_twitter_post.txt.
+    If you encounter any errors, please return just the word FAILURE.
+    """,
+)
+root.add_child(write_post_action)
+post_action = create_assistant_action(
+    action_name="Post",
+    assistant_name="Social Media Assistant",
+    assistant_instructions="""
+    Load the file called youtube_twitter_post.txt and post the content 
+to Twitter.
+    If the content is empty please do not post anything.
+    If you encounter any errors, please return just the word FAILURE.
+    """,
+)
+root.add_child(post_action)
+### Required assistants – YouTube Researcher v2, Twitter Post Writer, 
+and Social Media Assistant – install these assistants through the Playground
+Run the code as you normally would, and after a few minutes, a new post will appear
+in the assistants_output folder. Figure 6.10 shows an example of a post generated
+using this ABT. Running this ABT to generate more than a few posts a day could, and
+likely will, get your X account blocked. If you’ve configured X credentials, you’ll see
+the post appear on your feed.
+This ABT is shown for demonstration purposes and isn’t for production or long-term
+use. The primary features of this demonstration are to show search and loading data,
+summarization and filtering, then generating new content, and finally highlighting
+multiple custom actions and integrations with APIs.
+Figure 6.10 A sample X 
+post from the ABT
+
+1536.4 Building conversational autonomous multi-agents
+6.4 Building conversational autonomous multi-agents
+The conversational aspect of multi-agent systems can drive mechanisms such as feed-
+back, reasoning, and emergent behaviors. Driving agents with ABTs that silo assis-
+tants/agents can be effective for controlling structured processes, as we saw in the
+YouTube posting example. However, we also don’t want to miss out on the benefits of
+conversation across agents/assistants.
+ Fortunately, the Playground provides methods to silo or join assistants to conversation
+threads. Figure 6.11 shows how assistants can be siloed or mixed in various combinations
+to threads. Combining silos with conversation provides the best of both patterns.
+We’ll examine a simple but practical exercise to demonstrate the effectiveness of the
+conversational pattern. For the next exercise, we’ll employ two assistants in an ABT
+that converse over the same thread. The next listing shows the tree’s construction in
+code with the respective assistants.
+root = py_trees.composites.Sequence("RootSequence", memory=True)
+bug_file = """
+# code not shown
+"""
+Listing 6.10 agentic_conversation_btree.py
+Siloed assistants
+always use a new
+thread and are the
+only consumers.
+Thread xya Thread yyc Thread zza
+Agent/Assistant
+Silos
+Search
+Thread xyb
+Search
+Thread xyc
+Search
+Agent/Assistant
+Conversational
+Search
+Plan
+Activity
+Review
+Conversational assistants
+share a thread for all
+conversations.
+Agent/Assistant
+Conversational + Silo
+Thread xyc
+Verify
+The combination of siloed
+and conversational can be
+combined for an unbiased
+review.
+Search
+Plan
+Activity
+Transfer
+Figure 6.11 The various layouts of siloed and conversational assistants
+
+154 CHAPTER 6 Building autonomous assistants
+thread = api.create_thread()    
+debug_code = create_assistant_action_on_thread(    
+    thread=thread,
+    action_name="Debug code",
+    assistant_name="Python Debugger",
+    assistant_instructions=textwrap.dedent(f"""    
+    Here is the code with bugs in it:
+    {bug_file}
+    Run the code to identify the bugs and fix them. 
+    Be sure to test the code to ensure it runs without errors or throws 
+any exceptions.
+    """),
+)
+root.add_child(debug_code)
+verify = create_assistant_condition_on_thread(    
+    thread=thread,
+    condition_name="Verify",
+    assistant_name="Python Coding Assistant",
+    assistant_instructions=textwrap.dedent(
+        """
+    Verify the solution fixes the bug and there are no more issues.
+    Verify that no exceptions are thrown when the code is run.
+    Reply with SUCCESS if the solution is correct, otherwise return FAILURE.
+    If you are happy with the solution, save the code to a file called 
+fixed_bug.py.
+    """,
+    ),
+)
+root.add_child(verify)
+tree = py_trees.trees.BehaviourTree(root)
+while True:
+    tree.tick()    
+    if root.status == py_trees.common.Status.SUCCESS:
+        break   
+    time.sleep(20)
+Three nodes comprise the tree: the root sequence, the debug code action, and the
+verify fix condition. Because the tree’s root is a sequence, the two assistants will con-
+tinue to work one after another until they both return with success. Both assistants
+converse on the same thread and yet are controlled in a manner that provides con-
+stant feedback.
+ Run the exercise by loading the file in VS Code, or execute it directly from the
+command line. The example code has a few minor bugs and problems that the assis-
+tants will work through to fix. After the ABT completes running successfully, you can
+open the assistants_output/fixed_bug.py file and verify the results are all good. 
+ We’ve now seen a couple of ABTs in action and understand the nuances of using
+silos or conversations. The following section will teach you some techniques for build-
+ing your own ABTs.
+Creates a message thread for the 
+assistants to share and converse over
+Creates the debug 
+code action with a 
+special assistant
+Creates the verification 
+condition to test if the 
+code is fixed or not
+The tree will continue 
+to run until the root 
+sequence completes 
+with success.
+
+1556.5 Building ABTs with back chaining
+6.5 Building ABTs with back chaining
+Back chaining is a method derived from logic and reasoning used to help build behav-
+ior trees by working backward from the goal. This section will use the back chaining
+process to construct an ABT that works to achieve the goal. The following list provides
+a description of the process in more detail:
+1 Identify goal behavior. Start with the behavior you want the agent to perform.
+2 Determine the required actions. Identify the actions that lead to the goal behavior.
+3 Identify the conditions. Determine the conditions that must be met for each action
+to succeed.
+4 Determine the mode of communication . Determine how the assistants will pass on
+information. Will the assistants be siloed or converse over threads, or is a combi-
+nation of patterns better?
+5 Construct the tree. Start by building the behavior tree from the goal behavior, add-
+ing nodes for actions and conditions recursively until all necessary conditions
+are linked to known states or facts.
+Behavior trees typically use a pattern called the blackboard to communicate across
+nodes. Blackboards, like those in py_trees, use a key/value store to save information
+and make it accessible across nodes. It also provides for several controls, such as limit-
+ing access to specific nodes. 
+ We deferred to using files for communication because of their simplicity and
+transparency. At some point, agentic systems are expected to consume much more
+information and in different formats than those designed for blackboards. Black-
+boards must either become more sophisticated or be integrated with file storage
+solutions.
+ Let’s build an ABT using back chaining. We could tackle a variety of goals, but one
+interesting and perhaps meta goal is to build an ABT that helps build assistants. So
+let’s first present our goal as a statement “Create an assistant that can help me do
+{task}”:
+ Required actions: (working backwards)
+– Create an assistant.
+– Verify the assistant.
+– Test the assistant.
+– Name the assistant.
+– Give the assistant the relevant instructions.
+ Identified condition: 
+– Verify the assistant.
+ Determine communication patterns : To keep things interesting, we’ll run all assis-
+tants on the same message thread.
+
+156 CHAPTER 6 Building autonomous assistants
+ Construct the tree: To construct the tree, let’s first reverse the order of actions and
+mark each of the element’s actions and conditions accordingly:
+– (action) Give the assistant relevant instructions to help a user with a given task.
+– (action) Name the assistant.
+– (action) Test the assistant.
+– (condition) Verify the assistant.
+– (action) Create the assistant.
+Of course, the simple solution to building the tree now is to ask ChatGPT or an oth-
+erwise capable model. The result of asking ChatGPT to make the tree is shown in
+the next listing. You could also work the tree out independently and perhaps intro-
+duce other elements.
+Root
+│
+├── Sequence
+│    ├── Action: Give the assistant relevant instructions to help a user 
+with a given task
+│    ├── Action: Name the assistant
+│    ├── Action: Test the assistant
+│    ├── Condition: Verify the assistant
+│    └── Action: Create the assistant
+From this point, we can start building the tree by iterating over each action and condi-
+tion node and determining what instructions the assistant needs. This can also
+include any tools and custom actions, including ones you may need to develop. On
+your first pass, keep the instructions generic. Ideally, we want to create as few assistants
+as necessary.
+ After determining the assistant, tools, and actions for each assistant and for which
+task, you can try to generalize things further. Think about where it may be possible to
+combine actions and reduce the number of assistants. It’s better to start evaluating
+with insufficient assistants than with too many. However, be sure to maintain the
+proper divisions of work as tasks: for example, testing and verification are best done
+with different assistants.
+6.6 Exercises
+Complete the following exercises to improve your knowledge of the material:
+ Exercise 1—Creating a Travel Planner ABT
+Objective—Build an agentic behavior tree (ABT) to plan a travel itinerary using
+assistants.
+Tasks:
+– Set up the GPT Assistants Playground on your local machine.
+Listing 6.11 ABT for building an assistant
+
+1576.6 Exercises
+– Create an ABT to plan a travel itinerary. The tree should have the following
+structure:
+– Action: Use the Travel assistant to gather information about potential des-
+tinations.
+– Action: Use the Itinerary Planner to create a day-by-day travel plan.
+– Condition: Verify the completeness and feasibility of the itinerary using
+another Travel Assistant.
+– Implement and run the ABT to create a complete travel itinerary.
+ Exercise 2—Building an ABT for Customer Support Automation
+Objective—Create an ABT that automates customer support responses using
+assistants.
+Tasks:
+– Set up the GPT Assistants Playground on your local machine.
+– Create an ABT with the following structure:
+– Action: Use the Customer Query Analyzer assistant to categorize customer
+queries.
+– Action: Use the Response Generator assistant to draft responses based on
+the query categories.
+– Action: Use the Customer Support assistant to send the responses to
+customers.
+– Implement and run the ABT to automate the process of analyzing and respond-
+ing to customer queries.
+ Exercise 3—Managing Inventory with an ABT
+Objective—Learn how to create and manage inventory levels using an ABT.
+Tasks:
+– Set up the GPT Assistants Playground on your local machine.
+– Create an ABT that manages inventory for a retail business:
+– Action: Use the Inventory Checker assistant to review current stock levels.
+– Action: Use the Order assistant to place orders for low-stock items.
+– Condition: Verify that orders have been placed correctly and update inven-
+tory records.
+– Implement and run the ABT to manage inventory dynamically.
+ Exercise 4—Creating a Personal Fitness Trainer ABT
+Objective—Create an ABT that provides personalized fitness training plans using
+assistants.
+Tasks:
+– Set up the GPT Assistants Playground on your local machine.
+– Create an ABT to develop a personalized fitness plan:
+– Action: Use the Fitness Assessment assistant to evaluate the user’s current
+fitness level.
+
+158 CHAPTER 6 Building autonomous assistants
+– Action: Use the Training Plan Generator to create a custom fitness plan
+based on the assessment.
+– Condition: Verify the plan’s suitability and safety using another Fitness
+assistant.
+– Implement and run the ABT to generate and validate a personalized fitness
+training plan.
+ Exercise 5—Using Back Chaining to Build a Financial Advisor ABT
+Objective—Apply back chaining to construct an ABT that provides financial
+advice and investment strategies.
+Tasks:
+– Set up the GPT Assistants Playground on your local machine.
+– Define the following goal: “Create an assistant that can provide financial
+advice and investment strategies.”
+– Using back chaining, determine the actions and conditions needed to
+achieve this goal.
+– Implement and run the ABT to generate a comprehensive financial advi-
+sory service by back chaining the construction of the base actions and con-
+ditions for the tree.
+Summary
+ Behavior trees are a robust and scalable AI control pattern, first introduced in
+robotics by Rodney A. Brooks. They are widely used in gaming and robotics for
+their modularity and reusability.
+ The primary nodes in behavior trees are the selector, sequence, condition,
+action, decorator, and parallel nodes. Selectors are like “or” blocks: sequence exe-
+cutes nodes in sequence, condition tests the state, action does the work, decora-
+tor is a wrapper, and parallel nodes allow for dual execution.
+ Understanding the execution flow of behavior trees can be critical to designing,
+building, and operating them to provide control for making clear decision-
+making paths.
+ The advantages of behavior trees include modularity, scalability, flexibility, debug-
+ging ease, and decoupling of decision logic, making behavior trees suitable for
+complex AI systems.
+ Setting up and running a simple behavior tree in Python requires correctly
+naming and documenting custom nodes.
+ The GPT Assistants Playground project is a Gradio-based interface that mimics
+the OpenAI Assistants Playground with additional features for teaching and
+demonstrating ABTs.
+ The GPT Assistants Playground allows for creating and managing custom actions,
+which is essential for building versatile assistants.
+
+159Summary
+ ABTs control agents and assistants by using prompts to direct actions and condi-
+tions for assistants. ABTs use the power of LLMs to create dynamic and autono-
+mous systems.
+ Back chaining is a method for constructing behavior trees by working backward
+from the goal behavior. This process involves identifying required actions, condi-
+tions, and communication patterns, and then constructing the tree step by step.
+ Agentic systems benefit from siloed and conversation patterns for communicat-
+ing between entities. ABTs can benefit from combining siloed and conversa-
+tional assistants to use structured processes and emergent behaviors.
+
+160
+Assembling and
+using an agent platform
+After we explored some basic concepts about agents and looked at using actions
+with tools to build prompts and personas using frameworks such as the Semantic
+Kernel (SK), we took the first steps toward building a foundation for this book.
+That foundation is called Nexus, an agent platform designed to be simple to learn,
+easy to explore, and powerful enough to build your agent systems. 
+This chapter covers
+ Nexus chat and dashboard interface for 
+AI agents
+ Streamlit framework for building intelligent 
+dashboards, prototypes, and AI chat apps
+ Developing, testing, and engaging agent profiles 
+and personas in Nexus
+ Developing the base Nexus agent
+ Developing, testing, and engaging agent actions 
+and tools alone or within Nexus
+
+1617.1 Introducing Nexus, not just another agent platform
+7.1 Introducing Nexus, not just another agent platform
+There are more than 100 AI platforms and toolkits for consuming and developing
+large language model (LLM) applications, ranging from toolkits such as SK or Lang-
+Chain to complete platforms such as AutoGen and CrewAI. This makes it difficult to
+decide which platform is well suited to building your own AI agents.
+ Nexus is an open source platform developed with this book to teach the core con-
+cepts of building full-featured AI agents. In this chapter, we’ll examine how Nexus is
+built and introduce two primary agent components: profiles/personas and actions/tools.
+ Figure 7.1 shows the primary interface to Nexus, a Streamlit chat application that
+allows you to choose and explore various agentic features. The interface is similar to
+ChatGPT, Gemini, and other commercial LLM applications.
+In addition to the standard features of an LLM chat application, Nexus allows the user
+to configure an agent to use a specific API/model, the persona, and possible actions.
+In the remainder of the book, the available agent options will include the following:
+ Personas/profiles—The primary persona and profile the agent will use. A persona
+is the personality and primary motivator, and an agent engages the persona to
+Create a new
+chat thread. Shows the full conversation
+history for the current chat thread
+The agent AI you’re using:
+OpenAI, Azure OpenAI, Gemini,
+or Claude. Currently, OpenAI is
+used.
+The agent proﬁle/persona
+to use in the next request
+The tools/actions the agent
+can use, which supports both
+native (code) and semantic
+(prompt) functions
+Previous
+chat threads
+Figure 7.1 The Nexus interface and features
+

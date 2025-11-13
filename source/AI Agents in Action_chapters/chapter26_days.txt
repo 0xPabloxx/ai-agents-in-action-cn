@@ -1,0 +1,35 @@
+Chapter 26: days
+Starting Page: 310
+================================================================================
+
+jumps back to the present
+Alex
+leaves
+Alex
+returns?
+Alex
+arrives
+Alex
+leaves
+???
+The problem statement:
+The statement is vague as
+to what time Alex returns
+to the battle. Is it the same
+time he left?
+jumps back to witness end of battle
+battle lasts 10 days
+Figure 11.9
+The time travel problem, revisited
+It becomes obvious
+where the model is
+making the error.
+
+287
+11.4
+Reviewing a stepwise planner: OpenAI Strawberry
+the battle.
+Final Days Spent Before the Battle Ends:
+Upon returning, he spends 1 more day in the past to witness the battle's
+end.
+Total Days Spent in the Past Before Seeing the End:

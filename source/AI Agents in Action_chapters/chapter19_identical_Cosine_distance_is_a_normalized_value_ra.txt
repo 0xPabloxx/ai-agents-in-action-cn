@@ -1,0 +1,2833 @@
+Chapter 19: (identical). Cosine distance is a normalized value ranging from 0 to 2, derived by tak-
+Starting Page: 210
+================================================================================
+
+ing 1 minus the cosine similarity. A cosine distance of 0 means identical items, and 2
+indicates complete opposites.
+Listing 8.2 shows how the cosine similarities are computed using the cosine_similarity
+function from scikit-learn. Similarities are calculated for each document against all
+other documents in the set. The computed matrix of similarities for documents is
+stored in the cosine_similarities variable. Then, in the input loop, the user can
+select the document to view its similarities to the other documents.
+
+
+
+Cosine Similarity
+The angle or distance is a measure of how
+close the vectors are in space. It also
+represents their similarity to each other.
+Cosine Distance
+θ
+The sky is blue and beautiful.
+Love this blue and beautiful sky!
+Vector representations of the text rendered in 2D
+and in reality vectors can be highly dimensional.
+Figure 8.4
+How cosine
+similarity is measured
+
+187
+8.3
+Delving into semantic search and document indexing
+cosine_similarities = cosine_similarity(X)
+while True:
+selected_document_index = input(f"Enter a document number
+➥ (0-{len(documents)-1}) or 'exit' to quit: ").strip()
+if selected_document_index.lower() == 'exit':
+break
+if not selected_document_index.isdigit() or
+➥ not 0 <= int(selected_document_index) < len(documents):
+print("Invalid input. Please enter a valid document number.")
+continue
+selected_document_index = int(selected_document_index)
+selected_document_similarities =
+cosine_similarities[selected_document_index]
+# code to plot document similarities omitted
+Figure 8.5 shows the output of running the sample in VS Code (F5 for debugging
+mode). After you select a document, you’ll see the similarities between the various
+documents in the set. A document will have a cosine similarity of 1 with itself. Note
+that you won’t see a negative similarity because of the TF–IDF vectorization. We’ll look
+later at other, more sophisticated means of measuring semantic similarity.
+Listing 8.2
+document_vector_similarity (cosine similarity)
+Computes the document
+similarities for all vector pairs
+The main
+input loop
+Gets the selected
+document index
+to compare with
+Extracts the
+computed similarities
+against all documents
+The select document is compared against all
+other documents to show similarity
+measure between document vectors.
+Cosine Similarities of “The sky is blue and beautiful.” with Others
+Figure 8.5
+The cosine similarity between selected documents and the document set
+
+188
+CHAPTER 8
+Understanding agent memory and knowledge
+The method of vectorization will dictate the measure of semantic similarity between
+documents. Before we move on to better methods of vectorizing documents, we’ll
+examine storing vectors to perform vector similarity searches.
+8.3.2
+Vector databases and similarity search
+After vectorizing documents, they can be stored in a vector database for later similar-
+ity searches. To demonstrate how this works, we can efficiently replicate a simple vec-
+tor database in Python code.
+Open document_vector_database.py in VS Code, as shown in listing 8.3. This
+code demonstrates creating a vector database in memory and then allowing users to
+enter text to search the database and return results. The results returned show the
+document text and the similarity score.
+# code above omitted
+vectorizer = TfidfVectorizer()
+X = vectorizer.fit_transform(documents)
+vector_database = X.toarray()
+def cosine_similarity_search(query,
+database,
+vectorizer,
+top_n=5):
+query_vec = vectorizer.transform([query]).toarray()
+similarities = cosine_similarity(query_vec, database)[0]
+top_indices = np.argsort(-similarities)[:top_n]  # Top n indices
+return [(idx, similarities[idx]) for idx in top_indices]
+while True:
+query = input("Enter a search query (or 'exit' to stop): ")
+if query.lower() == 'exit':
+break
+top_n = int(input("How many top matches do you want to see? "))
+search_results = cosine_similarity_search(query,
+vector_database,
+vectorizer,
+top_n)
+print("Top Matched Documents:")
+for idx, score in search_results:
+print(f"- {documents[idx]} (Score: {score:.4f})")
+print("\n")
+###Output
+Enter a search query (or 'exit' to stop): blue
+How many top matches do you want to see? 3
+Top Matched Documents:
+- The sky is blue and beautiful. (Score: 0.4080)
+- Love this blue and beautiful sky! (Score: 0.3439)
+- The brown fox is quick and the blue dog is lazy! (Score: 0.2560)
+Listing 8.3
+document_vector_database.py
+Stores the
+document vectors
+into an array
+The function to perform
+similarity matching on
+query returns, matches,
+and similarity scores
+The main
+input loop
+Loops through
+results and
+outputs text and
+similarity score
+
+189
+8.3
+Delving into semantic search and document indexing
+Run this exercise to see the output (F5 in VS Code). Enter any text you like, and see
+the results of documents being returned. This search form works well for matching
+words and phrases with similar words and phrases. This form of search misses the
+word context and meaning from the document. In the next section, we’ll look at a way
+of transforming documents into vectors that better preserves their semantic meaning.
+8.3.3
+Demystifying document embeddings
+TF–IDF is a simple form that tries to capture semantic meaning in documents. How-
+ever, it’s unreliable because it only counts word frequency and doesn’t understand the
+relationships between words. A better and more modern method uses document
+embedding, a form of document vectorizing that better preserves the semantic mean-
+ing of the document.
+Embedding networks are constructed by training neural networks on large data-
+sets to map words, sentences, or documents to high-dimensional vectors, capturing
+semantic and syntactic relationships based on context and relationships in the data.
+You typically use a pretrained model trained on massive datasets to embed documents
+and perform embeddings. Models are available from many sources, including Hug-
+ging Face and, of course, OpenAI.
+In our next scenario, we’ll use an OpenAI embedding model. These models are
+typically perfect for capturing the semantic context of embedded documents. Listing
+8.4 shows the relevant code that uses OpenAI to embed the documents into vectors
+that are then reduced to three dimensions and rendered into a plot.
+load_dotenv()
+api_key = os.getenv('OPENAI_API_KEY')
+if not api_key:
+raise ValueError("No API key found. Please check your .env file.")
+client = OpenAI(api_key=api_key)
+def get_embedding(text, model="text-embedding-ada-002"):
+text = text.replace("\n", " ")
+return client.embeddings.create(input=[text],
+model=model).data[0].embedding
+# Sample documents (omitted)
+embeddings = [get_embedding(doc) for doc in documents]
+print(embeddings_array.shape)
+embeddings_array = np.array(embeddings)
+pca = PCA(n_components=3)
+reduced_embeddings = pca.fit_transform(embeddings_array)
+Listing 8.4
+document_visualizing_embeddings.py (relevant sections)
+Join all the items on the string ', '.
+Uses the OpenAI
+client to create
+the embedding
+Generates embeddings
+for each document of
+size 1536 dimensions
+Converts embeddings to
+a NumPy array for PCA
+Applies PCA to
+reduce dimensions
+to 3 for plotting
+
+190
+CHAPTER 8
+Understanding agent memory and knowledge
+When a document is embedded using an OpenAI model, it transforms the text into a
+vector with dimensions of 1536. We can’t visualize this number of dimensions, so we
+use a dimensionality reduction technique via principal component analysis (PCA) to
+convert the vector of size 1536 to 3 dimensions.
+Figure 8.6 shows the output generated from running the file in VS Code. By reduc-
+ing the embeddings to 3D, we can plot the output to show how semantically similar
+documents are now grouped.
+The choice of which embedding model or service you use is up to you. The OpenAI
+embedding models are considered the best for general semantic similarity. This has
+made these models the standard for most memory and retrieval applications. With
+our understanding of how text can be vectorized with embeddings and stored in a vec-
+tor database, we can move on to a more realistic example in the next section.
+8.3.4
+Querying document embeddings from Chroma
+We can combine all the pieces and look at a complete example using a local vector
+database called Chroma DB. Many vector database options exist, but Chroma DB is an
+excellent local vector store for development or small-scale projects. There are also
+plenty of more robust options that you can consider later.
+Similar documents are now similar in
+meaning and are shown grouped together.
+Documents are projected to 3D
+based on their semantic meaning.
+Figure 8.6
+Embeddings in 3D, showing how similar semantic documents are grouped
+
+191
+8.3
+Delving into semantic search and document indexing
+Listing 8.5 shows the new and relevant code sections from the document_query_
+chromadb.py file. Note that the results are scored by distance and not by similarity.
+Cosine distance is determined by this equation:
+Cosine Distance(A,B) = 1 – Cosine Similarity(A,B)
+This means that cosine distance will range from 0 for most similar to 2 for semanti-
+cally opposite in meaning.
+embeddings = [get_embedding(doc) for doc in documents]
+ids = [f"id{i}" for i in range(len(documents))]
+chroma_client = chromadb.Client()
+collection = chroma_client.create_collection(
+name="documents")
+collection.add(
+embeddings=embeddings,
+documents=documents,
+ids=ids
+)
+def query_chromadb(query, top_n=2):
+query_embedding = get_embedding(query)
+results = collection.query(
+query_embeddings=[query_embedding],
+n_results=top_n
+)
+return [(id, score, text) for id, score, text in
+zip(results['ids'][0],
+results['distances'][0],
+results['documents'][0])]
+while True:
+query = input("Enter a search query (or 'exit' to stop): ")
+if query.lower() == 'exit':
+break
+top_n = int(input("How many top matches do you want to see? "))
+search_results = query_chromadb(query, top_n)
+print("Top Matched Documents:")
+for id, score, text in search_results:
+print(f"""
+ID:{id} TEXT: {text} SCORE: {round(score, 2)}
+""")
+print("\n")
+###Output
+Enter a search query (or 'exit' to stop): dogs are lazy
+How many top matches do you want to see? 3
+Top Matched Documents:
+ID:id7 TEXT: The dog is lazy but the brown fox is quick! SCORE: 0.24
+Listing 8.5
+document_query_chromadb.py (relevant code sections)
+Generates embeddings
+for each document and
+assigns an ID
+Creates a Chroma DB
+client and a collection
+Adds document
+embeddings to
+the collection
+Queries the datastore
+and returns the top n
+relevant documents
+The input loop for
+user input and output of
+relevant documents/scores
+
+192
+CHAPTER 8
+Understanding agent memory and knowledge
+ID:id5 TEXT: The brown fox is quick and the blue dog is lazy! SCORE: 0.28
+ID:id2 TEXT: The quick brown fox jumps over the lazy dog. SCORE: 0.29
+As the earlier scenario demonstrated, you can now query the documents using seman-
+tic meaning rather than just key terms or phrases. These scenarios should now pro-
+vide the background to see how the retrieval pattern works at a low level. In the next
+section, we’ll see how the retrieval pattern can be employed using LangChain.
+8.4
+Constructing RAG with LangChain
+LangChain began as an open source project specializing in abstracting the retrieval
+pattern across multiple data sources and vector stores. It has since morphed into
+much more, but foundationally, it still provides excellent options for implementing
+retrieval.
+Figure 8.7 shows a diagram from LangChain that identifies the process of storing
+documents for retrieval. These same steps may be replicated in whole or in part to
+implement memory retrieval. The critical difference between document and memory
+retrieval is the source and how content is transformed.
+We’ll examine how to implement each of these steps using LangChain and under-
+stand the nuances and details accompanying this implementation. In the next section,
+we’ll start by splitting and loading documents with LangChain.
+8.4.1
+Splitting and loading documents with LangChain
+Retrieval mechanisms augment the context of a given prompt with specific informa-
+tion relevant to the request. For example, you may request detailed information about
+LangChain provides a
+plugin architecture that
+supports document import
+from many sources.
+Transform breaks
+the document
+down into relevant
+sections or chunks.
+Embed or
+embeddings
+break the chunks
+into vectors.
+LangChain supports
+multiple options for
+vector stores.
+Figure 8.7
+Load, transform, embed, and store steps in storing documents for later retrieval
+
+193
+8.4
+Constructing RAG with LangChain
+a local document. With earlier language models, submitting the whole document as
+part of the prompt wasn’t an option due to token limitations.
+Today, we could submit a whole document for many commercial LLMs, such as
+GPT-4 Turbo, as part of a prompt request. However, the results may not be better and
+would likely cost more because of the increased number of tokens. Therefore, a better
+option is to split the document and use the relevant parts to request context—pre-
+cisely what RAG and memory do.
+Splitting a document is essential in breaking down content into semantically and
+specifically relevant sections. Figure 8.8 shows how to break down an HTML docu-
+ment containing the Mother Goose nursery rhymes. Often, splitting a document into
+contextual semantic chunks requires careful consideration.
+Ideally, when we split documents into chunks, they are broken down by relevance and
+semantic meaning. While an LLM or agent could help us with this, we’ll look at cur-
+rent toolkit options within LangChain for splitting documents. Later in this chapter,
+we’ll look at a semantic function that can assist us in semantically dividing content for
+embeddings.
+For the next exercise, open langchain_load_splitting.py in VS Code, as shown
+in listing 8.6. This code shows where we left off from listing 8.5, in the previous sec-
+tion. Instead of using the sample documents, we’re loading the Mother Goose nursery
+rhymes this time.
+
+
+
+Split the documents into chunks.
+Create
+embeddings
+Store
+Load the document(s).
+Ideally, the chunks are
+semantically relevant
+and speciﬁc.
+Figure 8.8
+How the document would ideally be split into chunks for better semantic and contextual meaning
+
+194
+CHAPTER 8
+Understanding agent memory and knowledge
+From langchain_community.document_loaders
+➥ import UnstructuredHTMLLoader
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+#previous code
+loader = UnstructuredHTMLLoader(
+"sample_documents/mother_goose.html")
+data = loader.load
+text_splitter = RecursiveCharacterTextSplitter(
+chunk_size=100,
+chunk_overlap=25,
+length_function=len,
+add_start_index=True,
+)
+documents = text_splitter.split_documents(data)
+documents = [doc.page_content
+➥ for doc in documents] [100:350]
+embeddings = [get_embedding(doc) for doc in documents]
+ids = [f"id{i}" for i in range(len(documents))]
+###Output
+Enter a search query (or 'exit' to stop): who kissed the girls and made
+them cry?
+How many top matches do you want to see? 3
+Top Matched Documents:
+ID:id233 TEXT: And chid her daughter,
+And kissed my sister instead of me. SCORE: 0.4…
+Note in listing 8.6 that the HTML document gets split into 100-character chunks with
+a 25-character overlap. The overlap allows the document’s parts not to cut off specific
+thoughts. We selected the splitter for this exercise because it was easy to use, set up,
+and understand.
+Go ahead and run the langchain_load_splitting.py file in VS Code (F5). Enter
+a query, and see what results you get. The output in listing 8.6 shows good results
+given a specific example. Remember that we only embedded 250 document chunks to
+reduce costs and keep the exercise short. Of course, you can always try to embed the
+entire document or use a minor input document example.
+Perhaps the most critical element to building proper retrieval is the process of
+document splitting. You can use numerous methods to split a document, including
+multiple concurrent methods. More than one method passes and splits the docu-
+ment for numerous embedding views of the same document. In the next section,
+we’ll examine a more general technique for splitting documents, using tokens and
+tokenization.
+Listing 8.6
+langchain_load_splitting.py (sections and output)
+New LangChain
+imports
+Loads the
+document
+as HTML
+Loads the
+document
+Splits the document into blocks of
+text 100 characters long with a
+25-character overlap
+Embeds only 250
+chunks, which is
+cheaper and faster
+Returns the
+embedding for
+each document
+
+195
+8.4
+Constructing RAG with LangChain
+8.4.2
+Splitting documents by token with LangChain
+Tokenization is the process of breaking text into word tokens. Where a word token rep-
+resents a succinct element in the text, a token could be a word like hold or even a sym-
+bol like the left curly brace ({), depending on what’s relevant.
+Splitting documents using tokenization provides a better base for how the text will
+be interpreted by language models and for semantic similarity. Tokenization also
+allows the removal of irrelevant characters, such as whitespace, making the similarity
+matching of documents more relevant and generally providing better results.
+For the next code exercise, open the langchain_token_splitting.py file in VS
+Code, as shown in listing 8.7. Now we split the document using tokenization, which
+breaks the document into sections of unequal size. The unequal size results from the
+large sections of whitespace of the original document.
+loader = UnstructuredHTMLLoader("sample_documents/mother_goose.html")
+data = loader.load()
+text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+chunk_size=50, chunk_overlap=10
+)
+documents = text_splitter.split_documents(data)
+documents = [doc for doc in documents][8:94]
+db = Chroma.from_documents(documents, OpenAIEmbeddings())
+def query_documents(query, top_n=2):
+docs = db.similarity_search(query, top_n)
+return docs
+###Output
+Created a chunk of size 68,
+which is longer than the specified 50
+Created a chunk of size 67,
+which is longer than the specified 50
+Enter a search query (or 'exit' to stop):
+who kissed the girls and made them cry?
+How many top matches do you want to see? 3
+Top Matched Documents:
+Document 1: GEORGY PORGY
+Georgy Porgy, pudding and pie,
+Kissed the girls and made them cry.
+Run the langchain_token_splitting.py code in VS Code (F5). You can use the
+query we used last time or your own. Notice how the results are significantly better
+than the previous exercise. However, the results are still suspect because the query
+uses several similar words in the same order.
+A better test would be to try a semantically similar phrase but one that uses differ-
+ent words and check the results. With the code still running, enter a new phrase to
+Listing 8.7
+langchain_token_splitting.py (relevant new code)
+Updates to 50 tokens
+and overlap of 10
+tokens
+Selects just the
+documents that
+contain rhymes
+Uses the database’s
+similarity search
+Breaks into irregular
+size chunks because of
+the whitespace
+
+196
+CHAPTER 8
+Understanding agent memory and knowledge
+query: Why are the girls crying? Listing 8.8 shows the results of executing that
+query. If you run this example yourself and scroll down over the output, you’ll see
+Georgy Porgy appear in either the second or third returned document.
+Enter a search query (or 'exit' to stop): Who made the girls cry?
+How many top matches do you want to see? 3
+Top Matched Documents:
+Document 1: WILLY, WILLY
+Willy, Willy Wilkin…
+This exercise shows how various retrieval methods can be employed to return docu-
+ments semantically. With this base established, we can see how RAG can be applied to
+knowledge and memory systems. The following section will discuss RAG as it applies
+to knowledge of agents and agentic systems.
+8.5
+Applying RAG to building agent knowledge
+Knowledge in agents encompasses employing RAG to search semantically across
+unstructured documents. These documents could be anything from PDFs to Micro-
+soft Word documents and all text, including code. Agentic knowledge also includes
+using unstructured documents for Q&A, reference lookup, information augmenta-
+tion, and other future patterns.
+Nexus, the agent platform developed in tandem with this book and introduced in
+the previous chapter, employs complete knowledge and memory systems for agents.
+In this section, we’ll uncover how the knowledge system works.
+To install Nexus for just this chapter, see listing 8.9. Open a terminal within the
+chapter_08 folder, and execute the commands in the listing to download, install,
+and run Nexus in normal or development mode. If you want to refer to the code,
+you should install the project in development and configure the debugger to run
+the Streamlit app from VS Code. Refer to chapter 7 if you need a refresher on any of
+these steps.
+# to install and run
+pip install git+https://github.com/cxbxmxcx/Nexus.git
+nexus run
+# install in development mode
+git clone https://github.com/cxbxmxcx/Nexus.git
+# Install the cloned repository in editable mode
+pip install -e Nexus
+Listing 8.8
+Query: Who made the girls cry?
+Listing 8.9
+Installing Nexus
+
+197
+8.5
+Applying RAG to building agent knowledge
+Regardless of which method you decide to run the app in after you log in, navigate to
+the Knowledge Store Manager page, as shown in figure 8.9. Create a new Knowledge
+Store, and then upload the sample_documents/back_to_the_future.txt movie script.
+The script is a large document, and it may take a while to load, chunk, and embed the
+parts into the Chroma DB vector database. Wait for the indexing to complete, and
+then you can inspect the embeddings and run a query, as shown in figure 8.10.
+Now, we can connect the knowledge store to a supported agent and ask questions.
+Use the top-left selector to choose the chat page within the Nexus interface. Then,
+select an agent and the time_travel knowledge store, as shown in figure 8.11. You
+will also need to select an agent engine that supports knowledge. Each of the multiple
+agent engines requires the proper configuration to be accessible.
+Currently, as of this chapter, Nexus supports access to only a single knowledge
+store at a time. In a future version, agents may be able to select multiple knowledge
+stores at a time. This may include more advanced options, from semantic knowl-
+edge to employing other forms of RAG.
+
+Select the
+knowledge store.
+Create a new
+knowledge store.
+Drag and drop or browse and select the
+sample_documents/back_to_the_future.txt
+movie script here.
+Figure 8.9
+Adding a new knowledge store and populating it with a document
+
+198
+CHAPTER 8
+Understanding agent memory and knowledge
+Plot of embeddings shown in 3D
+Select to view all the
+embeddings in the
+knowledge store.
+Enter text to query
+and see the results of
+the top ﬁve chunks
+displayed.
+Select to query the
+document embeddings
+in the knowledge store.
+Figure 8.10
+The embeddings and document query views
+The agent will reply given
+the chosen persona.
+Enter a question about
+the script you would
+like to ask.
+Be sure to select the
+knowledge store.
+Select an agent engine
+that supports knowledge.
+Figure 8.11
+Enabling the knowledge store for agent use
+
+199
+8.5
+Applying RAG to building agent knowledge
+You can also configure the RAG settings within the Configuration tab of the Knowl-
+edge Store Manager page, as shown in figure 8.12. As of now, you can select from the
+type of splitter (Chunking Option field) to chunk the document, along with the
+Chunk Size field and Overlap field.
+The loading, splitting, chunking, and embedding options provided are the only basic
+options supported by LangChain for now. In future versions of Nexus, more options
+and patterns will be offered. The code to support other options can be added directly
+to Nexus.
+We won’t cover the code that performs the RAG as it’s very similar to what we
+already covered. Feel free to review the Nexus code, particularly the KnowledgeManager
+class in the knowledge_manager.py file.
+Represents the minimum
+size in characters or tokens
+to chunk the data
+Select the
+Conﬁguration tab.
+Allows for some overlap
+of text from one chunk
+to the next
+Represents the type of
+document splitter used to extract
+chunks from the document
+Figure 8.12
+Managing the knowledge store splitting and chunking options
+
+200
+CHAPTER 8
+Understanding agent memory and knowledge
+While the retrieval patterns for knowledge and memory are quite similar for aug-
+mentation, the two patterns differ when it comes to populating the stores. In the next
+section, we’ll explore what makes memory in agents unique.
+8.6
+Implementing memory in agentic systems
+Memory in agents and AI applications is often described in the same terms as cogni-
+tive memory functions. Cognitive memory describes the type of memory we use to
+remember what we did 30 seconds ago or how tall we were 30 years ago. Computer
+memory is also an essential element of agent memory, but one we won’t consider in
+this section.
+Figure 8.13 shows how memory is broken down into sensory, short-term, and long-
+term memory. This memory can be applied to AI agents, and this list describes how
+each form of memory maps to agent functions:
+Sensory memory in AI—Functions such as RAG but with images/audio/haptic
+data forms. Briefly holds input data (e.g., text and images) for immediate pro-
+cessing but not long-term storage.
+Short-term/working memory in AI—Acts as an active memory buffer of conversa-
+tion history. We’re holding a limited amount of recent input and context for
+immediate analysis and response generation. Within Nexus, short- and long-
+term conversational memory is also held in the context of the thread.
+Long-term memory in AI—Longer-term memory storage relevant to the agent’s or
+user’s life. Semantic memory provides a robust capacity to store and retrieve rel-
+evant global or local facts and concepts.
+Visual memory
+Sensory memory
+Short-term memory (contextual memory)
+Long-term memory
+Memory
+Iconic memory (visual)
+Echoic memory (auditory)
+Haptic memory (touch)
+Explicit/declarative memory
+(conscious)
+Implicit/procedural memory (unconscious skills)
+Episodic memory
+(life events)
+Semantic memory
+(facts, concepts)
+Conversational
+memory and RAG
+This is an area of
+memory of most
+interest to agents.
+Implicit memory and skills can also be
+conveyed as actions and tools for agents.
+Figure 8.13
+How memory is broken down into various forms
+
+201
+8.6
+Implementing memory in agentic systems
+While memory uses the exact same retrieval and augmentation mechanisms as knowl-
+edge, it typically differs significantly when updating or appending memories. Figure 8.14
+highlights the process of capturing and using memories to augment prompts. Because
+memories are often different from the size of complete documents, we can avoid
+using any splitting or chunking mechanisms.
+Nexus provides a mechanism like the knowledge store, allowing users to create mem-
+ory stores that can be configured for various uses and applications. It also supports
+some of the more advanced memory forms highlighted in figure 8.13. The following
+section will examine how basic memory stores work in Nexus.
+Adding memories
+Basic memory augmentation
+Embedding
+Vector DB
+Stored
+embeddings
+and text
+New memories
+can come from a
+conversation or
+can be populated
+as a set of beginning
+facts, preferences,
+and so on.
+Vector DB
+Converted to embedding
+and then used to query database
+Augmented prompt
+user:
+What movie should
+I watch?
+Remembered facts:
+User likes time
+travel movies
+LLM
+Response sent
+back to user
+Assistant:
+You should watch
+this movie on
+time travel.
+User likes time
+travel movies
+User likes sci-ﬁ
+movies
+Conversations are then fed back into the memory function
+to create new memories.
+User likes time
+travel movies
+User likes sci-ﬁ
+movies
+LLM
+User:
+[I like time
+travel movies]
+I like time travel
+movies
+Memory function,
+extracts relevant
+memories
+Embedding
+User:
+What movie
+should I watch?
+What movie should
+I watch?
+Figure 8.14
+Basic memory retrieval and augmentation workflow
+
+202
+CHAPTER 8
+Understanding agent memory and knowledge
+8.6.1
+Consuming memory stores in Nexus
+Memory stores operate and are constructed like knowledge stores in Nexus. They
+both heavily rely on the retrieval pattern. What differs is the extra steps memory sys-
+tems take to build new memories.
+Go ahead and start Nexus, and refer to listing 8.9 if you need to install it. After
+logging in, select the Memory page, and create a new memory store, as shown in fig-
+ure 8.15. Select an agent engine, and then add a few personal facts and preferences
+about yourself.
+The reason we need an agent (LLM) was shown in figure 8.14 earlier. When informa-
+tion is fed into a memory store, it’s generally processed through an LLM using a memory
+Create a new memory
+store called my_memory.
+Select the memory
+you want to inspect.
+You will need to select an agent
+engine to process the memory.
+Select the
+Memory page.
+Add a few facts or
+preferences about yourself.
+Figure 8.15
+Adding memories to a newly created memory store
+
+203
+8.6
+Implementing memory in agentic systems
+function, whose purpose is to process the statements/conversations into semantically
+relevant information related to the type of memory.
+Listing 8.10 shows the conversational memory function used to extract information
+from a conversation into memories. Yes, this is just the header portion of the prompt
+sent to the LLM, instructing it how to extract information from a conversation.
+Summarize the conversation and create a set of statements that summarize
+the conversation. Return a JSON object with the following keys: 'summary'.
+Each key should have a list of statements that are relevant to that
+category. Return only the JSON object and nothing else.
+After you generate a few relevant memories about yourself, return to the Chat area in
+Nexus, enable the my_memory memory store, and see how well the agent knows you.
+Figure 8.16 shows a sample conversation using a different agent engine.
+This is an example of a basic memory pattern that extracts facts/preferences from
+conversations and stores them in a vector database as memories. Numerous other
+implementations of memory follow those displayed earlier in figure 8.13. We’ll imple-
+ment those in the next section.
+Listing 8.10
+Conversational memory function
+Select the memory store.
+If possible, select a different agent
+engine that supports memory.
+Ask the agent something relevant to
+the facts you just added to memory.
+Figure 8.16
+Conversing with a different agent on the same memory store
+
+204
+CHAPTER 8
+Understanding agent memory and knowledge
+8.6.2
+Semantic memory and applications to semantic, episodic,
+and procedural memory
+Psychologists categorize memory into multiple forms, depending on what informa-
+tion is remembered. Semantic, episodic, and procedural memory all represent differ-
+ent types of information. Episodic memories are about events, procedural memories are
+about the process or steps, and semantic represents the meaning and could include
+feelings or emotions. Other forms of memory (geospatial is another), aren’t described
+here but could be.
+Because these memories rely on an additional level of categorization, they also rely
+on another level of semantic categorization. Some platforms, such as Semantic Kernel
+(SK), refer to this as semantic memory. This can be confusing because semantic categori-
+zation is also applied to extract episodic and procedural memories.
+Figure 8.17 shows the semantic memory categorization process, also sometimes
+called semantic memory. The difference between semantic memory and regular mem-
+ory is the additional step of processing the input semantically and extracting relevant
+questions that can be used to query the memory-relevant vector database.
+Semantic memory augmentation
+Vector DB
+Augmented prompt
+user:
+What movie should I
+watch?
+Semantics:
+The user has recently
+watched these time
+travel movies.
+Response sent
+back to user
+Assistant:
+You should watch
+this movie on time
+travel.
+Conversations are then
+fed back into the memory
+function to create relevant
+new memories.
+Questions are converted
+to embedding and then
+used to query database.
+The user has recently
+watched these time
+travel movies.
+Embedding
+User:
+What movie
+should I watch?
+What movie should
+I watch?
+Semantic Augmentation
+function extracts details
+speciﬁc to memory form.
+What type of movies
+does the user like?
+Give me a summary
+of movies the user
+has watched.
+The semantic
+augmentation
+converts the input
+into questions
+relevant to the
+particular form of
+memory.
+LLM
+LLM
+Figure 8.17
+How semantic memory augmentation works
+
+205
+8.6
+Implementing memory in agentic systems
+The benefit of using semantic augmentation is the increased ability to extract more
+relevant memories. We can see this in operation by jumping back into Nexus and cre-
+ating a new semantic memory store.
+Figure 8.18 shows how to configure a new memory store using semantic memory.
+As of yet, you can’t configure the specific function prompts for memory, augmenta-
+tion, and summarization. However, it can be useful to read through each of the func-
+tion prompts to gain a sense of how they work.
+Memory function for adding new memories
+Augmentation function is called to extract
+relevance before querying a memory store.
+Select SEMANTIC as the type of memory.
+Select the
+Conﬁguration tab.
+Be sure to create a new
+memory store ﬁrst.
+Summarization function is used in memory
+compression.
+Figure 8.18
+Configuration for changing the memory store type to semantic
+
+206
+CHAPTER 8
+Understanding agent memory and knowledge
+Now, if you go back and add facts and preferences, they will convert to the semantics
+of the relevant memory type. Figure 8.19 shows an example of memories being popu-
+lated for the same set of statements into two different forms of memory. Generally, the
+statements entered into memory would be more specific to the form of memory.
+Memory and knowledge can significantly assist an agent with various application types.
+Indeed, a single memory/knowledge store could feed one or multiple agents, allowing
+Figure 8.19
+Comparing memories for the same information given two different memory types
+
+207
+8.7
+Understanding memory and knowledge compression
+for further specialized interpretations of both types of stores. We’ll finish out the
+chapter by discussing memory/knowledge compression next.
+8.7
+Understanding memory and knowledge compression
+Much like our own memory, memory stores can become cluttered with redundant
+information and numerous unrelated details over time. Internally, our minds deal
+with memory clutter by compressing or summarizing memories. Our minds remem-
+ber more significant details over less important ones, and memories accessed more
+frequently.
+We can apply similar principles of memory compression to agent memory and
+other retrieval systems to extract significant details. The principle of compression is
+similar to semantic augmentation but adds another layer to the preclusters groups of
+related memories that can collectively be summarized.
+Figure 8.20 shows the process of memory/knowledge compression. Memories or
+knowledge are first clustered using an algorithm such as k-means. Then, the groups of
+memories are passed through a compression function, which summarizes and collects
+the items into more succinct representations.
+Nexus provides for both knowledge and memory store compression using k-means
+optimal clustering. Figure 8.21 shows the compression interface for memory. Within
+the compression interface, you’ll see the items displayed in 3D and clustered. The size
+(number of items) of the clusters is shown in the left table.
+Compressing memories and even knowledge is generally recommended if the
+number of items in a cluster is large or unbalanced. Each use case for compression
+may vary depending on the use and application of memories. Generally, though, if an
+Memory/Knowledge Comparison
+Compressed items are
+stored as embeddings.
+Memories and
+knowledge can be
+redundant, repetitive,
+and include duplicate
+information and
+potentially misaligned
+information.
+Clustering
+The user likes time
+travel movies.
+The speaker enjoys
+time travel movies.
+likes time travel
+stories
+Items are clustered
+using reduced dimensional
+embeddings and -means.
+k
+Compression function
+summarizes items
+by group and
+function into a new
+list of memories and
+knowledge
+Embedding
+Vector DB
+The user enjoys
+time travel movies
+and has seen
+the following ﬁlms:
+Figure 8.20
+The process of memory and knowledge compression
+
+208
+CHAPTER 8
+Understanding agent memory and knowledge
+inspection of the items in a store contains repetitive or duplicate information, it’s a
+good time for compression. The following is a summary of use cases for applications
+that would benefit from compression.
+THE CASE FOR KNOWLEDGE COMPRESSION
+Knowledge retrieval and augmentation have also been shown to benefit significantly
+from compression. Results will vary by use case, but generally, the more verbose the
+source of knowledge, the more it will benefit from compression. Documents that
+feature literary prose, such as stories and novels, will benefit more than, say, a base
+of code. However, if the code is likewise very repetitive, compression could also be
+shown to be beneficial.
+THE CASE FOR HOW OFTEN YOU APPLY COMPRESSION
+Memory will often benefit from the periodic compression application, whereas knowl-
+edge stores typically only help on the first load. How frequently you apply compres-
+sion will greatly depend on the memory use, frequency, and quantity.
+THE CASE FOR APPLYING COMPRESSION MORE THAN ONCE
+Multiple passes of compression at the same time has been shown to improve retrieval
+performance. Other patterns have also suggested using memory or knowledge at vari-
+ous levels of compression. For example, a knowledge store is compressed two times,
+resulting in three different levels of knowledge.
+Number of items are
+shown per cluster.
+Compression requires an agent
+engine; GPT-4 or higher LLMs
+are preferred for compression.
+The optimal number of
+k-means clusters are shown.
+Click the Compress button to
+start compression. The process of
+compression may take several minutes
+depending on the size of the store.
+Figure 8.21
+The interface for compressing memories
+
+209
+8.8
+Exercises
+THE CASE FOR BLENDING KNOWLEDGE AND MEMORY COMPRESSION
+If a system is specialized to a particular source of knowledge and that system also
+employs memories, there may be further optimization to consolidate stores. Another
+approach is to populate memory with the starting knowledge of a document directly.
+THE CASE FOR MULTIPLE MEMORY OR KNOWLEDGE STORES
+In more advanced systems, we’ll look at agents employing multiple memory and knowl-
+edge stores relevant to their workflow. For example, an agent could employ individual
+memory stores as part of its conversations with individual users, perhaps including the
+ability to share different groups of memory with different groups of individuals. Mem-
+ory and knowledge retrieval are cornerstones of agentic systems, and we can now sum-
+marize what we covered and review some learning exercises in the next section.
+8.8
+Exercises
+Use the following exercises to improve your knowledge of the material:
+Exercise 1—Load and Split a Different Document (Intermediate)
+Objective—Understand the effect of document splitting on retrieval efficiency by
+using LangChain.
+Tasks:
+– Select a different document (e.g., a news article, a scientific paper, or a short
+story).
+– Use LangChain to load and split the document into chunks.
+– Analyze how the document is split into chunks and how it affects the retrieval
+process.
+Exercise 2—Experiment with Semantic Search (Intermediate)
+Objective—Compare the effectiveness of various vectorization techniques by per-
+forming semantic searches.
+Tasks:
+– Choose a set of documents for semantic search.
+– Use a vectorization method such as Word2Vec or BERT embeddings instead
+of TF–IDF.
+– Perform the semantic search, and compare the results with those obtained
+using TF–IDF to understand the differences and effectiveness.
+Exercise 3—Implement a Custom RAG Workflow (Advanced)
+Objective—Apply theoretical knowledge of RAG in a practical context using
+LangChain.
+Tasks:
+– Choose a specific application (e.g., customer service inquiries or academic
+research queries).
+– Design and implement a custom RAG workflow using LangChain.
+– Tailor the workflow to suit the chosen application, and test its effectiveness.
+
+210
+CHAPTER 8
+Understanding agent memory and knowledge
+Exercise 4—Build a Knowledge Store and Experiment with Splitting Patterns
+(Intermediate)
+Objective—Understand how different splitting patterns and compression affect
+knowledge retrieval.
+Tasks:
+– Build a knowledge store, and populate it with a couple of documents.
+– Experiment with different forms of splitting/chunking patterns, and analyze
+their effect on retrieval.
+– Compress the knowledge store, and observe the effects on query performance.
+Exercise 5—Build and Test Various Memory Stores (Advanced)
+Objective—Understand the uniqueness and use cases of different memory store
+types.
+Tasks:
+– Build various forms of memory stores (conversational, semantic, episodic,
+and procedural).
+– Interact with an agent using each type of memory store, and observe the dif-
+ferences.
+– Compress the memory store, and analyze the effect on memory retrieval.
+Summary
+Memory in AI applications differentiates between unstructured and structured
+memory, highlighting their use in contextualizing prompts for more relevant
+interactions.
+Retrieval augmented generation (RAG) is a mechanism for enhancing prompts
+with context from external documents, using vector embeddings and similarity
+search to retrieve relevant content.
+Semantic search with document indexing converts documents into semantic
+vectors using TF–IDF and cosine similarity, enhancing the capability to perform
+semantic searches across indexed documents.
+Vector databases and similarity search stores document vectors in a vector data-
+base, facilitating efficient similarity searches and improving retrieval accuracy.
+Document embeddings capture semantic meanings, using models such as
+OpenAI’s models to generate embeddings that preserve a document’s context
+and facilitate semantic similarity searches.
+LangChain provides several tools for performing RAG, and it abstracts the
+retrieval process, allowing for easy implementation of RAG and memory sys-
+tems across various data sources and vector stores.
+Short-term and long-term memory in LangChain implements conversational
+memory within LangChain, distinguishing between short-term buffering pat-
+terns and long-term storage solutions.
+
+211
+Summary
+Storing document vectors in databases for efficient similarity searches is crucial
+for implementing scalable retrieval systems in AI applications.
+Agent knowledge directly relates to the general RAG pattern of performing
+question and answer on documents or other textual information.
+Agent memory is a pattern related to RAG that captures the agentic interac-
+tions with users, itself, and other systems.
+Nexus is a platform that implements agentic knowledge and memory systems,
+including setting up knowledge stores for document retrieval and memory
+stores for various forms of memory.
+Semantic memory augmentation (semantic memory) differentiates between vari-
+ous types of memories (semantic, episodic, procedural). It implements them
+through semantic augmentation, enhancing agents’ ability to recall and use
+information relevantly specific to the nature of the memories.
+Memory and knowledge compression are techniques for condensing informa-
+tion stored in memory and knowledge systems, improving retrieval efficiency
+and relevancy through clustering and summarization.
+
+212
+Mastering agent prompts
+with prompt flow
+In this chapter, we delve into the Test Changes Systematically prompt engineering
+strategy. If you recall, we covered the grand strategies of the OpenAI prompt engi-
+neering framework in chapter 2. These strategies are instrumental in helping us
+build better prompts and, consequently, better agent profiles and personas. Under-
+standing this role is key to our prompt engineering journey.
+Test Changes Systematically is such a core facet of prompt engineering that Mic-
+rosoft developed a tool around this strategy called prompt flow, described later in
+this chapter. Before getting to prompt flow, we need to understand why we need
+systemic prompt engineering.
+This chapter covers
+Understanding systematic prompt engineering
+and setting up your first prompt flow
+Crafting an effective profile/persona prompt
+Evaluating profiles: Rubrics and grounding
+Grounding evaluation of a large language model
+profile
+Comparing prompts: Getting the perfect profile
+
+213
+9.1
+Why we need systematic prompt engineering
+9.1
+Why we need systematic prompt engineering
+Prompt engineering, by its nature, is an iterative process. When building a prompt,
+you’ll often iterate and evaluate. To see this concept in action, consider the simple
+application of prompt engineering to a ChatGPT question.
+You can follow along by opening your browser to ChatGPT (https://chat.openai
+.com/), entering the following (text) prompt into ChatGPT, and clicking the Send Mes-
+sage button (an example of this conversation is shown in figure 9.1, on the left side):
+can you recommend something
+We can see that the response from ChatGPT is asking for more information. Go ahead
+and open a new conversation with ChatGPT, and enter the following prompt, as
+shown in figure 9.1, on the right side:
+Can you please recommend a time travel movie set in the medieval period.
+The results in figure 9.1 show a clear difference between leaving out details and being
+more specific in your request. We just applied the tactic of politely Writing Clear Instruc-
+tions, and ChatGPT provided us with a good recommendation. But also notice how
+ChatGPT itself guides the user into better prompting. The refreshed screen shown in
+figure 9.2 shows the OpenAI prompt engineering strategies.
+We just applied simple iteration to improve our prompt. We can extend this exam-
+ple by using a system prompt/message. Figure 9.3 demonstrates the use and role of
+the system prompt in iterative communication. In chapter 2, we used the system mes-
+sage/prompt in various examples.
+No prompt engineering
+Applying prompt engineering
+Details are included in
+the prompt/request.
+ChatGPT guides the user to
+supply additional details.
+Figure 9.1
+The differences in applying prompt engineering and iterating
+
+214
+CHAPTER 9
+Mastering agent prompts with prompt flow
+Write Clear Instructions
+Be speciﬁc in what you ask.
+Tactics include detailing queries, adopting personas, using d imiters,
+el
+specifying steps, providing examples, and specifying output length.
+Basics
+Provide Reference Text
+Helps reduce fabrications.
+Tactics involve instructing the model to use or cite reference texts.
+Memory
+Use External Tools
+Enhances model capabilities.
+Tactics include embeddings-based search, code execution, and
+access to speciﬁc functions.
+Memory
+Split Complex Tasks into Simpler Subtasks
+Reduces error rates.
+Tactics include intent classiﬁcation, summarizing dialogues, and
+piecewise summarization of documents.
+Planning
+Give Models Time to “Think”
+Allows more reliable reasoning.
+Tactics involve working out solutions before conclusions, using inn r
+e
+monologue, and reviewing previous answers.
+Planning
+Test Changes Systematically
+Ensures improvements are genuine.
+Tactics involve evaluating model outputs with reference to standard
+answers.
+Evaluation
+Prompt Engineering Strategies
+Figure 9.2
+OpenAI prompt engineering strategies, broken down by agent component
+The ser prompt deﬁnes
+u
+the details of the ask.
+The ystem prompt deﬁnes the role
+s
+and rules and continues across the
+conversation.
+A ser prompt may reﬁne
+u
+the ask or start a new ask.
+The Assistant marks the
+response from the LLM.
+Figure 9.3
+The messages to and from an LLM conversation and the iteration of messages
+
+215
+9.1
+Why we need systematic prompt engineering
+You can also try this in ChatGPT. This time, enter the following prompt and include
+the word system in lowercase, followed by a new line (enter a new line in the message
+window without sending the message by pressing Shift-Enter):
+system
+You are an expert on time travel movies.
+ChatGPT will respond with some pleasant comments, as shown in figure 9.4. Because
+of this, it’s happy to accept its new role and asks for any follow-up questions. Now
+enter the following generic prompt as we did previously:
+can you recommend something
+This sets the ystem prompt, the role
+s
+the LLM will take for the remainder of
+the conversation.
+The LLM responds happily with the new role.
+Make the generic ask again.
+The LLM now provides a list of recommendations.
+Figure 9.4
+The effect of adding a system prompt to our previous conversation
+
+216
+CHAPTER 9
+Mastering agent prompts with prompt flow
+We’ve just seen the iteration of refining a prompt, the prompt engineering, to extract
+a better response. This was accomplished over three different conversations using the
+ChatGPT UI. While not the most efficient way, it works.
+However, we haven’t defined the iterative flow for evaluating the prompt and
+determining when a prompt is effective. Figure 9.5 shows a systemic method of prompt
+engineering using a system of iteration and evaluation.
+The system of iterating and evaluating prompts covers the broad Test Changes System-
+ically strategy. Evaluating the performance and effectiveness of prompts is still new,
+but we’ll use techniques from education, such as rubrics and grounding, which we’ll
+explore in a later section of this chapter. However, as spelled out in the next section,
+we need to understand the difference between a persona and an agent profile before
+we do so.
+9.2
+Understanding agent profiles and personas
+An agent profile is an encapsulation of component prompts or messages that describe
+an agent. It includes the agent’s persona, special instructions, and other strategies that
+can guide the user or other agent consumers.
+Figure 9.6 shows the main elements of an agent profile. These elements map to
+prompt engineering strategies described in this book. Not all agents will use all the
+elements of a full agent profile.
+At a basic level, an agent profile is a set of prompts describing the agent. It may
+include other external elements related to actions/tools, knowledge, memory,
+Systemic Prompt Engineering
+(Strategy - Test Changes Systemically)
+Build prompt
+or proﬁle
+Write/update the
+prompt
+Yes
+Evaluate
+prompt
+is working
+No
+Yes
+Batch
+evaluation
+of prompt
+No
+Prompt is
+used
+Prompt or proﬁle
+is grounded.
+Evaluate variations
+of the prompt/proﬁle.
+Evaluate the prompt
+basic on rubrics.
+Use prompt
+engineering to
+write the prompt.
+Figure 9.5
+The systemic method of prompt engineering
+
+217
+9.3
+Setting up your first prompt flow
+reasoning, evaluation, planning, and feedback. The combination of these elements
+comprises an entire agent prompt profile.
+Prompts are the heart of an agent’s function. A prompt or set of prompts drives
+each of the agent components in the profile. For actions/tools, these prompts are well
+defined, but as we’ve seen, prompts for memory and knowledge can vary significantly
+by use case.
+The definition of an AI agent profile is more than just a system prompt. Prompt
+flow can allow us to construct the prompts and code comprising the agent profile but
+also include the ability to evaluate its effectiveness. In the next section, we’ll open up
+prompt flow and start using it.
+9.3
+Setting up your first prompt flow
+Prompt flow is a tool developed by Microsoft within its Azure Machine Learning Stu-
+dio platform. The tool was later released as an open source project on GitHub,
+where it has attracted more attention and use. While initially intended as an applica-
+tion platform, it has since shown its strength in developing and evaluating prompts/
+profiles.
+Because prompt flow was initially developed to run on Azure as a service, it fea-
+tures a robust core architecture. The tool supports multi-threaded batch processing,
+The Agent Proﬁle (prompts)
+Actions and tools are added to
+the prompt under the covers.
+Knowledge and memory are prompts
+used to extract and identify memories.
+Adding reasoning to prompts
+Similar to prompt personas, the agent
+persona can give an agent specialized
+attributes, rules, and even personality.
+Planning and feedback
+Persona
+Represents the background and role of
+the agent, and is often introduced in
+the ﬁrst system message.
+Agent T ools
+Set of tools an agent can
+use to help accomplish a task.
+Agent Evaluation and Reasoning
+Describes how the agent can reason
+and evaluate a task or tasks.
+Agent Memory and Knowledge
+The backend store that helps the agent
+add context to a given task problem.
+Agent Planning and Feedback
+Describes how the agent can break
+down a task into execution steps, and
+then execute and receive feedback.
+Figure 9.6
+The component parts of an agent profile
+
+218
+CHAPTER 9
+Mastering agent prompts with prompt flow
+which makes it ideal for evaluating prompts at scale. The following section will exam-
+ine the basics of starting with prompt flow.
+9.3.1
+Getting started
+There are a few prerequisites to undertake before working through the exercises in
+this book. The relevant prerequisites for this section and chapter are shown in the fol-
+lowing list; make sure to complete them before attempting the exercises:
+Visual Studio Code (VS Code)—Refer to appendix A for installation instructions,
+including additional extensions.
+Prompt flow, VS Code extension—Refer to appendix A for details on installing
+extensions.
+Python virtual environment—Refer to appendix A for details on setting up a vir-
+tual environment.
+Install prompt flow packages—Within your virtual environment, do a quick pip
+install, as shown here:
+pip install promptflow promptflow-tools
+LLM (GPT-4 or above)—You’ll need access to GPT-4 or above through OpenAI
+or Azure OpenAI Studio. Refer to appendix B if you need assistance accessing
+these resources.
+Book’s source code—Clone the book’s source code to a local folder; refer to
+appendix A if you need help cloning the repository.
+Open up VS Code to the book’s source code folder, chapter 3. Ensure that you have a
+virtual environment connected and have installed the prompt flow packages and
+extension.
+First, you’ll want to create a connection to your LLM resource within the prompt
+flow extension. Open the prompt flow extension within VS Code, and then click to
+open the connections. Then, click the plus sign beside the LLM resource to create a
+new connection, as shown in figure 9.7.
+This will open a YAML file where you’ll need to populate the connection name
+and other information relevant to your connection. Follow the directions, and don’t
+enter API keys into the document, as shown in figure 9.8.
+When the connection information is entered, click the Create Connection link at
+the bottom of the document. This will open a terminal prompt below the document,
+asking you to enter your key. Depending on your terminal configuration, you may be
+unable to paste (Ctrl-V, Cmd-V). Alternatively, you can paste the key by hovering the
+mouse cursor over the terminal and right-clicking on Windows.
+We’ll now test the connection by first opening the simple flow in the chap-
+ter_09/promptflow/simpleflow folder. Then, open the flow.dag.yaml file in VS
+Code. This is a YAML file, but the prompt flow extension provides a visual editor
+
+219
+9.3
+Setting up your first prompt flow
+(omitted)
+VS Code
+Click to open the prompt ﬂow extension.
+Click the plus to create a new connection.
+Figure 9.7
+Creating a new prompt flow LLM connection
+Enter a name for the connection.
+Follow the directions: don’t enter a key.
+Click after completing the above.
+Figure 9.8
+Setting the connection information for your LLM resource
+
+220
+CHAPTER 9
+Mastering agent prompts with prompt flow
+that is accessible by clicking the Visual Editor link at the top of the file, as shown in
+figure 9.9.
+After the visual editor window is opened, you’ll see a graph representing the flow and
+the flow blocks. Double-click the recommender block, and set the connection name,
+API type, and model or deployment name, as shown in figure 9.10.
+Click the link to open the visual editor.
+ﬂow.dag.yaml
+Figure 9.9
+Opening the prompt flow visual editor
+Double-click to
+open LLM block.
+Select the
+connection name.
+API type
+Model or
+deployment name
+Figure 9.10
+Setting the LLM connection details
+
+221
+9.3
+Setting up your first prompt flow
+A prompt flow is composed of a set of blocks starting with an Inputs block and termi-
+nating in an Outputs block. Within this simple flow, the recommender block represents
+the LLM connection and the prompt used to converse with the model. The echo
+block for this simple example echoes the input.
+When creating a connection to an LLM, either in prompt flow or through an
+API, here are the crucial parameters we always need to consider (prompt flow docu-
+mentation: https://microsoft.github.io/promptflow):
+Connection—This is the connection name, but it also represents the service
+you’re connecting to. Prompt flow supports multiple services, including locally
+deployed LLMs.
+API—This is the API type. The options are chat for a chat completion API,
+such as GPT-4, or completion for the older completion models, such as the
+OpenAI Davinci.
+Model—This may be the model or deployment name, depending on your service
+connection. For OpenAI, this will be the model’s name, and for Azure OpenAI,
+it will represent the deployment name.
+Temperature—This represents the stochasticity or variability of the model response.
+A value of 1 represents a high variability of responses, while 0 indicates a desire
+for no variability. This is a critical parameter to understand and, as we’ll see, will
+vary by use case.
+Stop—This optional setting tells the call to the LLM to stop creating tokens. It’s
+more appropriate for older and open source models.
+Max tokens—This limits the number of tokens used in a conversation. Knowl-
+edge of how many tokens you use is crucial to evaluating how your LLM interac-
+tions will work when scaled. Counting tokens may not be a concern if you’re
+exploring and conducting research. However, in production systems, tokens
+represent the load on the LLM, and connections using numerous tokens may
+not scale well.
+Advanced parameters—You can set a few more options to tune your interaction
+with the LLM, but we’ll cover that topic in later sections of the book.
+After configuring the LLM block, scroll up to the Inputs block section, and review the
+primary input shown in the user_input field, as shown in figure 9.11. Leave it as the
+default, and then click the Play button at the top of the window.
+All the blocks in the flow will run, and the results will be shown in the terminal win-
+dow. What you should find interesting is that the output shows recommendations for
+time travel movies. This is because the recommender block already has a simple pro-
+file set, and we’ll see how that works in the next section.
+
+
+222
+CHAPTER 9
+Mastering agent prompts with prompt flow
+9.3.2
+Creating profiles with Jinja2 templates
+The flow responds with time travel movie recommendations because of the prompt or
+profile it uses. By default, prompt flow uses Jinja2 templates to define the content of
+the prompt or what we’ll call a profile. For the purposes of this book and our explora-
+tion of AI agents, we’ll refer to these templates as the profile of a flow or agent.
+While prompt flow doesn’t explicitly refer to itself as an assistant or agent engine, it
+certainly meets the criteria of producing a proxy and general types of agents. As you’ll
+see, prompt flow even supports deployments of flows into containers and as services.
+Open VS Code to chapter_09/promptflow/simpleflow/flow.dag.yaml, and open
+the file in the visual editor. Then, locate the Prompt field, and click the recommended
+.jinja2 link, as shown in figure 9.12.
+Inputs block
+Click Play to run all
+the blocks in the ﬂow.
+Use the default text.
+Figure 9.11
+Setting the inputs and starting the flow
+Click the link to open
+the inja2 template.
+J
+Deﬁnes the start of the system and
+user portion of the prompt/proﬁle
+The role of the proﬁle
+This is where the user_input
+text will be placed.
+Figure 9.12
+Opening the prompt Jinja2 template and examining the parts of the profile/prompt
+
+223
+9.3
+Setting up your first prompt flow
+Jinja is a templating engine, and Jinja2 is a particular version of that engine. Tem-
+plates are an excellent way of defining the layout and parts of any form of text docu-
+ment. They have been extensively used to produce HTML, JSON, CSS, and other
+document forms. In addition, they support the ability to apply code directly into the
+template. While there is no standard way to construct prompts or agent profiles, our
+preference in this book is to use templating engines such as Jinja.
+At this point, change the role within the system prompt of the recommended.jin-
+ja2 template. Then, run all blocks of the flow by opening the flow in the visual editor
+and clicking the Play button. The next section will look at other ways of running
+prompt flow for testing or actual deployment.
+9.3.3
+Deploying a prompt flow API
+Because prompt flow was also designed to be deployed as a service, it supports a cou-
+ple of ways to deploy as an app or API quickly. Prompt flow can be deployed as a local
+web application and API running from the terminal or as a Docker container.
+Return to the flow.dag.yaml file in the visual editor from VS Code. At the top of
+the window beside the Play button are several options we’ll want to investigate further.
+Click the Build button as shown in figure 9.13, and then select to deploy as a local
+app. A new YAML file will be created to configure the app. Leave the defaults, and
+click the Start Local App link.
+This will launch the flow as a local web application, and you’ll see a browser tab open,
+as shown in figure 9.14. Enter some text into the user_input field, which is marked as
+required with a red asterisk. Click Enter and wait a few seconds for the reply.
+You should see a reply like the one shown earlier in figure 9.12, where the flow or
+agent replies with a list of time travel movies. This is great—we’ve just developed our
+first agent profile and the equivalent of a proxy agent. However, we need to determine
+Click the Build button. When prompted, select to build
+as either a web application or Docker container.
+Click the link to start the local app.
+Figure 9.13
+Building and starting the flow as a local app
+
+224
+CHAPTER 9
+Mastering agent prompts with prompt flow
+how successful or valuable the recommendations are. In the next section, we explore
+how to evaluate prompts and profiles.
+9.4
+Evaluating profiles: Rubrics and grounding
+A key element of any prompt or agent profile is how well it performs its given task. As
+we see in our recommendation example, prompting an agent profile to give a list of
+recommendations is relatively easy, but knowing whether those recommendations are
+helpful requires us to evaluate the response.
+Fortunately, prompt flow has been designed to evaluate prompts/profiles at scale.
+The robust infrastructure allows for the evaluation of LLM interactions to be paral-
+lelized and managed as workers, allowing hundreds of profile evaluations and varia-
+tions to happen quickly.
+In the next section, we look at how prompt flow can be configured to run prompt/
+profile variations against each other. We’ll need to understand this before evaluating
+profiles’ performance.
+Prompt flow provides a mechanism to allow for multiple variations within an LLM
+prompt/profile. This tool is excellent for comparing subtle or significant differences
+Chat history is only used for chat ﬂow. This is a standard ﬂow.
+Keeps a history of submissions
+Enter text to be used by the recommender.
+Figure 9.14
+Running the flow as a local web application
+
+225
+9.4
+Evaluating profiles: Rubrics and grounding
+between profile variations. When used in performing bulk evaluations, it can be
+invaluable for quickly assessing the performance of a profile.
+Open the recommender_with_variations/flow.dag.yaml file in VS Code and the
+flow visual editor, as shown in figure 9.15. This time, we’re making the profile more
+generalized and allowing for customization at the input level. This allows us to expand
+our recommendations to anything and not just time travel movies.
+The new inputs Subject, Genre, Format, and Custom allow us to define a profile that
+can easily be adjusted to any recommendation. This also means that we must prime
+the inputs based on the recommendation use case. There are multiple ways to prime
+these inputs; two examples of priming inputs are shown in figure 9.16. The figure
+shows two options, options A and B, for priming inputs. Option A represents the clas-
+sic UI; perhaps there are objects for the user to select the subject or genre, for exam-
+ple. Option B places a proxy/chat agent to interact with the user better to understand
+the desired subject, genre, and so on.
+Added additional inputs
+into the recommender
+The recommenderLLM has two variations. Click
+the adjust icons to see and edit the variations.
+Inputs are passed directly to
+the recommender LLM block.
+Figure 9.15
+The recommender, with variations in flow and expanded inputs
+
+226
+CHAPTER 9
+Mastering agent prompts with prompt flow
+Even considering the power of LLMs, you may still want or need to use option A. The
+benefit of option A is that you can constrain and validate the inputs much like you do
+with any modern UI. Alternatively, the downside of option A is that the constrained
+behavior may limit and restrict future use cases.
+Option B represents a more fluid and natural way without a traditional UI. It’s far
+more powerful and extensible than option A but also introduces more unknowns for
+evaluation. However, if the proxy agent that option B uses is written well, it can assist a
+lot in gathering better information from the user.
+The option you choose will dictate how you need to evaluate your profiles. If
+you’re okay with a constrained UI, then it’s likely that the inputs will also be con-
+strained to a set of discrete values. For now, we’ll assume option B for input priming,
+meaning the input values will be defined by their name.
+To get back to VS Code and the visual view of the recommender with variants flow,
+click the icon shown earlier in figure 9.15 to open the variants and allow editing.
+Then, click the recommend.jinja2 and recommender_variant_1.jinja2 links to open
+the files side by side, as shown in figure 9.17.
+Figure 9.17 demonstrates the difference between the variant profiles. One profile
+injects the inputs into the user prompt, and the other injects them into the system
+prompt. However, it’s essential to understand that variations can encompass more
+than profile design, as identified in table 9.1.
+API
+User interface
+I want a movie recommendation
+LLM
+Options
+Option A
+Option B
+User enters the required information: subject,
+genre, format, and custom into an interface
+The proxy agent asks or is directed by the user
+for recommendations. The agent asks and/or
+identiﬁes the subject, genre, format, and
+custom through conversation.
+Agent proﬁle interacts with LLM by
+injecting subject, genre, format,
+and custom into its proﬁle
+Figure 9.16
+The user interaction options for interfacing with the agent profile to prime inputs to the agent profile
+
+227
+9.4
+Evaluating profiles: Rubrics and grounding
+For this simple example, we’re just going to use prompt variations by varying the input
+to reflect in either the system or user prompt. Refer to figure 9.17 for what this looks
+Table 9.1
+LLM variation options in prompt flow
+Option
+Evaluation option examples
+Notes
+Jinja2 prompt
+template
+Compare system prompt variations,
+user prompt variations, or mixed prompt
+variations.
+Some endless combinations and tech-
+niques can be applied here. Prompt engi-
+neering is evolving all the time.
+LLM
+Compare GPT-9.5 to GPT-4.
+Compare GPT-4 to GPT-4 Turbo.
+Compare open source models to com-
+mercial models.
+This is a useful way to evaluate and
+ground model performance against a
+prompt. It can also help you tune your
+profile to work with open source and/or
+cheaper models.
+Temperature
+Compare a 0 temperature (no random-
+ness) to a 1 (maximum randomness).
+Changes to the temperature can signifi-
+cantly change the responses of some
+prompts, which may improve or degrade
+performance.
+Max tokens
+Compare limited tokens to larger token
+sizes.
+This can allow you to reduce and maxi-
+mize token usage.
+Advanced
+parameters
+Compare differences to options such
+as top_p, presence_penalty,
+frequency_penalty, and
+logit_bias.
+We’ll cover the use of these advanced
+parameters in later chapters.
+Function calls
+Compare alternative function calls.
+Function calls will be addressed later in
+this chapter.
+The system prompt describes a generic recommender
+that works when given speciﬁc inputs.
+This proﬁle injects the inputs directly
+into a formatted user message.
+Custom input now becomes
+the user prompt.
+The inputs are now injected into
+the system prompt. Both
+prompts have been simpliﬁed.
+Figure 9.17
+Side-by-side comparison of variant profile templates for the recommender
+
+228
+CHAPTER 9
+Mastering agent prompts with prompt flow
+like. We can then quickly run both variations by clicking the Play (Run All) button at
+the top and choosing both, as shown in figure 9.18.
+In the terminal window, you’ll see the results of both runs. The results will likely look
+similar, so now we must move on to how we evaluate the difference between variations
+in the next section.
+9.5
+Understanding rubrics and grounding
+Evaluation of prompt/profile performance isn’t something we can typically do using a
+measure of accuracy or correct percentage. Measuring the performance of a profile
+depends on the use case and desired outcome. If that is as simple as determining if
+the response was right or wrong, all the better. However, in most cases, evaluation
+won’t be that simple.
+In education, the rubric concept defines a structured set of criteria and standards a
+student must establish to receive a particular grade. A rubric can also be used to
+define a guide for the performance of a profile or prompt. We can follow these steps
+to define a rubric we can use to evaluate the performance of a profile or prompt:
+1
+Identify the purpose and objectives. Determine the goals you want the profile or
+agent to accomplish. For example, do you want to evaluate the quality of recom-
+mendations for a given audience or overall quality for a given subject, format,
+or other input?
+2
+Define criteria. Develop a set of criteria or dimensions that you’ll use to evaluate
+the profile. These criteria should align with your objectives and provide clear
+guidelines for assessment. Each criterion should be specific and measurable.
+#2 Select the option to run all variations.
+#1 Click Play (Run All) to start the run.
+Figure 9.18
+Running both prompt variations at the same time
+
+229
+9.5
+Understanding rubrics and grounding
+For example, you may want to measure a recommendation by how well it fits
+with the genre and then by subject and format.
+3
+Create a scale. Establish a rating scale that describes the levels of performance for
+each criterion. Standard scales include numerical scales (e.g., 1–5) or descrip-
+tive scales (e.g., Excellent, Good, Fair, Poor).
+4
+Provide descriptions. For each level on the scale, provide clear and concise descrip-
+tions that indicate what constitutes a strong performance and what represents a
+weaker performance for each criterion.
+5
+Apply the rubric. When assessing a prompt or profile, use the rubric to evaluate
+the prompt’s performance based on the established criteria. Assign scores or
+ratings for each criterion, considering the descriptions for each level.
+6
+Calculate the total score. Depending on your rubric, you may calculate a total
+score by summing up the scores for each criterion or using a weighted average
+if some criteria are more important than others.
+7
+Ensure evaluation consistency. If multiple evaluators are assessing the profile, it’s
+crucial to ensure consistency in grading.
+8
+Review, revise, and iterate. Periodically review and revise the rubric to ensure it
+aligns with your assessment goals and objectives. Adjust as needed to improve
+its effectiveness.
+Grounding is a concept that can be applied to profile and prompt evaluation—it
+defines how well a response is aligned with a given rubric’s specific criteria and stan-
+dards. You can also think of grounding as the baseline expectation of a prompt or pro-
+file output.
+This list summarizes some other important considerations when using grounding
+with profile evaluation:
+Grounding refers to aligning responses with the criteria, objectives, and context
+defined by the rubric and prompt.
+Grounding involves assessing whether the response directly addresses the
+rubric criteria, stays on topic, and adheres to any provided instructions.
+Evaluators and evaluations gauge the accuracy, relevance, and adherence to
+standards when assessing grounding.
+Grounding ensures that the response output is firmly rooted in the specified
+context, making the assessment process more objective and meaningful.
+A well-grounded response aligns with all the rubric criteria within the given context
+and objectives. Poorly grounded responses will fail or miss the entire criteria, context,
+and objectives.
+As the concepts of rubrics and grounding may still be abstract, let’s look at apply-
+ing them to our current recommender example. Following is a list that follows the
+process for defining a rubric as applied to our recommender example:
+
+230
+CHAPTER 9
+Mastering agent prompts with prompt flow
+1
+Identify the purpose and objectives. The purpose of our profile/prompt is to recom-
+mend three top items given a subject, format, genre, and custom input.
+2
+Define criteria. For simplicity, we’ll evaluate how a particular recommendation
+aligns with the given input criteria, subject, format, and genre. For example, if a
+profile recommends a book when asked for a movie format, we expect a low
+score in the format criteria.
+3
+Create a scale. Again, keeping things simple, we’ll use a scale of 1–5 (1 is poor,
+and 5 is excellent).
+4
+Provide descriptions. See the general descriptions for the rating scale shown in
+table 9.2.
+5
+Apply the rubric. With the rubric assigned at this stage, it’s an excellent exercise
+to evaluate the rubric against recommendations manually.
+6
+Calculate the total score. For our rubric, we’ll average the score for all criteria to
+provide a total score.
+7
+Ensure evaluation consistency. The technique we’ll use for evaluation will provide
+very consistent results.
+8
+Review, revise, and iterate. We’ll review, compare, and iterate on our profiles, rubrics,
+and the evaluations themselves.
+This basic rubric can now be applied to evaluate the responses for our profile. You can
+do this manually, or as you’ll see in the next section, using a second LLM profile.
+9.6
+Grounding evaluation with an LLM profile
+This section will employ another LLM prompt/profile for evaluation and grounding.
+This second LLM prompt will add another block after the recommendations are gen-
+erated. It will process the generated recommendations and evaluate each one, given
+the previous rubric.
+Before GPT-4 and other sophisticated LLMs came along, we would have never con-
+sidered using another LLM prompt to evaluate or ground a profile. You often want
+Table 9.2
+Rubric ratings
+Rating
+Description
+1
+Poor alignment: this is the opposite of what is expected given the criteria.
+2
+Bad alignment: this isn’t a good fit for the given criteria.
+3
+Mediocre alignment: it may or may not fit well with the given criteria.
+4
+Good alignment: it may not align 100% with the criteria but is a good fit otherwise.
+5
+Excellent alignment: this is a good recommendation for the given criteria.
+
+231
+9.6
+Grounding evaluation with an LLM profile
+to use a different model when using LLMs to ground a profile. However, if you’re
+comparing profiles against each other, using the same LLM for evaluation and ground-
+ing is appropriate.
+Open the recommender_with_LLM_evaluation\flow.dag.yaml file in the prompt
+flow visual editor, scroll down to the evaluate_recommendation block, and click the
+evaluate_recommendation.jinja2 link to open the file, as shown in figure 9.19. Each
+section of the rubric is identified in the figure.
+We have a rubric that is not only well defined but also in the form of a prompt that can
+be used to evaluate recommendations. This allows us to evaluate the effectiveness of
+recommendations for a given profile—automatically. Of course, you can also use the
+rubric to score and evaluate the recommendations manually for a better baseline.
+NOTE
+Using LLMs to evaluate prompts and profiles provides a strong base-
+line for comparing the performance of a profile. It can also do this without
+human bias in a controlled and repeatable manner. This provides an excel-
+lent mechanism to establish baseline groundings for any profile or prompt.
+Returning to the recommender_with_LLM_evaluation flow visual editor, we can run
+the flow by clicking the Play button and observing the output. You can run a single
+Deﬁne the basic role of the proﬁle.
+Deﬁne the basic criteria for the rubric.
+Deﬁne the rubric scale and
+a description for each item
+on the scale.
+Reiterate the criteria and scale, and
+show an example of expected output.
+Figure 9.19
+The evaluation prompt, with each of the parts of the rubric outlined
+
+232
+CHAPTER 9
+Mastering agent prompts with prompt flow
+recommendation or run both variations when prompted. The output of a single eval-
+uation using the default inputs is shown in the following listing.
+{
+"recommendations": "Title: The Butterfly Effect
+Subject: 5
+Format: 5
+Genre: 4
+Title: Primer
+Subject: 5
+Format: 5
+Genre: 4
+Title: Time Bandits
+Subject: 5
+Format: 5
+Genre: 5"
+}
+We now have a rubric for grounding our recommender, and the evaluation is run
+automatically using a second LLM prompt. In the next section, we look at how to per-
+form multiple evaluations simultaneously and then at a total score for everything.
+9.7
+Comparing profiles: Getting the perfect profile
+With our understanding of rubrics and grounding, we can now move on to evaluating
+and iterating the perfect profile. Before we do that, though, we need to clean up the
+output from the LLM evaluation block. This will require us to parse the recommenda-
+tions into something more Pythonic, which we’ll tackle in the next section.
+9.7.1
+Parsing the LLM evaluation output
+As the raw output from the evaluation block is text, we now want to parse that into
+something more usable. Of course, writing parsing functions is simple, but there are
+better ways to cast responses automagically. We covered better methods for returning
+responses in chapter 5, on agent actions.
+Open chapter_09\prompt_flow\recommender_with_parsing\flow.dag.yaml in
+VS Code, and look at the flow in the visual editor. Locate the parsing_results block,
+and click the link to open the Python file in the editor, as shown in figure 9.20.
+The code for the parsing_results.py file is shown in listing 9.2.
+
+
+
+
+Listing 9.1
+LLM rubric evaluation output
+
+233
+9.7
+Comparing profiles: Getting the perfect profile
+from promptflow import tool
+@tool
+def parse(input: str) -> str:
+# Splitting the recommendations into individual movie blocks
+rblocks = input.strip().split("\n\n")
+# Function to parse individual recommendation block into dictionary
+def parse_block(block):
+lines = block.split('\n')
+rdict = {}
+for line in lines:
+kvs = line.split(': ')
+key, value = kvs[0], kvs[1]
+rdict[key.lower()] = value
+return rdict
+parsed = [parse_block(block) for block in rblocks]
+return parsed
+We’re converting the recommendations output from listing 9.1, which is just a string,
+into a dictionary. So this code will convert this string into the JSON block shown next:
+Listing 9.2
+parsing_results.py
+Click the link to open the Python ﬁle.
+parsing_results.py parses output
+after LLM evaluation.
+Figure 9.20
+Opening the parsing_results.py file in VS Code
+Special decorator to
+denote the tool block
+Splits the input and
+double new lines
+Creates a dictionary entry
+and sets the value
+Loops through each
+block and parses
+into key/value
+dictionary
+
+234
+CHAPTER 9
+Mastering agent prompts with prompt flow
+Before parsing:
+"Title: The Butterfly Effect
+Subject: 5
+Format: 5
+Genre: 4
+Title: Primer
+Subject: 5
+Format: 5
+Genre: 4
+Title: Time Bandits
+Subject: 5
+Format: 5
+Genre: 5"
+After parsing:
+{
+"title": " The Butterfly Effect
+"subject": "5",
+"format": "5",
+"genre": "4"
+},
+{
+"title": " Primer",
+"subject": "5",
+"format": "5",
+"genre": "4"
+},
+{
+"title": " Time Bandits",
+"subject": "5",
+"format": "5",
+"genre": "5"
+}
+The output of this parsing_results block now gets passed to the output and is
+wrapped in a list of recommendations. We can see what all this looks like by running
+the flow.
+Open flow.dag.yaml for the flow in the visual editor, and click the Play (Run All)
+button. Be sure to select to use both recommender variants. You’ll see both variations
+run and output to the terminal.
+At this point, we have a full working recommendation and LLM evaluation flow
+that outputs a score for each criterion on each output. However, to do comprehensive
+evaluations of a particular profile, we want to generate multiple recommendations
+with various criteria. We’ll see how to do batch processing of flows in the next section.
+
+235
+9.7
+Comparing profiles: Getting the perfect profile
+9.7.2
+Running batch processing in prompt flow
+In our generic recommendation profile, we want to evaluate how various input crite-
+ria can affect the generated recommendations. Fortunately, prompt flow can batch-
+process any variations we want to test. The limit is only the time and money we want
+to spend.
+To perform batch processing, we must first create a JSON Lines (JSONL) or JSON
+list document of our input criteria. If you recall, our input criteria looked like the fol-
+lowing in JSON format:
+{
+"subject": "time travel",
+"format": "books",
+"genre": "fantasy",
+"custom": "don't include any R rated content"
+}
+We want to create a list of JSON objects like that just shown, preferably in a random
+manner. Of course, the simple way to do this is to prompt ChatGPT to create a JSONL
+document using the following prompt:
+I am developing a recommendation agent. The agent will recommend anything given
+the following criteria:
+1. subject - examples: time travel, cooking, vacation
+2. format - examples: books, movies, games
+3. genre: documentary, action, romance
+4. custom: don't include any R rated content
+Can you please generate a random list of these criteria and output it in the format of
+a JSON Lines file, JSONL. Please include 10 items in the list.
+Try this out by going to ChatGPT and entering the preceding prompt. A previously
+generated file can be found in the flow folder, called \bulk_recommend.jsonl. The
+contents of this file have been shown here for reference:
+{
+"subject": "time travel",
+"format": "books",
+"genre": "fantasy",
+"custom": "don't include any R rated content"
+}
+{
+"subject": "space exploration",
+"format": "podcasts",
+"genre": "sci-fi",
+"custom": "include family-friendly content only"
+}
+
+236
+CHAPTER 9
+Mastering agent prompts with prompt flow
+{
+"subject": "mystery",
+"format": "podcasts",
+"genre": "fantasy",
+"custom": "don't include any R rated content"
+}
+{
+"subject": "space exploration",
+"format": "podcasts",
+"genre": "action",
+"custom": "include family-friendly content only"
+}
+{
+"subject": "vacation",
+"format": "books",
+"genre": "thriller",
+"custom": "don't include any R rated content"
+}
+{
+"subject": "mystery",
+"format": "books",
+"genre": "sci-fi",
+"custom": "don't include any R rated content"
+}
+{
+"subject": "mystery",
+"format": "books",
+"genre": "romance",
+"custom": "don't include any R rated content"
+}
+{
+"subject": "vacation",
+"format": "movies",
+"genre": "fantasy",
+"custom": "don't include any R rated content"
+}
+{
+"subject": "cooking",
+"format": "TV shows",
+"genre": "thriller",
+"custom": "include family-friendly content only"
+}
+{
+"subject": "mystery",
+"format": "movies",
+"genre": "romance",
+"custom": "include family-friendly content only"
+}
+With this bulk file, we can run both variants using the various input criteria in the bulk
+JSONL file. Open the flow.dag.yaml file in the visual editor, click Batch (the beaker
+icon) to start the bulk-data loading process, and select the file as shown in figure 9.21.
+For some operating systems, this may appear as Local Data File.
+
+237
+9.7
+Comparing profiles: Getting the perfect profile
+After the bulk file is selected, a new YAML document will open with a Run link added
+at the bottom of the file, as shown in figure 9.22. Click the link to do the batch run
+of inputs.
+At this point, a few things will happen. The flow visual editor will appear, and beside
+that a log file will open, showing the progress of the run. In the terminal window,
+you’ll see the various worker processes spawning and running.
+Be patient. The batch run, even for 10 items, may take a few minutes or seconds,
+depending on various factors such as hardware, previous calls, and so on. Wait for the
+run to complete, and you’ll see a summary of results in the terminal.
+You can also view the run results by opening the prompt flow extension and select-
+ing the last run, as shown in figure 9.23. Then, you dig into each run by clicking the
+Select a local ﬁle.
+Click to open the select input source.
+Figure 9.21
+Loading the bulk JSONL file to run the flow on multiple input variations
+Click to run the batch.
+Figure 9.22
+Running the batch run of inputs
+
+238
+CHAPTER 9
+Mastering agent prompts with prompt flow
+table cells. A lot of information is exposed in this dialog, which can help you trouble-
+shoot flows and profiles.
+A lot of information is captured during a batch run, and you can explore much of it
+through the visualizer. More information can be found by clicking the output folder
+link from the terminal window. This will open another session of VS Code with the
+output folder allowing you to review the run logs and other details.
+Now that we’ve completed the batch run for each variant, we can apply grounding
+and evaluate the results of both prompts. The next section will use a new flow to per-
+form the profile/prompt evaluation.
+9.7.3
+Creating an evaluation flow for grounding
+Open chapter_3\prompt_flow\evaluate_groundings\flow.dag.yaml in the visual edi-
+tor, as shown in figure 9.24. There are no LLM blocks in the evaluation flow—just
+Python code blocks that will run the scoring and then aggregate the scores.
+We can now look at the code for the scoring and aggregate blocks, starting
+with the scoring code in listing 9.3. This scoring code averages the score for each
+criterion into an average score. The output of the function is a list of processed
+recommendations.
+#2 Right-click a run, and
+select to open the visualization.
+Recommendations for
+a single set of inputs
+Look at the API calls and
+timing for the various calls.
+#3 Click the recommendations
+cell to view the results.
+#1 Open the prompt
+ﬂow extension.
+Figure 9.23
+An opening run visualization and an examination of a batch run
+
+239
+9.7
+Comparing profiles: Getting the perfect profile
+@tool
+def line_process(recommendations: str):
+inputs = recommendations
+output = []
+for data_dict in inputs:
+total_score = 0
+score_count = 0
+for key, value in data_dict.items():
+if key != "title":
+try:
+total_score += float(value)
+score_count += 1
+data_dict[key] = float(value)
+except:
+pass
+avg_score = total_score / score_count if score_count > 0 else 0
+data_dict["avg_score"] = round(avg_score, 2)
+output.append(data_dict)
+return output
+Listing 9.3
+line_process.py
+line_process block processes and
+scores each recommendation.
+aggregate block aggregates
+the results of scoring.
+Figure 9.24
+Looking at the evaluate_groundings flow used to ground recommendation runs
+A set of three recommendations
+is input into the function.
+Loops over each
+recommendation
+and criterion
+Title isn’t a criterion,
+so ignore it.
+Totals the score
+for all criteria
+and sets the float
+value to key
+Adds the average
+score as a grounding
+score of the
+recommendation
+
+240
+CHAPTER 9
+Mastering agent prompts with prompt flow
+From the grounded recommendations, we can move on to aggregating the scores
+with the aggregate block—the code for the aggregate block is shown in the follow-
+ing listing.
+@tool
+def aggregate(processed_results: List[str]):
+items = [item for sublist in processed_results
+➥ for item in sublist]
+aggregated = {}
+for item in items:
+for key, value in item.items():
+if key == 'title':
+continue
+if isinstance(value, (float, int)):
+if key in aggregated:
+aggregated[key] += value
+else:
+aggregated[key] = value
+for key, value in aggregated.items():
+value = value / len(items)
+log_metric(key=key, value=value)
+aggregated[key] = value
+return aggregated
+The result of the aggregations will be a summary score for each criterion and the aver-
+age score. Since the evaluation/grounding flow is separate, it can be run over any rec-
+ommendation run we perform. This will allow us to use the batch run results for any
+variation to compare results.
+We can run the grounding flow by opening flow.dag.yaml in the visual editor and
+clicking Batch (beaker icon). Then, when prompted, we select an existing run and
+then select the run we want to evaluate, as shown in figure 9.25. This will open a YAML
+file with the Run link at the bottom, as we’ve seen before. Click the Run link to run
+the evaluation.
+After the run is completed, you’ll see a summary of the results in the terminal win-
+dow. You can click the output link to open the folder in VS Code and analyze the
+results, but there is a better way to compare them.
+Open the prompt flow extension, focus on the Batch Run History window, and
+scroll down to the Run against Run section, as shown in figure 9.26. Select the runs
+you want to compare—likely the ones near the top—so that the checkmark appears.
+Then, right-click the run, and select the Visualize Runs option. The Batch Run Visual-
+ization window opens, and you’ll see the metrics for each of the runs at the top.
+Listing 9.4
+aggregate.py
+The input is a list
+of lists; flatten to
+a list of items.
+Checks to see if the value
+is numeric and accumulates
+scores for each criterion key
+Loops over aggregated
+criterion scores
+Logs the criterion
+as a metric
+
+241
+9.7
+Comparing profiles: Getting the perfect profile
+We can now see a significant difference between profile/prompt variation 0, the
+user prompt, and variation 1, the system prompt. Refer to figure 9.15 if you need a
+refresher on what the prompts/profiles look like. At this point, it should be evi-
+dent that injecting the input parameters into the system prompt provides better
+recommendations.
+You can now go back and try other profiles or other variant options to see what
+effect this has on your recommendations. The possibilities are virtually endless, but
+hopefully you can see what an excellent tool prompt flow will be for building agent
+profiles and prompts.
+
+
+Select Existing Run that is not a local JSON Lines ﬁle.
+Select the run you want to evaluate, noting the name.
+Figure 9.25
+Loading a previous run to be grounded and evaluated
+#1 Scroll down to the batch
+Run against the run section.
+#2 Select the runs you want to evaluate,
+and a checkmark appears. Then,
+right-click and select Visualize Runs.
+#3 Compare the aggregated criteria
+results against each of the runs.
+Figure 9.26
+Visualizing the metrics for multiple runs and comparing them
+
+242
+CHAPTER 9
+Mastering agent prompts with prompt flow
+9.7.4
+Exercises
+Use the following exercises to improve your knowledge of the material:
+Exercise 1—Create a New Prompt Variant for Recommender Flow (Intermediate)
+Objective—Improve the recommendation results by creating and testing a new
+prompt variant in prompt flow.
+Tasks:
+– Create a new prompt variant for the recommender flow in prompt flow.
+– Run the flow in batch mode.
+– Evaluate the results to determine if they are better or worse compared to the
+original prompt.
+Exercise 2—Add a Custom Field to the Rubric and Evaluate (Intermediate)
+Objective—Enhance the evaluation criteria by incorporating a custom field into
+the rubric and updating the evaluation flow.
+Tasks:
+– Add the custom field as a new criterion to the rubric.
+– Update the evaluation flow to score the new criterion.
+– Evaluate the results, and analyze the effect of the new criterion on the
+evaluation.
+Exercise 3—Develop a New Use Case and Evaluation Rubric (Advanced)
+Objective—Expand the application of prompt engineering by developing a new
+use case and creating an evaluation rubric.
+Tasks:
+– Develop a new use case aside from the recommendation.
+– Build the prompt for the new use case.
+– Create a rubric for evaluating the new prompt.
+– Update or alter the evaluation flow to aggregate and compare the results of
+the new use case with existing ones.
+Exercise 4—Evaluate Other LLMs Using LM Studio (Intermediate)
+Objective—Assess the performance of different open source LLMs by hosting a
+local server with LM Studio.
+Tasks:
+– Use LM Studio to host a local server for evaluating LLMs.
+– Evaluate other open source LLMs.
+– Consult chapter 2 if assistance is needed for setting up the server and per-
+forming the evaluations.
+Exercise 5—Build and Evaluate Prompts Using Prompt Flow (Intermediate)
+Objective—Apply prompt engineering strategies to build and evaluate new prompts
+or profiles using prompt flow.
+
+243
+Summary
+Tasks:
+– Build new prompts or profiles for evaluation using prompt flow.
+– Apply the Write Clear Instructions prompt engineering strategy from chap-
+ter 2.
+– Evaluate the prompts and profiles using prompt flow.
+– Refer to chapter 2 for tactics and implementation details if a refresher is
+needed.
+Summary
+An agent profile consists of several other component prompts that can drive
+functions such as actions/tools, knowledge, memory, evaluation, reasoning, feed-
+back, and planning.
+Prompt flow can be used to evaluate an agent’s component prompts.
+Systemic prompt engineering is an iterative process evaluating a prompt and
+agent profile.
+The Test Changes Systematically strategy describes iterating and evaluating
+prompts, and system prompt engineering implements this strategy.
+Agent profiles and prompt engineering have many similarities. We define an
+agent profile as the combination of prompt engineering elements that guide
+and help an agent through its task.
+Prompt flow is an open source tool from Microsoft that provides several fea-
+tures for developing and evaluating profiles and prompts.
+An LLM connection in prompt flow supports additional parameters, including
+temperature, stop token, max tokens, and other advanced parameters.
+LLM blocks support prompt and profile variants, which allow for evaluating
+changes to the prompt/profile or other connection parameters.
+A rubric applied to an LLM prompt is the criteria and standards a prompt/profile
+must fulfill to be grounded. Grounding is the scoring and evaluation of a rubric.
+Prompt flow supports running multiple variations as single runs or batch runs.
+In prompt flow, an evaluation flow is run after a generative flow to score and
+aggregate the results. The Visualize Runs option can compare the aggregated
+criteria from scoring the rubric across multiple runs.
+
+244
+Agent reasoning
+and evaluation
+Now that we’ve examined the patterns of memory and retrieval that define the
+semantic memory component in agents, we can take a look at the last and most
+instrumental component in agents: planning. Planning encompasses many facets,
+from reasoning, understanding, and evaluation to feedback.
+To explore how LLMs can be prompted to reason, understand, and plan, we’ll
+demonstrate how to engage reasoning through prompt engineering and then
+expand that to planning. The planning solution provided by the Semantic Kernel
+(SK) encompasses multiple planning forms. We’ll finish the chapter by incorporat-
+ing adaptive feedback into a new planner.
+Figure 10.1 demonstrates the high-level prompt engineering strategies we’ll
+cover in this chapter and how they relate to the various techniques we’ll cover. Each
+This chapter covers
+Using various prompt engineering techniques
+to extend large language model functions
+Engaging large language models with prompt
+engineering techniques that engage reasoning
+Employing an evaluation prompt to narrow
+and identify the solution to an unknown
+problem
+
+245
+10.1
+Understanding direct solution prompting
+of the methods showcased in the figure will be explored in this chapter, from the
+basics of solution/direct prompting, shown in the top-left corner, to self-consistency
+and tree of thought (ToT) prompting, in the bottom right.
+10.1
+Understanding direct solution prompting
+Direct solution prompting is generally the first form of prompt engineering that users
+employ when asking LLMs questions or solving a particular problem. Given any LLM
+use, these techniques may seem apparent, but they are worth reviewing to establish
+the foundation of thought and planning. In the next section, we’ll start from the
+beginning, asking questions and expecting answers.
+Split Complex Tasks into Simpler Subtasks
+Reduces error rates.
+Tactics include intent classi cation, summarizing
+ﬁ
+dialogues, and piecewise summarization of documents.
+Planning
+Give Models
+Time to
+“Think”
+Allows more
+reliable
+reasoning.
+Tactics involve
+working out
+solutions
+before
+conclusions,
+using inner
+monologue,
+and reviewing
+previous
+answers.
+Planning
+Solutions—prompts in this
+group are direct and may include
+examples of completed tasks.
+Prompt
+chaining
+Question and
+-
+-
+answer prompting
+Zero-shot
+prompting
+One-shot
+prompting
+Self-consistency
+prompting
+Tree of thought
+prompting
+Automatic easoning
+r
+with tools (ART)
+Planners
+Adaptive constructive
+feedback
+Chain of thought
+prompting
+Reasoning
+prompts demonstrate
+—
+reasoning by encouraging a thought
+process and solving a sequence of
+thoughts.
+Evaluation—multiple
+prompts are generated
+and evaluated based on
+the goal.
+Tooling
+the ability to use
+—
+tools, actions, planners, and
+specialized prompts to solve
+tasks and high-level goals.
+Multi-agent
+systems
+Feedbace
+xtends
+k—
+planning but also
+engages with perceived
+or genuine feedback to
+continually adapt and
+improve plans.
+Think of these as axes:
+the y-axis represents
+thought, and the x-axis
+represents planning.
+Prompt Engineering Strategies
+Evaluation and Feedback
+All of these
+concepts will
+be covered in
+this chapter.
+.
+Thought
+Figure 10.1
+How the two planning prompt engineering strategies align with the various techniques
+
+246
+CHAPTER 10
+Agent reasoning and evaluation
+10.1.1 Question-and-answer prompting
+For the exercises in this chapter, we’ll employ prompt flow to build and evaluate the var-
+ious techniques. (We already extensively covered this tool in chapter 9, so refer to that
+chapter if you need a review.) Prompt flow is an excellent tool for understanding how
+these techniques work and exploring the flow of the planning and reasoning process.
+Open Visual Studio Code (VS Code) to the chapter 10 source folder. Create a new
+virtual environment for the folder, and install the requirements.txt file. If you need
+help setting up a chapter’s Python environment, refer to appendix B.
+We’ll look at the first flow in the prompt_flow/question-answering-prompting
+folder. Open the flow.dag.yaml file in the visual editor, as shown in figure 10.2. On
+the right side, you’ll see the flow of components. At the top is the question_answer
+LLM prompt, followed by two Embedding components and a final LLM prompt to do
+the evaluation called evaluate.
+The breakdown in listing 10.1 shows the structure and components of the flow in
+more detail using a sort of YAML-shortened pseudocode. You can also see the input
+and outputs to the various components and a sample output from running the flow.
+Inputs:
+context  : the content to ask the question about
+Listing 10.1
+question-answer-prompting flow
+Prompt ﬂow folder to open
+Open the ﬂow.dag.yaml
+ﬁle in the visual editor.
+Select the question_answer
+LLM component.
+Shows the visual
+ﬂow of the DAG
+making up the ﬂow
+Embeds the expected and
+predicted answer so their
+similarity can be evaluated
+Figure 10.2
+The flow.dag.yaml file, open in the visual editor, highlighting the various components of the flow
+
+247
+10.1
+Understanding direct solution prompting
+question : question asked specific to the content
+expected : the expected answer
+LLM: Question-Answer (the prompt used to ask the question)
+inputs:
+context and question
+outputs:
+the prediction/answer to the question
+Embeddings: uses an LLM embedding model to create the embedding
+representation of the text
+Embedding_predicted: embeds the output of the Question-Answer LLM
+Embedding_expected: embeds the output of the expected answer
+Python: Evaluation (Python code to measure embedding similarity)
+Inputs:
+Embedding_predicted output
+Embedding_expected output
+Outputs:
+the similarity score between predicted and expected
+
+Outputs:
+context: -> input.context
+question: -> input.question
+expected: -> input.expected
+predicted: -> output.question_answer
+evaluation_score: output.evaluation
+### Example Output
+{
+"context": "Back to the Future (1985)…",
+"evaluation_score": 0.9567478002354606,
+"expected": "Marty traveled back in time 30 years.",
+"predicted": "Marty traveled back in time 30 years from 1985 to 1955
+in the movie \"Back to the Future.\"",
+"question": "How far did Marty travel back in time in the movie
+Back to the Future (1985)"
+}
+Before running this flow, make sure your LLM block is configured correctly. This may
+require you to set up a connection to your chosen LLM. Again, refer to chapter 9 if
+you need a review on how to complete this. You’ll need to configure the LLM and
+Embedding blocks with your connection if you’re not using OpenAI.
+After configuring your LLM connection, run the flow by clicking the Play but-
+ton from the visual editor or using the Test (Shift-F5) link in the YAML editor win-
+dow. If everything is connected and configured correctly, you should see output
+like that in listing 10.1.
+Open the question_answer.jinja2 file in VS Code, as shown in listing 10.2. This
+listing shows the basic question-and-answer-style prompt. In this style of prompt, the
+system message describes the basic rules and provides the context to answer the question.
+
+248
+CHAPTER 10
+Agent reasoning and evaluation
+In chapter 4, we explored the retrieval augmented generation (RAG) pattern, and
+this prompt follows a similar pattern.
+system:
+Answer the users question based on the context below. Keep the answer
+short and concise. Respond "Unsure about answer" if not sure about the
+answer.
+Context: {{context}}
+user:
+Question: {{question}}
+This exercise shows the simple method of using an LLM to ask questions about a
+piece of content. Then, the question response is evaluated using a similarity matching
+score. We can see from the output in listing 10.1 that the LLM does a good job of
+answering a question about the context. In the next section, we’ll explore a similar
+technique that uses direct prompting.
+10.1.2 Implementing few-shot prompting
+Few-shot prompting is like question-and-answer prompting, but the makeup of the
+prompt is more about providing a few examples than about facts or context. This
+allows the LLM to bend to patterns or content not previously seen. While this
+approach sounds like question and answer, the implementation is quite different,
+and the results can be powerful.
+Open prompt_flow/few-shot-prompting/flow.dag.yaml in VS Code and the visual
+editor. Most of the flow looks like the one pictured earlier in figure 10.2, and the dif-
+ferences are highlighted in listing 10.3, which shows a YAML pseudocode represen-
+tation. The main differences between this and the previous flow are the inputs and
+LLM prompt.
+
+
+Listing 10.2
+question_answer.jinja2
+Zero-shot, one-shot, and few-shot learning
+One holy grail of machine learning and AI is the ability to train a model on as few items
+as possible. For example, in traditional vision models, millions of images are fed into
+the model to help identify the differences between a cat and a dog.
+A one-shot model is a model that requires only a single image to train it. For example,
+a picture of a cat can be shown, and then the model can identify any cat image. A
+few-shot model requires only a few things to train the model. And, of course, zero-shot
+indicates the ability to identify something given no previous examples. LLMs are effi-
+cient learners and can do all three types of learning.
+Replace with the content LLM
+should answer the question about.
+Replace with
+the question.
+
+249
+10.1
+Understanding direct solution prompting
+Inputs:
+statement  : introduces the context and then asks for output
+expected : the expected answer to the statement
+LLM: few_shot (the prompt used to ask the question)
+inputs:statement
+outputs: the prediction/answer to the statement
+Embeddings: uses an LLM embedding model to create the embedding
+representation of the text
+Embedding_predicted: embeds the output of the few_shot LLM
+Embedding_expected: embeds the output of the expected answer
+
+Python: Evaluation (Python code to measure embedding similarity)
+Inputs:
+Embedding_predicted output
+Embedding_expected output
+Outputs: the similarity score between predicted and expected
+Outputs:
+statement: -> input.statement
+expected: -> input.expected
+predicted: -> output.few_shot
+evaluation_score: output.evaluation
+### Example Output
+{
+"evaluation_score": 0.906647282920417,
+"expected": "We ate sunner and watched the setting sun.",
+"predicted": "After a long hike, we sat by the lake
+and enjoyed a peaceful sunner as the sky turned
+brilliant shades of orange and pink.",
+"statement": "A sunner is a meal we eat in Cananda
+at sunset, please use the word in a sentence"
+}
+Run the flow by pressing Shift-F5 or clicking the Play/Test button from the visual edi-
+tor. You should see output like listing 10.3 where the LLM has used the word sunner (a
+made-up term) correctly in a sentence given the initial statement.
+This exercise demonstrates the ability to use a prompt to alter the behavior of the
+LLM to be contrary to what it has learned. We’re changing what the LLM understands
+to be accurate. Furthermore, we then use that modified perspective to elicit the use of
+a made-up word.
+Open the few_shot.jinja2 prompt in VS Code, shown in listing 10.4. This listing
+demonstrates setting up a simple persona, that of an eccentric dictionary maker, and
+then providing examples of words it has defined and used before. The base of the
+Listing 10.3
+few-shot-prompting flow
+Evaluation score
+represents the
+similarity between
+expected and
+predicted.
+Uses sunner in
+a sentence
+This is a false statement but the
+intent is to get the LLM to use
+the word as if it was real.
+
+250
+CHAPTER 10
+Agent reasoning and evaluation
+prompt allows for the LLM to extend the examples and produce similar results using
+other words.
+system:
+You are an eccentric word dictionary maker. You will be asked to
+construct a sentence using the word.
+The following are examples that demonstrate how to craft a sentence using
+the word.
+A "whatpu" is a small, furry animal native to Tanzania.
+An example of a sentence that uses the word whatpu is:
+We were traveling in Africa and we saw these very cute whatpus.
+To do a "farduddle" means to jump up and down really fast. An example of a
+sentence that uses the word farduddle is:
+I was so excited that I started to farduddle.
+Please only return the sentence requested by the user.
+user:
+{{statement}}
+You may say we’re forcing the LLM to hallucinate here, but this technique is the basis
+for modifying behavior. It allows prompts to be constructed to guide an LLM to do
+everything contrary to what it learned. This foundation of prompting also establishes
+techniques for other forms of altered behavior. From the ability to alter the percep-
+tion and background of an LLM, we’ll move on to demonstrate a final example of a
+direct solution in the next section.
+10.1.3 Extracting generalities with zero-shot prompting
+Zero-shot prompting or learning is the ability to generate a prompt in such a manner that
+allows the LLM to generalize. This generalization is embedded within the LLM and
+demonstrated through zero-shot prompting, where no examples are given, but instead a
+set of guidelines or rules are given to guide the LLM.
+Employing this technique is simple and works well to guide the LLM to generate
+replies given its internal knowledge and no other contexts. It’s a subtle yet powerful
+technique that applies the knowledge of the LLM to other applications. This tech-
+nique, combined with other prompting strategies, is proving effective at replacing
+other language classification models—models that identify the emotion or sentiment
+in text, for example.
+Open prompt_flow/zero-shot-prompting/flow.dag.yaml in the VS Code prompt
+flow visual editor. This flow is again almost identical to that shown earlier in figure 10.1
+but differs slightly in implementation, as shown in listing 10.5.
+
+
+Listing 10.4
+few_shot.jinja2
+Demonstrates an example defining a made-
+up word and using it in a sentence
+Demonstrates
+another example
+A rule to prevent the
+LLM from outputting
+extra information
+The input statement defines a
+new word and asks for the use.
+
+251
+10.1
+Understanding direct solution prompting
+Inputs:
+statement  : the statement to be classified
+expected : the expected classification of the statement
+
+LLM: zero_shot (the prompt used to classify)
+inputs: statement
+outputs: the predicted class given the statement
+Embeddings: uses an LLM embedding model to create the embedding
+representation of the text
+Embedding_predicted: embeds the output of the zero_shot LLM
+Embedding_expected: embeds the output of the expected answer
+Python: Evaluation (Python code to measure embedding similarity)
+Inputs:
+Embedding_predicted output
+Embedding_expected output
+Outputs: the similarity score between predicted and expected
+Outputs:
+statement: -> input.statement
+expected: -> input.expected
+predicted: -> output.few_shot
+evaluation_score: output.evaluation
+### Example Output
+{
+"evaluation_score": 1,
+"expected": "neutral",
+"predicted": "neutral",
+"statement": "I think the vacation is okay. "
+}
+Run the flow by pressing Shift-F5 within the VS Code prompt flow visual editor. You
+should see output similar to that shown in listing 10.5.
+Now open the zero_shot.jinja2 prompt as shown in listing 10.6. The prompt is
+simple and uses no examples to extract the sentiment from the text. What is especially
+interesting to note is that the prompt doesn’t even mention the phrase sentiment, and
+the LLM seems to understand the intent.
+system:
+Classify the text into neutral, negative or positive.
+Return on the result and nothing else.
+user:
+{{statement}}
+Listing 10.5
+zero-shot-prompting flow
+Listing 10.6
+zero_shot.jinja2
+Shows a perfect
+evaluation score
+of 1.0
+The statement
+we’re asking the
+LLM to classify
+Provides essential
+guidance on
+performing the
+classification
+The statement of
+text to classify
+
+252
+CHAPTER 10
+Agent reasoning and evaluation
+Zero-shot prompt engineering is about using the ability of the LLM to generalize
+broadly based on its training material. This exercise demonstrates how knowledge
+within the LLM can be put to work for other tasks. The LLM’s ability to self-contextu-
+alize and apply knowledge can extend beyond its training. In the next section, we
+extend this concept further by looking at how LLMs can reason.
+10.2
+Reasoning in prompt engineering
+LLMs like ChatGPT were developed to function as chat completion models, where
+text content is fed into the model, whose responses align with completing that request.
+LLMs were never trained to reason, plan, think, or have thoughts.
+However, much like we demonstrated with the examples in the previous section,
+LLMs can be prompted to extract their generalities and be extended beyond their
+initial design. While an LLM isn’t designed to reason, the training material fed into
+the model provides an understanding of reasoning, planning, and thought. There-
+fore, by extension, an LLM understands what reasoning is and can employ the con-
+cept of reasoning.
+We’ll look at another set of prompt engineering techniques that allow or mimic rea-
+soning behavior to demonstrate this reasoning ability. Typically, when evaluating the
+application of reasoning, we look to having the LLM solve challenging problems it
+wasn’t designed to solve. A good source of such is based on logic, math, and word
+problems.
+Using the time travel theme, what class of unique problems could be better to
+solve than understanding time travel? Figure 10.3 depicts one example of a uniquely
+challenging time travel problem. Our goal is to acquire the ability to prompt the LLM
+in a manner that allows it to solve the problem correctly.
+Time travel problems are thought exercises that can be deceptively difficult to
+solve. The example in figure 10.3 is complicated to solve for an LLM, but the part it
+Reasoning and planning
+Reasoning is the ability of an intellect, artificial or not, to understand the process of
+thought or thinking through a problem. An intellect can understand that actions have
+outcomes, and it can use this ability to reason through which action from a set of
+actions can be applied to solve a given task.
+Planning is the ability of the intellect to reason out the order of actions or tasks and
+apply the correct parameters to achieve a goal or outcome—the extent to which an
+intellectual plan depends on the scope of the problem. An intellect may combine mul-
+tiple levels of planning, from strategic and tactical to operational and contingent.
+
+253
+10.2
+Reasoning in prompt engineering
+gets wrong may surprise you. The next section will use reasoning in prompts to solve
+these unique problems.
+10.2.1 Chain of thought prompting
+Chain of thought (CoT)prompting is a prompt engineering technique that employs
+the one-shot or few-shot examples that describe the reasoning and the steps to
+accomplish a desired goal. Through the demonstration of reasoning, the LLM can
+generalize this principle and reason through similar problems and goals. While the
+LLM isn’t trained with the goal of reasoning, we can elicit the model to reason, using
+prompt engineering.
+Open prompt_flow/chain-of-thought-prompting/flow.dag.yaml in the VS Code
+prompt flow visual editor. The elements of this flow are simple, as shown in figure 10.4.
+With only two LLM blocks, the flow first uses a CoT prompt to solve a complex ques-
+tion; then, the second LLM prompt evaluates the answer.
+Listing 10.7 shows the YAML pseudocode that describes the blocks and the
+inputs/outputs of the flow in more detail. The default problem statement in this
+example isn’t the same as in figure 10.3.
+
+
+
+In a sci-ﬁﬁlm, Alex is a time traveler who decides to go back in
+time to witness a famous historical battle that took place 100 years ago,
+which lasted for 10 days. He arrives three days before the battle starts.
+However, after spending six days in the past, he jumps forward in time by

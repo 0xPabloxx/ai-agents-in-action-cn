@@ -1,0 +1,53 @@
+Chapter 11: Understanding agent memory and knowledge
+Starting Page: 12
+================================================================================
+
+180
+8.1
+Understanding retrieval in AI applications
+181
+8.2
+The basics of retrieval augmented generation (RAG)
+182
+8.3
+Delving into semantic search and document
+indexing
+184
+Applying vector similarity search
+184
+■Vector databases and
+similarity search
+188
+■Demystifying document embeddings
+189
+Querying document embeddings from Chroma
+190
+8.4
+Constructing RAG with LangChain
+192
+Splitting and loading documents with LangChain
+192
+■Splitting
+documents by token with LangChain
+195
+8.5
+Applying RAG to building agent knowledge
+196
+8.6
+Implementing memory in agentic systems
+200
+Consuming memory stores in Nexus
+202
+■Semantic memory and
+applications to semantic, episodic, and procedural memory
+204
+8.7
+Understanding memory and knowledge
+compression
+207
+8.8
+Exercises
+209
+
+CONTENTS
+xi

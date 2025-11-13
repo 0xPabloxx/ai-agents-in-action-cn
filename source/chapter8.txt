@@ -1,0 +1,1268 @@
+182 CHAPTER 8 Understanding agent memory and knowledge
+ The retrieval mechanism, called retrieval augmented generation (RAG), has
+become a standard for providing relevant context to a prompt. The exact mechanism
+that powers RAG also powers memory/knowledge, and it’s essential to understand
+how it works. In the next section, we’ll examine what RAG is.
+8.2 The basics of retrieval augmented generation (RAG)
+RAG has become a popular mechanism for supporting document chat or question-
+and-answer chat. The system typically works by a user supplying a relevant document,
+such as a PDF, and then using RAG and a large language model (LLM) to query the
+document.
+ Figure 8.2 shows how RAG can allow a document to be queried using an LLM.
+Before any document can be queried, it must first be loaded, transformed into con-
+text chunks, embedded into vectors, and stored in a vector database.
+A user can query previously indexed documents by submitting a query. That query is
+then embedded into a vector representation to search for similar chunks in the vector
+Retrieval Augmented Generation (RAG)
+(3) Generate
+(1) Retrieve
+(2) AugmentLLM Chat
+Query
+Response
+Embedding
+LLM
+Prompt
+system: you are a ...
+Query
+Context
+Vector DB
+Context
+LLM generates a response
+based on the contextualized
+prompt.
+Retrieval works
+by using vector
+similarity search.
+Query is
+embedded
+to represent
+a vector.
+Retrieved context
+semantically matches
+the query.
+Embedding
+Submit document
+to query Transform
+ Vector DB
+Document is loaded,
+transformed, and
+split into chunks.
+Chunks of text
+are converted
+to vectors.
+Vectors
+representing
+chunks of text
+are stored.
+Documents are
+ﬁrst indexed to a
+vector database.
+Indexed documents
+can be queried/
+questioned by the
+user.
+Figure 8.2 The two phases of RAG: first, documents must be loaded, transformed, embedded, and stored, and, 
+second, they can be queried using augmented generation.
+
+1838.2 The basics of retrieval augmented generation (RAG)
+database. Content similar to the query is then used as context and populated into the
+prompt as augmentation. The prompt is pushed to an LLM, which can use the con-
+text information to help answer the query.
+ Unstructured memory/knowledge concepts rely on some format of text-similarity
+search following the retrieval pattern shown in figure 8.2. Figure 8.3 shows how mem-
+ory uses the same embedding and vector database components. Rather than preload
+documents, conversations or parts of a conversation are embedded and saved to a vec-
+tor database.
+The retrieval pattern and document indexing are nuanced and require careful con-
+sideration to be employed successfully. This requires understanding how data is stored
+and retrieved, which we’ll start to unfold in the next section.
+Memory Retrieval Augmented Generation
+(3) Generate
+(1) Retrieve
+Memory
+(2) AugmentLLM Chat
+Query
+Response
+Embedding
+LLM
+Prompt
+system: you are a ...
+Query
+Memory
+Vector DB
+Memory
+LLM generates a
+response based on the
+contextualized prompt.
+Retrieval works
+by using vector
+similarity search.
+Retrieved memory
+semantically matches
+the query.
+Embedding
+(4) Remember
+Generated
+Response
+All or parts of the
+conversation are
+embedded and
+added to the
+vector database.
+Query is
+embedded
+to represent
+a vector.
+Chat with memory
+Figure 8.3 Memory retrieval for augmented generation uses the same embedding patterns to index items to a 
+vector database.
+
+184 CHAPTER 8 Understanding agent memory and knowledge
+8.3 Delving into semantic search and document indexing
+Document indexing transforms a document’s information to be more easily recov-
+ered. How the index will be queried or searched also plays a factor, whether searching
+for a particular set of words or wanting to match phrase for phrase.
+ A semantic search is a search for content that matches the searched phrase by words
+and meaning. The ability to search by meaning, semantically, is potent and worth
+investigating in some detail. In the next section, we look at how vector similarity
+search can lay the framework for semantic search.
+8.3.1 Applying vector similarity search
+Let’s look now at how a document can be transformed into a semantic vector, or a repre-
+sentation of text that can then be used to perform distance or similarity matching.
+There are numerous ways to convert text into a semantic vector, so we’ll look at a sim-
+ple one.
+ Open the chapter_08 folder in a new Visual Studio Code (VS Code) workspace.
+Create a new environment and pip install the requirements.txt file for all the
+chapter dependencies. If you need help setting up a new Python environment, con-
+sult appendix B.
+ Now open the document_vector_similarity.py file in VS Code, and review the
+top section in listing 8.1. This example uses Term Frequency–Inverse Document Fre-
+quency (TF–IDF). This numerical statistic reflects how important a word is to a docu-
+ment in a collection or set of documents by increasing proportionally to the number
+of times a word appears in the document and offset by the frequency of the word in
+the document set. TF–IDF is a classic measure of understanding one document’s
+importance within a set of documents.
+import plotly.graph_objects as go
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+documents = [     
+    "The sky is blue and beautiful.",
+    "Love this blue and beautiful sky!",
+    "The quick brown fox jumps over the lazy dog.",
+    "A king's breakfast has sausages, ham, bacon, eggs, toast, and beans",
+    "I love green eggs, ham, sausages and bacon!",
+    "The brown fox is quick and the blue dog is lazy!",
+    "The sky is very blue and the sky is very beautiful today",
+    "The dog is lazy but the brown fox is quick!"
+]
+vectorizer = TfidfVectorizer()    
+X = vectorizer.fit_transform(documents)     
+Listing 8.1 document_vector_similarity (transform to vector)
+Samples of documents
+Vectorization 
+using TF–IDF
+Vectorize the 
+documents.
+
+1858.3 Delving into semantic search and document indexing
+Let’s break down TF–IDF into its two components using the sample sentence, “The
+sky is blue and beautiful,” and focusing on the word blue.
+TERM FREQUENCY (TF)
+Term Frequency measures how frequently a term occurs in a document. Because we’re
+considering only a single document (our sample sentence), the simplest form of the
+TF for blue can be calculated as the number of times blue appears in the document
+divided by the total number of words in the document. Let’s calculate it:
+Number of times blue appears in the document: 1
+Total number of words in the document: 6
+TF = 1 ÷ 6TF = .16
+INVERSE DOCUMENT FREQUENCY (IDF)
+Inverse Document Frequency measures how important a term is within the entire corpus.
+It’s calculated by dividing the total number of documents by the number of docu-
+ments containing the term and then taking the logarithm of that quotient:
+IDF = log(Total number of documents ÷ Number of documents containing the word)
+In this example, the corpus is a small collection of eight documents, and blue appears
+in four of these documents.
+IDF = log(8 ÷ 4)
+TF–IDF CALCULATION
+Finally, the TF–IDF score for blue in our sample sentence is calculated by multiplying
+the TF and the IDF scores:
+TF–IDF = TF × IDF
+Let’s compute the actual values for TF–IDF for the word blue using the example pro-
+vided; first, the term frequency (how often the word occurs in the document) is com-
+puted as follows:
+TF = 1 ÷ 6
+Assuming the base of the logarithm is 10 (commonly used), the inverse document fre-
+quency is computed as follows:
+IDF = log10 (8 ÷ 4)
+Now let’s calculate the exact TF–IDF value for the word blue in the sentence, “The sky
+is blue and beautiful”:
+
+186 CHAPTER 8 Understanding agent memory and knowledge
+The Term Frequency (TF) is approximately 0.1670.
+The Inverse Document Frequency (IDF) is approximately 0.301.
+Thus, the TF–IDF (TF × IDF) score for blue is approximately 0.050.
+This TF–IDF score indicates the relative importance of the word blue in the given doc-
+ument (the sample sentence) within the context of the specified corpus (eight docu-
+ments, with blue appearing in four of them). Higher TF–IDF scores imply greater
+importance. 
+ We use TF–IDF here because it’s simple to apply and understand. Now that we
+have the elements represented as vectors, we can measure document similarity using
+cosine similarity. Cosine similarity is a measure used to calculate the cosine of the
+angle between two nonzero vectors in a multidimensional space, indicating how simi-
+lar they are, irrespective of their size.
+ Figure 8.4 shows how cosine distance compares the vector representations of two
+pieces or documents of text. Cosine similarity returns a value from –1 (not similar) to
+1 (identical). Cosine distance is a normalized value ranging from 0 to 2, derived by tak-
+ing 1 minus the cosine similarity. A cosine distance of 0 means identical items, and 2
+indicates complete opposites.
+Listing 8.2 shows how the cosine similarities are computed using the cosine_similarity
+function from scikit-learn. Similarities are calculated for each document against all
+other documents in the set. The computed matrix of similarities for documents is
+stored in the cosine_similarities variable. Then, in the input loop, the user can
+select the document to view its similarities to the other documents.
+ 
+ 
+ 
+Cosine Similarity
+The angle or distance is a measure of how
+close the vectors are in space. It also
+represents their similarity to each other.Cosine Distance
+θ
+The sky is blue and beautiful.
+Love this blue and beautiful sky!
+Vector representations of the text rendered in 2D
+and in reality vectors can be highly dimensional.
+Figure 8.4 How cosine 
+similarity is measured
+
+1878.3 Delving into semantic search and document indexing
+cosine_similarities = cosine_similarity(X)     
+while True:     
+    selected_document_index = input(f"Enter a document number
+➥ (0-{len(documents)-1}) or 'exit' to quit: ").strip()
+    if selected_document_index.lower() == 'exit':
+        break
+    if not selected_document_index.isdigit() or 
+➥ not 0 <= int(selected_document_index) < len(documents):
+        print("Invalid input. Please enter a valid document number.")
+        continue
+    selected_document_index = int(selected_document_index)   
+    selected_document_similarities = 
+cosine_similarities[selected_document_index]    
+# code to plot document similarities omitted
+Figure 8.5 shows the output of running the sample in VS Code (F5 for debugging
+mode). After you select a document, you’ll see the similarities between the various
+documents in the set. A document will have a cosine similarity of 1 with itself. Note
+that you won’t see a negative similarity because of the TF–IDF vectorization. We’ll look
+later at other, more sophisticated means of measuring semantic similarity.
+Listing 8.2 document_vector_similarity (cosine similarity)
+Computes the document 
+similarities for all vector pairs
+The main 
+input loop
+Gets the selected 
+document index 
+to compare with
+Extracts the 
+computed similarities 
+against all documents
+The select document is compared against all
+other documents to show similarity
+measure between document vectors.
+Cosine Similarities of “The sky is blue and beautiful.” with Others
+Figure 8.5 The cosine similarity between selected documents and the document set
+
+188 CHAPTER 8 Understanding agent memory and knowledge
+The method of vectorization will dictate the measure of semantic similarity between
+documents. Before we move on to better methods of vectorizing documents, we’ll
+examine storing vectors to perform vector similarity searches.
+8.3.2 Vector databases and similarity search
+After vectorizing documents, they can be stored in a vector database for later similar-
+ity searches. To demonstrate how this works, we can efficiently replicate a simple vec-
+tor database in Python code.
+ Open document_vector_database.py in VS Code, as shown in listing 8.3. This
+code demonstrates creating a vector database in memory and then allowing users to
+enter text to search the database and return results. The results returned show the
+document text and the similarity score.
+# code above omitted
+vectorizer = TfidfVectorizer()
+X = vectorizer.fit_transform(documents)
+vector_database = X.toarray()    
+def cosine_similarity_search(query,
+                             database, 
+                             vectorizer, 
+                             top_n=5):    
+    query_vec = vectorizer.transform([query]).toarray()
+    similarities = cosine_similarity(query_vec, database)[0]
+    top_indices = np.argsort(-similarities)[:top_n]  # Top n indices
+    return [(idx, similarities[idx]) for idx in top_indices]
+while True:     
+    query = input("Enter a search query (or 'exit' to stop): ")
+    if query.lower() == 'exit':
+        break
+    top_n = int(input("How many top matches do you want to see? "))
+    search_results = cosine_similarity_search(query,
+                                              vector_database, 
+                                              vectorizer, 
+                                              top_n)
+    print("Top Matched Documents:")
+    for idx, score in search_results:
+        print(f"- {documents[idx]} (Score: {score:.4f})")  
+    print("\n")
+###Output
+Enter a search query (or 'exit' to stop): blue
+How many top matches do you want to see? 3
+Top Matched Documents:
+- The sky is blue and beautiful. (Score: 0.4080)
+- Love this blue and beautiful sky! (Score: 0.3439)
+- The brown fox is quick and the blue dog is lazy! (Score: 0.2560)
+Listing 8.3 document_vector_database.py
+Stores the 
+document vectors 
+into an array
+The function to perform 
+similarity matching on 
+query returns, matches, 
+and similarity scores
+The main 
+input loop
+Loops through 
+results and 
+outputs text and 
+similarity score
+
+1898.3 Delving into semantic search and document indexing
+Run this exercise to see the output (F5 in VS Code). Enter any text you like, and see
+the results of documents being returned. This search form works well for matching
+words and phrases with similar words and phrases. This form of search misses the
+word context and meaning from the document. In the next section, we’ll look at a way
+of transforming documents into vectors that better preserves their semantic meaning.
+8.3.3 Demystifying document embeddings
+TF–IDF is a simple form that tries to capture semantic meaning in documents. How-
+ever, it’s unreliable because it only counts word frequency and doesn’t understand the
+relationships between words. A better and more modern method uses document
+embedding, a form of document vectorizing that better preserves the semantic mean-
+ing of the document.
+ Embedding networks are constructed by training neural networks on large data-
+sets to map words, sentences, or documents to high-dimensional vectors, capturing
+semantic and syntactic relationships based on context and relationships in the data.
+You typically use a pretrained model trained on massive datasets to embed documents
+and perform embeddings. Models are available from many sources, including Hug-
+ging Face and, of course, OpenAI.
+ In our next scenario, we’ll use an OpenAI embedding model. These models are
+typically perfect for capturing the semantic context of embedded documents. Listing
+8.4 shows the relevant code that uses OpenAI to embed the documents into vectors
+that are then reduced to three dimensions and rendered into a plot.
+load_dotenv()                                                            
+api_key = os.getenv('OPENAI_API_KEY')
+if not api_key:
+    raise ValueError("No API key found. Please check your .env file.")
+client = OpenAI(api_key=api_key)                                         
+def get_embedding(text, model="text-embedding-ada-002"):    
+    text = text.replace("\n", " ")
+    return client.embeddings.create(input=[text],
+              model=model).data[0].embedding                
+# Sample documents (omitted)
+embeddings = [get_embedding(doc) for doc in documents]   
+print(embeddings_array.shape)
+embeddings_array = np.array(embeddings)   
+pca = PCA(n_components=3)  
+reduced_embeddings = pca.fit_transform(embeddings_array)
+Listing 8.4 document_visualizing_embeddings.py (relevant sections)
+Join all the items on the string ', '.
+Uses the OpenAI 
+client to create 
+the embedding
+Generates embeddings 
+for each document of 
+size 1536 dimensions
+Converts embeddings to 
+a NumPy array for PCA
+Applies PCA to 
+reduce dimensions 
+to 3 for plotting
+
+190 CHAPTER 8 Understanding agent memory and knowledge
+When a document is embedded using an OpenAI model, it transforms the text into a
+vector with dimensions of 1536. We can’t visualize this number of dimensions, so we
+use a dimensionality reduction technique via principal component analysis (PCA) to
+convert the vector of size 1536 to 3 dimensions.
+ Figure 8.6 shows the output generated from running the file in VS Code. By reduc-
+ing the embeddings to 3D, we can plot the output to show how semantically similar
+documents are now grouped.
+The choice of which embedding model or service you use is up to you. The OpenAI
+embedding models are considered the best for general semantic similarity. This has
+made these models the standard for most memory and retrieval applications. With
+our understanding of how text can be vectorized with embeddings and stored in a vec-
+tor database, we can move on to a more realistic example in the next section.
+8.3.4 Querying document embeddings from Chroma
+We can combine all the pieces and look at a complete example using a local vector
+database called Chroma DB. Many vector database options exist, but Chroma DB is an
+excellent local vector store for development or small-scale projects. There are also
+plenty of more robust options that you can consider later.
+Similar documents are now similar in
+meaning and are shown grouped together.
+Documents are projected to 3D
+based on their semantic meaning.
+Figure 8.6 Embeddings in 3D, showing how similar semantic documents are grouped
+
+1918.3 Delving into semantic search and document indexing
+ Listing 8.5 shows the new and relevant code sections from the document_query_
+chromadb.py file. Note that the results are scored by distance and not by similarity.
+Cosine distance is determined by this equation:
+Cosine Distance(A,B) = 1 – Cosine Similarity(A,B)
+This means that cosine distance will range from 0 for most similar to 2 for semanti-
+cally opposite in meaning.
+embeddings = [get_embedding(doc) for doc in documents]    
+ids = [f"id{i}" for i in range(len(documents))]           
+chroma_client = chromadb.Client()              
+collection = chroma_client.create_collection(
+                       name="documents")       
+collection.add(    
+    embeddings=embeddings,
+    documents=documents,
+    ids=ids
+)
+def query_chromadb(query, top_n=2):     
+    query_embedding = get_embedding(query)
+    results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=top_n
+    )
+    return [(id, score, text) for id, score, text in
+            zip(results['ids'][0],
+                results['distances'][0], 
+                results['documents'][0])]
+while True:    
+    query = input("Enter a search query (or 'exit' to stop): ")
+    if query.lower() == 'exit':
+        break
+    top_n = int(input("How many top matches do you want to see? "))
+    search_results = query_chromadb(query, top_n)
+    print("Top Matched Documents:")
+    for id, score, text in search_results:
+        print(f"""
+ID:{id} TEXT: {text} SCORE: {round(score, 2)}
+""")    
+    print("\n")
+###Output
+Enter a search query (or 'exit' to stop): dogs are lazy
+How many top matches do you want to see? 3
+Top Matched Documents:
+ID:id7 TEXT: The dog is lazy but the brown fox is quick! SCORE: 0.24
+Listing 8.5 document_query_chromadb.py (relevant code sections)
+Generates embeddings 
+for each document and 
+assigns an ID
+Creates a Chroma DB 
+client and a collection
+Adds document 
+embeddings to 
+the collection
+Queries the datastore 
+and returns the top n 
+relevant documents
+The input loop for
+user input and output of
+relevant documents/scores
+
+192 CHAPTER 8 Understanding agent memory and knowledge
+ID:id5 TEXT: The brown fox is quick and the blue dog is lazy! SCORE: 0.28
+ID:id2 TEXT: The quick brown fox jumps over the lazy dog. SCORE: 0.29
+As the earlier scenario demonstrated, you can now query the documents using seman-
+tic meaning rather than just key terms or phrases. These scenarios should now pro-
+vide the background to see how the retrieval pattern works at a low level. In the next
+section, we’ll see how the retrieval pattern can be employed using LangChain.
+8.4 Constructing RAG with LangChain
+LangChain began as an open source project specializing in abstracting the retrieval
+pattern across multiple data sources and vector stores. It has since morphed into
+much more, but foundationally, it still provides excellent options for implementing
+retrieval.
+ Figure 8.7 shows a diagram from LangChain that identifies the process of storing
+documents for retrieval. These same steps may be replicated in whole or in part to
+implement memory retrieval. The critical difference between document and memory
+retrieval is the source and how content is transformed.
+We’ll examine how to implement each of these steps using LangChain and under-
+stand the nuances and details accompanying this implementation. In the next section,
+we’ll start by splitting and loading documents with LangChain.
+8.4.1 Splitting and loading documents with LangChain
+Retrieval mechanisms augment the context of a given prompt with specific informa-
+tion relevant to the request. For example, you may request detailed information about
+LangChain provides a
+plugin architecture that
+supports document import
+from many sources.
+Transform breaks
+the document
+down into relevant
+sections or chunks.
+Embed or
+embeddings
+break the chunks
+into vectors.
+LangChain supports
+multiple options for
+vector stores.
+Figure 8.7 Load, transform, embed, and store steps in storing documents for later retrieval
+
+1938.4 Constructing RAG with LangChain
+a local document. With earlier language models, submitting the whole document as
+part of the prompt wasn’t an option due to token limitations.
+ Today, we could submit a whole document for many commercial LLMs, such as
+GPT-4 Turbo, as part of a prompt request. However, the results may not be better and
+would likely cost more because of the increased number of tokens. Therefore, a better
+option is to split the document and use the relevant parts to request context—pre-
+cisely what RAG and memory do.
+ Splitting a document is essential in breaking down content into semantically and
+specifically relevant sections. Figure 8.8 shows how to break down an HTML docu-
+ment containing the Mother Goose nursery rhymes. Often, splitting a document into
+contextual semantic chunks requires careful consideration.
+Ideally, when we split documents into chunks, they are broken down by relevance and
+semantic meaning. While an LLM or agent could help us with this, we’ll look at cur-
+rent toolkit options within LangChain for splitting documents. Later in this chapter,
+we’ll look at a semantic function that can assist us in semantically dividing content for
+embeddings.
+ For the next exercise, open langchain_load_splitting.py in VS Code, as shown
+in listing 8.6. This code shows where we left off from listing 8.5, in the previous sec-
+tion. Instead of using the sample documents, we’re loading the Mother Goose nursery
+rhymes this time.
+ 
+ 
+ 
+Split the documents into chunks.
+Create
+embeddings Store
+Load the document(s).
+Ideally, the chunks are
+semantically relevant
+and speciﬁc.
+Figure 8.8 How the document would ideally be split into chunks for better semantic and contextual meaning
+
+194 CHAPTER 8 Understanding agent memory and knowledge
+From langchain_community.document_loaders 
+                     ➥ import UnstructuredHTMLLoader   
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+#previous code
+loader = UnstructuredHTMLLoader(
+                   "sample_documents/mother_goose.html")  
+data = loader.load   
+text_splitter = RecursiveCharacterTextSplitter(
+    chunk_size=100,
+    chunk_overlap=25,    
+    length_function=len,
+    add_start_index=True,
+)
+documents = text_splitter.split_documents(data)
+documents = [doc.page_content 
+                ➥ for doc in documents] [100:350]  
+embeddings = [get_embedding(doc) for doc in documents]    
+ids = [f"id{i}" for i in range(len(documents))]
+###Output
+Enter a search query (or 'exit' to stop): who kissed the girls and made 
+them cry?
+How many top matches do you want to see? 3
+Top Matched Documents:
+ID:id233 TEXT: And chid her daughter,
+        And kissed my sister instead of me. SCORE: 0.4…
+Note in listing 8.6 that the HTML document gets split into 100-character chunks with
+a 25-character overlap. The overlap allows the document’s parts not to cut off specific
+thoughts. We selected the splitter for this exercise because it was easy to use, set up,
+and understand.
+ Go ahead and run the langchain_load_splitting.py file in VS Code (F5). Enter
+a query, and see what results you get. The output in listing 8.6 shows good results
+given a specific example. Remember that we only embedded 250 document chunks to
+reduce costs and keep the exercise short. Of course, you can always try to embed the
+entire document or use a minor input document example.
+ Perhaps the most critical element to building proper retrieval is the process of
+document splitting. You can use numerous methods to split a document, including
+multiple concurrent methods. More than one method passes and splits the docu-
+ment for numerous embedding views of the same document. In the next section,
+we’ll examine a more general technique for splitting documents, using tokens and
+tokenization.
+Listing 8.6 langchain_load_splitting.py (sections and output)
+New LangChain 
+imports
+Loads the 
+document 
+as HTML
+Loads the 
+document
+Splits the document into blocks of 
+text 100 characters long with a 
+25-character overlap
+Embeds only 250 
+chunks, which is 
+cheaper and faster
+Returns the 
+embedding for 
+each document
+
+1958.4 Constructing RAG with LangChain
+8.4.2 Splitting documents by token with LangChain
+Tokenization is the process of breaking text into word tokens. Where a word token rep-
+resents a succinct element in the text, a token could be a word like hold or even a sym-
+bol like the left curly brace ({), depending on what’s relevant.
+ Splitting documents using tokenization provides a better base for how the text will
+be interpreted by language models and for semantic similarity. Tokenization also
+allows the removal of irrelevant characters, such as whitespace, making the similarity
+matching of documents more relevant and generally providing better results.
+ For the next code exercise, open the langchain_token_splitting.py file in VS
+Code, as shown in listing 8.7. Now we split the document using tokenization, which
+breaks the document into sections of unequal size. The unequal size results from the
+large sections of whitespace of the original document.
+loader = UnstructuredHTMLLoader("sample_documents/mother_goose.html")
+data = loader.load()
+text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
+    chunk_size=50, chunk_overlap=10     
+)
+documents = text_splitter.split_documents(data)
+documents = [doc for doc in documents][8:94]     
+db = Chroma.from_documents(documents, OpenAIEmbeddings())
+def query_documents(query, top_n=2):
+    docs = db.similarity_search(query, top_n)     
+    return docs
+###Output
+Created a chunk of size 68, 
+which is longer than the specified 50
+Created a chunk of size 67, 
+which is longer than the specified 50    
+Enter a search query (or 'exit' to stop): 
+                     who kissed the girls and made them cry?
+How many top matches do you want to see? 3
+Top Matched Documents:
+Document 1: GEORGY PORGY
+        Georgy Porgy, pudding and pie,
+        Kissed the girls and made them cry.
+Run the langchain_token_splitting.py c o d e  i n  V S  C o d e  ( F 5 ) .  Y o u  c a n  u s e  t h e
+query we used last time or your own. Notice how the results are significantly better
+than the previous exercise. However, the results are still suspect because the query
+uses several similar words in the same order.
+ A better test would be to try a semantically similar phrase but one that uses differ-
+ent words and check the results. With the code still running, enter a new phrase to
+Listing 8.7 langchain_token_splitting.py (relevant new code)
+Updates to 50 tokens 
+and overlap of 10 
+tokens
+Selects just the 
+documents that 
+contain rhymes
+Uses the database’s 
+similarity search
+Breaks into irregular 
+size chunks because of 
+the whitespace
+
+196 CHAPTER 8 Understanding agent memory and knowledge
+query: Why are the girls crying? Listing 8.8 shows the results of executing that
+query. If you run this example yourself and scroll down over the output, you’ll see
+Georgy Porgy appear in either the second or third returned document.
+Enter a search query (or 'exit' to stop): Who made the girls cry?
+How many top matches do you want to see? 3
+Top Matched Documents:
+Document 1: WILLY, WILLY
+        Willy, Willy Wilkin…
+This exercise shows how various retrieval methods can be employed to return docu-
+ments semantically. With this base established, we can see how RAG can be applied to
+knowledge and memory systems. The following section will discuss RAG as it applies
+to knowledge of agents and agentic systems.
+8.5 Applying RAG to building agent knowledge
+Knowledge in agents encompasses employing RAG to search semantically across
+unstructured documents. These documents could be anything from PDFs to Micro-
+soft Word documents and all text, including code. Agentic knowledge also includes
+using unstructured documents for Q&A, reference lookup, information augmenta-
+tion, and other future patterns.
+ Nexus, the agent platform developed in tandem with this book and introduced in
+the previous chapter, employs complete knowledge and memory systems for agents.
+In this section, we’ll uncover how the knowledge system works.
+ To install Nexus for just this chapter, see listing 8.9. Open a terminal within the
+chapter_08 folder, and execute the commands in the listing to download, install,
+and run Nexus in normal or development mode. If you want to refer to the code,
+you should install the project in development and configure the debugger to run
+the Streamlit app from VS Code. Refer to chapter 7 if you need a refresher on any of
+these steps.
+# to install and run
+pip install git+https://github.com/cxbxmxcx/Nexus.git
+nexus run
+# install in development mode
+git clone https://github.com/cxbxmxcx/Nexus.git
+# Install the cloned repository in editable mode
+pip install -e Nexus
+Listing 8.8 Query: Who made the girls cry?
+Listing 8.9 Installing Nexus
+
+1978.5 Applying RAG to building agent knowledge
+Regardless of which method you decide to run the app in after you log in, navigate to
+the Knowledge Store Manager page, as shown in figure 8.9. Create a new Knowledge
+Store, and then upload the sample_documents/back_to_the_future.txt movie script. 
+The script is a large document, and it may take a while to load, chunk, and embed the
+parts into the Chroma DB vector database. Wait for the indexing to complete, and
+then you can inspect the embeddings and run a query, as shown in figure 8.10.
+ Now, we can connect the knowledge store to a supported agent and ask questions.
+Use the top-left selector to choose the chat page within the Nexus interface. Then,
+select an agent and the time_travel knowledge store, as shown in figure 8.11. You
+will also need to select an agent engine that supports knowledge. Each of the multiple
+agent engines requires the proper configuration to be accessible.
+ Currently, as of this chapter, Nexus supports access to only a single knowledge
+store at a time. In a future version, agents may be able to select multiple knowledge
+stores at a time. This may include more advanced options, from semantic knowl-
+edge to employing other forms of RAG.
+ 
+Select the
+knowledge store.
+Create a new
+knowledge store.
+Drag and drop or browse and select the
+sample_documents/back_to_the_future.txt
+movie script here.
+Figure 8.9 Adding a new knowledge store and populating it with a document
+
+198 CHAPTER 8 Understanding agent memory and knowledge
+Plot of embeddings shown in 3D
+Select to view all the
+embeddings in the
+knowledge store.
+Enter text to query
+and see the results of
+the top ﬁve chunks
+displayed.
+Select to query the
+document embeddings
+in the knowledge store.
+Figure 8.10 The embeddings and document query views
+The agent will reply given
+the chosen persona.
+Enter a question about
+the script you would
+like to ask.
+Be sure to select the
+knowledge store.
+Select an agent engine
+that supports knowledge.
+Figure 8.11 Enabling the knowledge store for agent use
+
+1998.5 Applying RAG to building agent knowledge
+You can also configure the RAG settings within the Configuration tab of the Knowl-
+edge Store Manager page, as shown in figure 8.12. As of now, you can select from the
+type of splitter (Chunking Option field) to chunk the document, along with the
+Chunk Size field and Overlap field. 
+The loading, splitting, chunking, and embedding options provided are the only basic
+options supported by LangChain for now. In future versions of Nexus, more options
+and patterns will be offered. The code to support other options can be added directly
+to Nexus.
+ W e  w o n ’ t  c o v e r  t h e  c o d e  t h a t  p e r f o r m s  t h e  R A G  a s  i t ’ s  v e r y  s i m i l a r  t o  w h a t  w e
+already covered. Feel free to review the Nexus code, particularly the KnowledgeManager
+class in the knowledge_manager.py file. 
+Represents the minimum
+size in characters or tokens
+to chunk the data
+Select the
+Conﬁguration tab.
+Allows for some overlap
+of text from one chunk
+to the next
+Represents the type of
+document splitter used to extract
+chunks from the document
+Figure 8.12 Managing the knowledge store splitting and chunking options
+
+200 CHAPTER 8 Understanding agent memory and knowledge
+ While the retrieval patterns for knowledge and memory are quite similar for aug-
+mentation, the two patterns differ when it comes to populating the stores. In the next
+section, we’ll explore what makes memory in agents unique.
+8.6 Implementing memory in agentic systems
+Memory in agents and AI applications is often described in the same terms as cogni-
+tive memory functions. Cognitive memory describes the type of memory we use to
+remember what we did 30 seconds ago or how tall we were 30 years ago. Computer
+memory is also an essential element of agent memory, but one we won’t consider in
+this section.
+ Figure 8.13 shows how memory is broken down into sensory, short-term, and long-
+term memory. This memory can be applied to AI agents, and this list describes how
+each form of memory maps to agent functions:
+ Sensory memory in AI —Functions such as RAG but with images/audio/haptic
+data forms. Briefly holds input data (e.g., text and images) for immediate pro-
+cessing but not long-term storage. 
+ Short-term/working memory in AI —Acts as an active memory buffer of conversa-
+tion history. We’re holding a limited amount of recent input and context for
+immediate analysis and response generation. Within Nexus, short- and long-
+term conversational memory is also held in the context of the thread.
+ Long-term memory in AI—Longer-term memory storage relevant to the agent’s or
+user’s life. Semantic memory provides a robust capacity to store and retrieve rel-
+evant global or local facts and concepts. 
+Visual memory
+Sensory memory
+Short-term memory (contextual memory)
+Long-term memory
+Memory
+Iconic memory (visual)
+Echoic memory (auditory)
+Haptic memory (touch)
+Explicit/declarative memory
+(conscious)
+Implicit/procedural memory (unconscious skills)
+Episodic memory
+(life events)
+Semantic memory
+(facts, concepts)
+Conversational
+memory and RAG
+This is an area of
+memory of most
+interest to agents.
+Implicit memory and skills can also be
+conveyed as actions and tools for agents.
+Figure 8.13 How memory is broken down into various forms
+
+2018.6 Implementing memory in agentic systems
+While memory uses the exact same retrieval and augmentation mechanisms as knowl-
+edge, it typically differs significantly when updating or appending memories. Figure 8.14
+highlights the process of capturing and using memories to augment prompts. Because
+memories are often different from the size of complete documents, we can avoid
+using any splitting or chunking mechanisms.
+Nexus provides a mechanism like the knowledge store, allowing users to create mem-
+ory stores that can be configured for various uses and applications. It also supports
+some of the more advanced memory forms highlighted in figure 8.13. The following
+section will examine how basic memory stores work in Nexus.
+Adding memories
+Basic memory augmentation
+Embedding
+ Vector DB
+Stored
+embeddings
+and text
+New memories
+can come from a
+conversation or
+can be populated
+as a set of beginning
+facts, preferences,
+and so on.
+Vector DB
+Converted to embedding
+and then used to query database
+Augmented prompt
+user:
+What movie should
+I watch?
+Remembered facts:
+User likes time
+travel movies
+LLM
+Response sent
+back to user
+Assistant:
+You should watch
+this movie on
+time travel.
+User likes time
+travel movies
+User likes sci-ﬁ
+movies
+Conversations are then fed back into the memory function
+to create new memories.
+User likes time
+travel movies
+User likes sci-ﬁ
+movies
+LLM
+User:
+[I like time
+travel movies]
+I like time travel
+movies
+Memory function,
+extracts relevant
+memories
+Embedding
+User:
+What movie
+should I watch?
+What movie should
+I watch?
+Figure 8.14 Basic memory retrieval and augmentation workflow
+
+202 CHAPTER 8 Understanding agent memory and knowledge
+8.6.1 Consuming memory stores in Nexus
+Memory stores operate and are constructed like knowledge stores in Nexus. They
+both heavily rely on the retrieval pattern. What differs is the extra steps memory sys-
+tems take to build new memories.
+ Go ahead and start Nexus, and refer to listing 8.9 if you need to install it. After
+logging in, select the Memory page, and create a new memory store, as shown in fig-
+ure 8.15. Select an agent engine, and then add a few personal facts and preferences
+about yourself.
+The reason we need an agent (LLM) was shown in figure 8.14 earlier. When informa-
+tion is fed into a memory store, it’s generally processed through an LLM using a memory
+Create a new memory
+store called my_memory.
+Select the memory
+you want to inspect.
+You will need to select an agent
+engine to process the memory.
+Select the
+Memory page.
+Add a few facts or
+preferences about yourself.
+Figure 8.15 Adding memories to a newly created memory store
+
+2038.6 Implementing memory in agentic systems
+function, whose purpose is to process the statements/conversations into semantically
+relevant information related to the type of memory.
+ Listing 8.10 shows the conversational memory function used to extract information
+from a conversation into memories. Yes, this is just the header portion of the prompt
+sent to the LLM, instructing it how to extract information from a conversation. 
+Summarize the conversation and create a set of statements that summarize 
+the conversation. Return a JSON object with the following keys: 'summary'. 
+Each key should have a list of statements that are relevant to that 
+category. Return only the JSON object and nothing else.
+After you generate a few relevant memories about yourself, return to the Chat area in
+Nexus, enable the my_memory memory store, and see how well the agent knows you.
+Figure 8.16 shows a sample conversation using a different agent engine. 
+This is an example of a basic memory pattern that extracts facts/preferences from
+conversations and stores them in a vector database as memories. Numerous other
+implementations of memory follow those displayed earlier in figure 8.13. We’ll imple-
+ment those in the next section.
+Listing 8.10 Conversational memory function
+Select the memory store.
+If possible, select a different agent
+engine that supports memory.
+Ask the agent something relevant to
+the facts you just added to memory.
+Figure 8.16 Conversing with a different agent on the same memory store
+
+204 CHAPTER 8 Understanding agent memory and knowledge
+8.6.2 Semantic memory and applications to semantic, episodic, 
+and procedural memory
+Psychologists categorize memory into multiple forms, depending on what informa-
+tion is remembered. Semantic, episodic, and procedural memory all represent differ-
+ent types of information. Episodic memories are about events, procedural memories are
+about the process or steps, and semantic represents the meaning and could include
+feelings or emotions. Other forms of memory (geospatial is another), aren’t described
+here but could be. 
+ Because these memories rely on an additional level of categorization, they also rely
+on another level of semantic categorization. Some platforms, such as Semantic Kernel
+(SK), refer to this as semantic memory. This can be confusing because semantic categori-
+zation is also applied to extract episodic and procedural memories.
+ Figure 8.17 shows the semantic memory categorization process, also sometimes
+called semantic memory. The difference between semantic memory and regular mem-
+ory is the additional step of processing the input semantically and extracting relevant
+questions that can be used to query the memory-relevant vector database.
+Semantic memory augmentation
+Vector DB
+Augmented prompt
+user:
+What movie should I
+watch?
+Semantics:
+The user has recently
+watched these time
+travel movies.
+Response sent
+back to user
+Assistant:
+You should watch
+this movie on time
+travel.
+Conversations are then
+fed back into the memory
+function to create relevant
+new memories.
+Questions are converted
+to embedding and then
+used to query database.
+The user has recently
+watched these time
+travel movies.
+Embedding
+User:
+What movie
+should I watch?
+What movie should
+I watch?
+Semantic Augmentation
+function extracts details
+speciﬁc to memory form.
+What type of movies
+does the user like?
+Give me a summary
+of movies the user
+has watched.
+The semantic
+augmentation
+converts the input
+into questions
+relevant to the
+particular form of
+memory.
+LLM
+LLM
+Figure 8.17 How semantic memory augmentation works
+
+2058.6 Implementing memory in agentic systems
+The benefit of using semantic augmentation is the increased ability to extract more
+relevant memories. We can see this in operation by jumping back into Nexus and cre-
+ating a new semantic memory store.
+ Figure 8.18 shows how to configure a new memory store using semantic memory.
+As of yet, you can’t configure the specific function prompts for memory, augmenta-
+tion, and summarization. However, it can be useful to read through each of the func-
+tion prompts to gain a sense of how they work.
+Memory function for adding new memories
+Augmentation function is called to extract
+relevance before querying a memory store.
+Select SEMANTIC as the type of memory.
+Select the
+Conﬁguration tab.
+Be sure to create a new
+memory store ﬁrst.
+Summarization function is used in memory
+compression.
+Figure 8.18 Configuration for changing the memory store type to semantic
+
+206 CHAPTER 8 Understanding agent memory and knowledge
+Now, if you go back and add facts and preferences, they will convert to the semantics
+of the relevant memory type. Figure 8.19 shows an example of memories being popu-
+lated for the same set of statements into two different forms of memory. Generally, the
+statements entered into memory would be more specific to the form of memory.
+Memory and knowledge can significantly assist an agent with various application types.
+Indeed, a single memory/knowledge store could feed one or multiple agents, allowing
+Figure 8.19 Comparing memories for the same information given two different memory types
+
+2078.7 Understanding memory and knowledge compression
+for further specialized interpretations of both types of stores. We’ll finish out the
+chapter by discussing memory/knowledge compression next.
+8.7 Understanding memory and knowledge compression
+Much like our own memory, memory stores can become cluttered with redundant
+information and numerous unrelated details over time. Internally, our minds deal
+with memory clutter by compressing or summarizing memories. Our minds remem-
+ber more significant details over less important ones, and memories accessed more
+frequently.
+ We can apply similar principles of memory compression to agent memory and
+other retrieval systems to extract significant details. The principle of compression is
+similar to semantic augmentation but adds another layer to the preclusters groups of
+related memories that can collectively be summarized.
+ Figure 8.20 shows the process of memory/knowledge compression. Memories or
+knowledge are first clustered using an algorithm such as k-means. Then, the groups of
+memories are passed through a compression function, which summarizes and collects
+the items into more succinct representations. 
+Nexus provides for both knowledge and memory store compression using k-means
+optimal clustering. Figure 8.21 shows the compression interface for memory. Within
+the compression interface, you’ll see the items displayed in 3D and clustered. The size
+(number of items) of the clusters is shown in the left table.
+ Compressing memories and even knowledge is generally recommended if the
+number of items in a cluster is large or unbalanced. Each use case for compression
+may vary depending on the use and application of memories. Generally, though, if an
+Memory/Knowledge Comparison
+Compressed items are
+stored as embeddings.
+Memories and
+knowledge can be
+redundant, repetitive,
+and include duplicate
+information and
+potentially misaligned
+information.
+Clustering
+The user likes time
+travel movies.
+The speaker enjoys
+time travel movies.
+likes time travel
+stories
+Items are clustered
+using reduced dimensional
+embeddings and -means. k
+Compression function
+summarizes items
+by group and
+function into a new
+list of memories and
+knowledge
+Embedding
+ Vector DB
+ The user enjoys
+time travel movies
+and has seen
+the following ﬁlms:
+Figure 8.20 The process of memory and knowledge compression
+
+208 CHAPTER 8 Understanding agent memory and knowledge
+inspection of the items in a store contains repetitive or duplicate information, it’s a
+good time for compression. The following is a summary of use cases for applications
+that would benefit from compression.
+THE CASE FOR KNOWLEDGE COMPRESSION
+Knowledge retrieval and augmentation have also been shown to benefit significantly
+from compression. Results will vary by use case, but generally, the more verbose the
+source of knowledge, the more it will benefit from compression. Documents that
+feature literary prose, such as stories and novels, will benefit more than, say, a base
+of code. However, if the code is likewise very repetitive, compression could also be
+shown to be beneficial.
+THE CASE FOR HOW OFTEN YOU APPLY COMPRESSION
+Memory will often benefit from the periodic compression application, whereas knowl-
+edge stores typically only help on the first load. How frequently you apply compres-
+sion will greatly depend on the memory use, frequency, and quantity.
+THE CASE FOR APPLYING COMPRESSION MORE THAN ONCE
+Multiple passes of compression at the same time has been shown to improve retrieval
+performance. Other patterns have also suggested using memory or knowledge at vari-
+ous levels of compression. For example, a knowledge store is compressed two times,
+resulting in three different levels of knowledge. 
+Number of items are
+shown per cluster.
+Compression requires an agent
+engine; GPT-4 or higher LLMs
+are preferred for compression.
+The optimal number of
+k-means clusters are shown.
+Click the Compress button to
+start compression. The process of
+compression may take several minutes
+depending on the size of the store.
+Figure 8.21 The interface for compressing memories
+
+2098.8 Exercises
+THE CASE FOR BLENDING KNOWLEDGE AND MEMORY COMPRESSION
+If a system is specialized to a particular source of knowledge and that system also
+employs memories, there may be further optimization to consolidate stores. Another
+approach is to populate memory with the starting knowledge of a document directly.
+THE CASE FOR MULTIPLE MEMORY OR KNOWLEDGE STORES
+In more advanced systems, we’ll look at agents employing multiple memory and knowl-
+edge stores relevant to their workflow. For example, an agent could employ individual
+memory stores as part of its conversations with individual users, perhaps including the
+ability to share different groups of memory with different groups of individuals. Mem-
+ory and knowledge retrieval are cornerstones of agentic systems, and we can now sum-
+marize what we covered and review some learning exercises in the next section.
+8.8 Exercises
+Use the following exercises to improve your knowledge of the material:
+ Exercise 1—Load and Split a Different Document (Intermediate) 
+Objective— Understand the effect of document splitting on retrieval efficiency by
+using LangChain. 
+Tasks:
+– Select a different document (e.g., a news article, a scientific paper, or a short
+story).
+– Use LangChain to load and split the document into chunks.
+– Analyze how the document is split into chunks and how it affects the retrieval
+process.
+ Exercise 2—Experiment with Semantic Search (Intermediate) 
+Objective— Compare the effectiveness of various vectorization techniques by per-
+forming semantic searches. 
+Tasks:
+– Choose a set of documents for semantic search.
+– Use a vectorization method such as Word2Vec or BERT embeddings instead
+of TF–IDF.
+– Perform the semantic search, and compare the results with those obtained
+using TF–IDF to understand the differences and effectiveness.
+ Exercise 3—Implement a Custom RAG Workflow (Advanced) 
+Objective— Apply theoretical knowledge of RAG in a practical context using
+LangChain. 
+Tasks:
+– Choose a specific application (e.g., customer service inquiries or academic
+research queries).
+– Design and implement a custom RAG workflow using LangChain.
+– Tailor the workflow to suit the chosen application, and test its effectiveness.
+
+210 CHAPTER 8 Understanding agent memory and knowledge
+ Exercise 4 —Build a Knowledge Store and Experiment with Splitting Patterns
+(Intermediate) 
+Objective— Understand how different splitting patterns and compression affect
+knowledge retrieval. 
+Tasks:
+– Build a knowledge store, and populate it with a couple of documents.
+– Experiment with different forms of splitting/chunking patterns, and analyze
+their effect on retrieval.
+– Compress the knowledge store, and observe the effects on query performance.
+ Exercise 5—Build and Test Various Memory Stores (Advanced) 
+Objective— Understand the uniqueness and use cases of different memory store
+types. 
+Tasks:
+– Build various forms of memory stores (conversational, semantic, episodic,
+and procedural).
+– Interact with an agent using each type of memory store, and observe the dif-
+ferences.
+– Compress the memory store, and analyze the effect on memory retrieval.
+Summary
+ Memory in AI applications differentiates between unstructured and structured
+memory, highlighting their use in contextualizing prompts for more relevant
+interactions.
+ Retrieval augmented generation (RAG) is a mechanism for enhancing prompts
+with context from external documents, using vector embeddings and similarity
+search to retrieve relevant content.
+ Semantic search with document indexing converts documents into semantic
+vectors using TF–IDF and cosine similarity, enhancing the capability to perform
+semantic searches across indexed documents.
+ Vector databases and similarity search stores document vectors in a vector data-
+base, facilitating efficient similarity searches and improving retrieval accuracy.
+ Document embeddings capture semantic meanings, using models such as
+OpenAI’s models to generate embeddings that preserve a document’s context
+and facilitate semantic similarity searches.
+ LangChain provides several tools for performing RAG, and it abstracts the
+retrieval process, allowing for easy implementation of RAG and memory sys-
+tems across various data sources and vector stores.
+ Short-term and long-term memory in LangChain implements conversational
+memory within LangChain, distinguishing between short-term buffering pat-
+terns and long-term storage solutions.
+
+211Summary
+ Storing document vectors in databases for efficient similarity searches is crucial
+for implementing scalable retrieval systems in AI applications.
+ Agent knowledge directly relates to the general RAG pattern of performing
+question and answer on documents or other textual information.
+ Agent memory is a pattern related to RAG that captures the agentic interac-
+tions with users, itself, and other systems.
+ Nexus is a platform that implements agentic knowledge and memory systems,
+including setting up knowledge stores for document retrieval and memory
+stores for various forms of memory.
+ Semantic memory augmentation (semantic memory) differentiates between vari-
+ous types of memories (semantic, episodic, procedural). It implements them
+through semantic augmentation, enhancing agents’ ability to recall and use
+information relevantly specific to the nature of the memories.
+ Memory and knowledge compression are techniques for condensing informa-
+tion stored in memory and knowledge systems, improving retrieval efficiency
+and relevancy through clustering and summarization.
+
+212
+Mastering agent prompts
+with prompt flow
+In this chapter, we delve into the Test Changes Systematically prompt engineering
+strategy. If you recall, we covered the grand strategies of the OpenAI prompt engi-
+neering framework in chapter 2. These strategies are instrumental in helping us
+build better prompts and, consequently, better agent profiles and personas. Under-
+standing this role is key to our prompt engineering journey.
+ Test Changes Systematically is such a core facet of prompt engineering that Mic-
+rosoft developed a tool around this strategy called prompt flow , described later in
+this chapter. Before getting to prompt flow, we need to understand why we need
+systemic prompt engineering.
+This chapter covers
+ Understanding systematic prompt engineering 
+and setting up your first prompt flow
+ Crafting an effective profile/persona prompt
+ Evaluating profiles: Rubrics and grounding
+ Grounding evaluation of a large language model 
+profile
+ Comparing prompts: Getting the perfect profile
+
+2139.1 Why we need systematic prompt engineering
+9.1 Why we need systematic prompt engineering
+Prompt engineering, by its nature, is an iterative process. When building a prompt,
+you’ll often iterate and evaluate. To see this concept in action, consider the simple
+application of prompt engineering to a ChatGPT question.
+ You can follow along by opening your browser to ChatGPT ( https:/ /chat.openai
+.com/), entering the following (text) prompt into ChatGPT, and clicking the Send Mes-
+sage button (an example of this conversation is shown in figure 9.1, on the left side):
+can you recommend something
+We can see that the response from ChatGPT is asking for more information. Go ahead
+and open a new conversation with ChatGPT, and enter the following prompt, as
+shown in figure 9.1, on the right side:
+Can you please recommend a time travel movie set in the medieval period.
+The results in figure 9.1 show a clear difference between leaving out details and being
+more specific in your request. We just applied the tactic of politely Writing Clear Instruc-
+tions, and ChatGPT provided us with a good recommendation. But also notice how
+ChatGPT itself guides the user into better prompting. The refreshed screen shown in
+figure 9.2 shows the OpenAI prompt engineering strategies.
+ We just applied simple iteration to improve our prompt. We can extend this exam-
+ple by using a system prompt/message. Figure 9.3 demonstrates the use and role of
+the system prompt in iterative communication. In chapter 2, we used the system mes-
+sage/prompt in various examples.
+No prompt engineering Applying prompt engineering
+Details are included in
+the prompt/request.
+ChatGPT guides the user to
+supply additional details.
+Figure 9.1 The differences in applying prompt engineering and iterating
+

@@ -1,0 +1,130 @@
+================================================================================
+AI Agents in Action
+================================================================================
+PDF: AI Agents in Action.pdf
+页码: 1 - 7
+================================================================================
+
+M A N N I N G
+Micheal Lanham
+
+The differences between the LLM interactions from direct action 
+compared to using proxy agents, agents, and autonomous agents
+Please explain the
+deﬁnition of agent.
+Large language model
+(ChatGPT)
+LLM: The deﬁnition
+of agent is...
+Show an illustration
+of an agent.
+Large language model
+(ChatGPT)
+"An image of a female
+secret agent of Hispanic
+descent in a nighttime
+urban setting. . .
+Image generation model
+(DALL-E 3)
+No agent or assistant
+direct connection to LLM
+Agent/assistant proxy for
+image generator
+What is the temperature
+in Calgary today?
+Large language model
+(ChatGPT)
+LLM identiﬁes an external
+function API to call and
+parameters to connect
+to a weather service.
+Agent/assistant acting on
+behalf of user
+User conﬁrms
+execution okay.
+Asks user if it’s okay
+to execute the function
+on their behalf.
+Executes the function
+and returns weather
+information.
+Filter my emails by
+importance and notify
+me of the top 5 most
+important emails.
+Large language model
+(ChatGPT)
+LLM identiﬁes an external
+function API to call and
+parameters to connect
+to an email service.
+Notiﬁes the user of
+important emails.
+Autonomous agent making
+decisions on behalf of user
+LLM reads
+and sorts emails by
+what it deems to be
+important.
+Decision step
+LLM reformulates
+weather information and
+responds to the user.
+.
+
+AI Agents in Action
+
+
+AI Agents in Action
+MICHEAL LANHAM
+M A N N I N G
+SHELTER ISLAND
+
+For online information and ordering of this and other Manning books, please visit
+www.manning.com. The publisher offers discounts on this book when ordered in quantity. 
+For more information, please contact
+Special Sales Department
+Manning Publications Co.
+20 Baldwin Road
+PO Box 761
+Shelter Island, NY 11964
+Email: orders@manning.com
+©2025 by Manning Publications Co. All rights reserved.
+No part of this publication may be reproduced, stored in a retrieval system, or transmitted, in 
+any form or by means electronic, mechanical, photocopying, or otherwise, without prior written 
+permission of the publisher.
+Many of the designations used by manufacturers and sellers to distinguish their products are 
+claimed as trademarks. Where those designations appear in the book, and Manning Publications 
+was aware of a trademark claim, the designations have been printed in initial caps or all caps.
+Recognizing the importance of preserving what has been written, it is Manning’s policy to have 
+the books we publish printed on acid-free paper, and we exert our best efforts to that end. 
+Recognizing also our responsibility to conserve the resources of our planet, Manning books
+are printed on paper that is at least 15 percent recycled and processed without the use of 
+elemental chlorine.
+The authors and publisher have made every effort to ensure that the information in this book 
+was correct at press time. The authors and publisher do not assume and hereby disclaim any 
+liability to any party for any loss, damage, or disruption caused by errors or omissions, whether 
+such errors or omissions result from negligence, accident, or any other cause, or from any usage 
+of the information herein.
+Manning Publications Co.
+Development editor: Becky Whitney
+20 Baldwin Road
+Technical editor: Ross Turner
+PO Box 761
+Review editor: Kishor Rit
+Shelter Island, NY 11964
+Production editor: Keri Hales
+Copy editor: Julie McNamee
+Proofreader: Katie Tennant
+Technical proofreader: Ross Turner
+Typesetter: Dennis Dalinnik
+Cover designer: Marija Tudor
+ISBN: 9781633436343
+Printed in the United States of America
+
+ I dedicate this book to all the readers who embark on this journey with me. 
+Books are a powerful way for an author to connect with readers on a deeply personal 
+level, chapter by chapter, page by page. In that shared experience of learning, 
+exploring, and growing together, I find true meaning. May this book inspire you 
+and challenge you, and help you see the incredible potential that AI agents hold—
+not just for the future but also for today.

@@ -1,0 +1,83 @@
+Chapter 3: Baldwin Road
+Starting Page: 6
+================================================================================
+
+Technical editor: Ross Turner
+PO Box 761
+Review editor: Kishor Rit
+Shelter Island, NY 11964
+Production editor: Keri Hales
+Copy editor: Julie McNamee
+Proofreader: Katie Tennant
+Technical proofreader: Ross Turner
+Typesetter: Dennis Dalinnik
+Cover designer: Marija Tudor
+ISBN: 9781633436343
+Printed in the United States of America
+
+I dedicate this book to all the readers who embark on this journey with me.
+Books are a powerful way for an author to connect with readers on a deeply personal
+level, chapter by chapter, page by page. In that shared experience of learning,
+exploring, and growing together, I find true meaning. May this book inspire you
+and challenge you, and help you see the incredible potential that AI agents hold—
+not just for the future but also for today.
+
+vivi
+brief contents
+1
+■
+Introduction to agents and their world
+1
+2
+■
+Harnessing the power of large language models
+14
+3
+■
+Engaging GPT assistants
+39
+4
+■
+Exploring multi-agent systems
+68
+5
+■
+Empowering agents with actions
+98
+6
+■
+Building autonomous assistants
+129
+7
+■
+Assembling and using an agent platform
+160
+8
+■
+Understanding agent memory and knowledge
+180
+9
+■
+Mastering agent prompts with prompt flow
+212
+10
+■
+Agent reasoning and evaluation
+244
+11
+■
+Agent planning and feedback
+272
+
+vii
+contents
+preface
+xiii
+acknowledgments
+xv
+about this book
+xvii
+about the author
+xxi
+about the cover illustration
+xxii

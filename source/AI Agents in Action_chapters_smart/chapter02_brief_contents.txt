@@ -1,0 +1,53 @@
+================================================================================
+brief contents
+================================================================================
+PDF: AI Agents in Action.pdf
+页码: 8 - 8
+================================================================================
+
+vivi
+brief contents
+1
+■
+Introduction to agents and their world
+1
+2
+■
+Harnessing the power of large language models
+14
+3
+■
+Engaging GPT assistants
+39
+4
+■
+Exploring multi-agent systems
+68
+5
+■
+Empowering agents with actions
+98
+6
+■
+Building autonomous assistants
+129
+7
+■
+Assembling and using an agent platform
+160
+8
+■
+Understanding agent memory and knowledge
+180
+9
+■
+Mastering agent prompts with prompt flow
+212
+10
+■
+Agent reasoning and evaluation
+244
+11
+■
+Agent planning and feedback
+272

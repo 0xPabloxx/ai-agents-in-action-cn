@@ -1,0 +1,40 @@
+Chapter 6: Engaging GPT assistants
+Starting Page: 10
+================================================================================
+
+39
+3.1
+Exploring GPT assistants through ChatGPT
+40
+3.2
+Building a GPT that can do data science
+44
+3.3
+Customizing a GPT and adding custom actions
+49
+Creating an assistant to build an assistant
+49
+■Connecting the
+custom action to an assistant
+53
+3.4
+Extending an assistant’s knowledge using file uploads
+56
+Building the Calculus Made Easy GPT
+56
+■Knowledge search
+and more with file uploads
+58
+3.5
+Publishing your GPT
+61
+Expensive GPT assistants
+62
+■Understanding the economics of
+GPTs
+63
+■Releasing the GPT
+63
+3.6
+Exercises
+65

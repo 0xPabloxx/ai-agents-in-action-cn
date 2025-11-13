@@ -1,0 +1,53 @@
+Chapter 8: Empowering agents with actions
+Starting Page: 11
+================================================================================
+
+98
+5.1
+Defining agent actions
+99
+5.2
+Executing OpenAI functions
+101
+Adding functions to LLM API calls
+101
+■Actioning function
+calls
+103
+5.3
+Introducing Semantic Kernel
+107
+Getting started with SK semantic functions
+108
+■Semantic
+functions and context variables
+109
+5.4
+Synergizing semantic and native functions
+111
+Creating and registering a semantic skill/plugin
+111
+■Applying
+native functions
+115
+■Embedding native functions within
+semantic functions
+117
+5.5
+Semantic Kernel as an interactive service agent
+118
+Building a semantic GPT interface
+119
+■Testing semantic
+services
+121
+■Interactive chat with the semantic service
+layer
+122
+5.6
+Thinking semantically when writing semantic
+services
+125
+5.7
+Exercises
+127

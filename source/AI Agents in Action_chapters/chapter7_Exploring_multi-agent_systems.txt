@@ -1,0 +1,43 @@
+Chapter 7: Exploring multi-agent systems
+Starting Page: 10
+================================================================================
+
+68
+4.1
+Introducing multi-agent systems with AutoGen Studio
+69
+Installing and using AutoGen Studio
+70
+■Adding skills in
+AutoGen Studio
+72
+4.2
+Exploring AutoGen
+77
+Installing and consuming AutoGen
+77
+■Enhancing code output
+with agent critics
+79
+■Understanding the AutoGen cache
+81
+4.3
+Group chat with agents and AutoGen
+82
+4.4
+Building an agent crew with CrewAI
+84
+Creating a jokester crew of CrewAI agents
+84
+■Observing agents
+working with AgentOps
+87
+4.5
+Revisiting coding agents with CrewAI
+90
+4.6
+Exercises
+95
+
+CONTENTS
+ix

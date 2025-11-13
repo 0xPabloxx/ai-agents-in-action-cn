@@ -1,0 +1,37 @@
+Chapter 13: Agent reasoning and evaluation
+Starting Page: 13
+================================================================================
+
+244
+10.1
+Understanding direct solution prompting
+245
+Question-and-answer prompting
+246
+■Implementing few-shot
+prompting
+248
+■Extracting generalities with zero-shot
+prompting
+250
+10.2
+Reasoning in prompt engineering
+252
+Chain of thought prompting
+253
+■Zero-shot CoT
+prompting
+257
+■Step by step with prompt chaining
+258
+10.3
+Employing evaluation for consistent solutions
+261
+Evaluating self-consistency prompting
+262
+■Evaluating tree of
+thought prompting
+266
+10.4
+Exercises
+270

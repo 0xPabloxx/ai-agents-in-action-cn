@@ -1,0 +1,783 @@
+================================================================================
+index
+================================================================================
+PDF: AI Agents in Action.pdf
+页码: 335 - 346
+================================================================================
+
+311
+index
+A
+ABTs (agentic behavior trees) 143–152
+blackboards in 155
+building with back chaining 155–156
+coding challenge ABT 145–149
+conversational AI systems 149
+managing assistants with assistants 143
+posting YouTube videos to X 150
+required X setup 151
+actions
+and tools, agent platforms 174–179
+defining 99
+empowering agents with 98
+writing semantic services 125
+executing OpenAI functions 101–107
+actioning function calls 103–107
+adding functions to LLM API calls 101
+exercises 127
+native functions 111–118
+semantic functions 111–118
+embedding native functions within
+117
+Semantic Kernel (SK) 107–111
+context variables 109
+semantic functions 108–111
+advanced parameters 221
+agent_action decorator 175
+agent critics 79
+agent engines 172
+agentic systems
+application of
+assistant/agentic planning 288–290
+assistant/agentic reasoning 290–291
+evaluation to agentic systems 292–293
+feedback to agentic/assistant 
+applications 293–295
+implementing memory in 200–207
+semantic memory 204
+agent memory, exercises 209
+agentops package 88
+agent personas 216
+agent planning
+exercises 296
+sequential planners 278–285
+agent planning and feedback 272
+agent platforms
+actions and tools 174–179
+agent engines 172
+developing profiles and personas for 
+agents 170
+overview of 161–164
+Streamlit 165–170
+building chat applications 165–168
+creating streaming chat applications
+168
+agent profiles 216
+evaluating 224–228
+agent prompts
+agent personas 216
+agent profiles 216
+rubrics and grounding 228–230
+agent reasoning
+direct solution prompting 245–252
+few-shot prompting 248–250
+question and answer prompting
+246–248
+zero-shot prompting 250
+
+INDEX
+312
+agents
+component systems of 4–9
+defining 1–4
+empowering with actions 98
+executing OpenAI functions 101–107
+memory and knowledge
+semantic search and document 
+indexing 184–192
+OpenAI Strawberry 285–287
+overview of 12
+planning 273–277
+reasoning and evaluation 244
+rise of 9
+aggregate block 238, 240
+AGI (artificial general intelligence) 9
+AI agents, AI interface 11
+Api parameter 221
+APIs (application programming interfaces), 
+deploying prompt flow API 223
+assistant role 18
+assistants
+ABTs (agentic behavior trees) 143–152
+engaging through ChatGPT 40–44
+Playground 136–142
+getting assistant to run code locally 140
+installing and running 136
+installing assistants database 140
+investigating assistant process through 
+logs 142
+using and building custom actions 138
+Social Media Assistant 152
+Twitter Post Writer 152
+YouTube Researcher v2 152
+assistant systems, application of
+assistant/agentic planning 288–290
+assistant/agentic reasoning 290–291
+evaluation to agentic systems 292–293
+feedback to agentic/assistant applications
+293–295
+AutoGen Studio, multi-agent systems with
+69–76
+adding skills 73–76
+installing and using 70
+autonomous assistants 129
+behavior trees 130–136
+deciding on 132–134
+execution 131
+running with Python and py_trees 134
+conversational autonomous multi-agents
+153
+exercises 156
+Azure OpenAI Studio 302
+B
+BaseAgent class 172
+BasicNexusPlanner class 282
+behavior trees 130–136
+blackboards in 155
+building with back chaining 155–156
+deciding on 132–134
+execution 131
+running with Python and py_trees 134
+blackboards 155
+C
+chain of thought (CoT) prompting 253–257
+chat completions 16
+ChatGPT, engaging assistants through 40–44
+coding challenge ABT (agentic behavior 
+tree) 145–149
+compression
+knowledge 207
+blending knowledge and memory 209
+case for 208
+frequency of application 208
+multiple knowledge stores 209
+multiple passes of 208
+memory 207
+blending knowledge and memory 209
+frequency of application 208
+multiple memory stores 209
+multiple passes of 208
+config.json file 112
+connecting.py code 36
+Connection parameter 221
+context variables 109
+ConversableAgent agent 78
+conversational AI systems 149
+cosine_similarities variable 186
+cosine_similarity function 186
+create_assistant_action_on_thread helper 
+function 149
+create_assistant_condition helper function 149
+create_manager_assistant action 144
+create_plan function 282
+CrewAI
+building agent crew with 84–90
+creating jokester crew of CrewAI agents
+84–87
+observing agents working with AgentOps
+87–90
+revisiting coding agents with 90–95
+crewai_agentops.py file 88
+
+INDEX
+313
+crewai package 88
+custom actions 49–55
+connecting custom action to assistant 53
+creating assistant to build assistant 49–53
+D
+DAG (direct acyclic graph) 262
+describe_image function 75
+Direct Prompting 270
+direct solution prompting 245–252
+few-shot prompting 248–250
+question and answer prompting 246–248
+zero-shot prompting 250
+Docker 309
+document indexing 184–192
+document embeddings 189
+querying document embeddings from 
+Chroma 190
+vector similarity search 184–188
+Inverse Document Frequency (IDF) 185
+Term Frequency (TF) 185
+TF-IDF calculation 185–188
+vector databases and similarity search 188
+E
+echo block 221
+Embedding components 246
+episodic memory 204
+evaluate_recommendation block 231
+evaluation, employing for consistent 
+solutions 261–270
+self-consistency prompting 262–266
+ToT prompting 266–270
+evaluation prompt techniques 271
+F
+feedback
+application of feedback to agentic/assistant 
+applications 293–295
+stepwise planner, OpenAI Strawberry
+285–287
+few-shot learning 248
+few-shot model 248
+Few-Shot Prompting 270
+file uploads extending assistants’ knowledge 
+using 56–61
+building Calculus Made Easy GPT 56–58
+knowledge search and more with file 
+uploads 58–61
+first_function.py Python script 103
+flow.dag.yaml file 236, 240
+for-each function 283
+functions
+actioning function calls 103–107
+adding to LLM API calls 101
+G
+generative models 14
+get_response function 173
+get_response_stream function 176
+get_top_movie_by_genre function 124
+get_top_movies_by_genre function 126
+get_wikipedia_page action 278
+GPT Assistants Playground 136–142
+getting assistant to run code locally 140
+installing and running 136
+installing assistants database 140
+investigating assistant process through logs
+142
+using and building custom actions 138
+GPT (Generative Pretrained Transformer) 
+assistants 39
+building 44–48
+exercises 65
+OpenAI Assistants 136–149
+publishing 61–65
+economics of GPTs 63
+expensive GPT assistants 62
+releasing GPT 63
+GPTs (Generative Pretrained Transformers)
+14
+building semantic interface 119–121
+customizing 49–55
+connecting custom action to assistant 53
+creating assistant to build assistant
+49–53
+grounding 228–230
+GroupChat 82
+GroupChatManager 82
+group chat with agents and AutoGen 82
+I
+IDEs (integrated development environments)
+305
+IDF (Inverse Document Frequency) 185
+import_plugin function 118
+initiate_chat call 82
+Inputs block 221
+input tokens 20
+
+INDEX
+314
+interactive service agent, semantic kernel 
+as 118–125
+building semantic GPT interface 119–121
+interactive chat with semantic service layer
+122–125
+testing semantic services 121
+J
+Jinja2 templates, creating profiles with 222
+JSON Lines (JSONL) 235
+JSON list document 235
+K
+knowledge 180
+building agent knowledge 196–200
+compression 207
+blending knowledge and memory 209
+case for 208
+extending assistants’ knowledge using file 
+uploads 56–61
+building Calculus Made Easy GPT 56–58
+knowledge search with file uploads 58–61
+stores 209
+KnowledgeManager class 199
+knowledge/memory 162
+L
+LangChain, constructing RAG with 192–196
+splitting and loading documents 193–194
+splitting documents by token 195
+launch.json file 168
+LLMs (large language models) 2, 14, 99, 161, 
+299
+adding functions to API calls 101
+choosing optimal 34–36
+exercises 14
+grounding evaluation with LLM profile
+230
+OpenAI API 16–20
+connecting to chat completions model 16
+request and response 18–20
+open source LLMs with LM Studio 20–25
+prompt engineering 25–34
+adopting personas 29
+creating detailed queries 28
+providing examples 32
+specifying output length 33
+specifying steps 31
+using delimiters 30
+LM Studio 20–25
+installing and running 20
+serving LLM locally with 23
+load_dotenv function 17
+Local Data File 236
+M
+manager_llm class 92
+max_rpm (maximum requests per minute) 87
+Max_tokens parameter 221
+memory 180
+compression 207
+consuming memory stores in Nexus 202
+implementing in agentic systems 200–207
+retrieval 181
+semantic memory 204
+Model parameter 221
+multi-agent systems 3, 68
+AutoGen 77–82
+cache 81
+enhancing code output with agent critics 79
+installing and consuming 77–79
+building agent crew with CrewAI 84–90
+creating jokester crew of CrewAI agents
+84–87
+observing agents working with AgentOps
+87–90
+exercises 95
+group chat with agents and AutoGen 82
+revisiting coding agents with CrewAI 90–95
+with AutoGen Studio 69–76
+adding skills 73–76
+installing and using 70
+multipath reasoning 9
+N
+native functions 111–118, 127
+applying 115
+embedding within semantic functions 117
+Nexus
+consuming memory stores in 202
+developing 163
+overview of 161–164
+running 162
+NPCs (nonplayer characters) 130
+O
+OAI_CONFIG_LIST file 78
+one-shot learning 248
+
+INDEX
+315
+one-shot model 248
+OpenAI
+accessing accounts and keys 299
+Azure OpenAI Studio 302
+OpenAI API 16–20
+connecting to chat completions model 16
+request and response 18–20
+Outputs block 221
+output tokens 20
+P
+parsing_results block 232
+PCA (principal component analysis)
+190
+personas 29
+developing for agents 170
+pip command 77
+planning 252
+stepwise planner, OpenAI Strawberry
+285–287
+planning agents 273–277
+planning/feedback 162
+plugin folder 115
+plugins, creating and registering 111–115
+procedural memory 204
+profiles
+comparing 232–243
+creating evaluation flow for grounding
+238–241
+exercises 242
+parsing LLM evaluation output 232
+running batch processing in prompt 
+flow 235–238
+developing for agents 170
+prompt chaining 258–261
+prompt engineering 9, 25–34
+adopting personas 29
+creating detailed queries 28
+providing examples 32
+reasoning in 252–261
+chain of thought prompting 253–257
+step-by-step with prompt chaining
+258–261
+zero-shot CoT prompting 257
+specifying output length 33
+specifying steps 31
+systematic 213
+using delimiters 30
+prompt_engineering.py file 26, 28
+prompt flow 212
+agent profiles, evaluating 224–228
+comparing profiles 232–243
+creating evaluation flow for grounding
+238–241
+exercises 242
+parsing LLM evaluation output 232
+running batch processing in prompt 
+flow 235–238
+grounding evaluation with LLM profile 230
+setting up 217–224
+creating profiles with Jinja2 templates 222
+deploying prompt flow API 223
+prerequisites 218–221
+systematic prompt engineering 213
+PromptTemplateManager 282
+Python
+behavior trees with 134
+creating new environment with VS Code 308
+development environment
+downloading source code 305
+VS Code Dev Containers (Docker) and 309
+installing VS code 306
+installing VS Code extensions 306
+py_trees 134
+py_trees package 147
+Q
+question_answer LLM prompt 246
+R
+RAG (Retrieval Augmented Generation) 177, 182
+applying to building agent knowledge 196–200
+constructing with LangChain 192–196
+splitting and loading documents 193–194
+splitting documents by token 195
+reasoning 252
+in prompt engineering 252–261
+chain of thought prompting 253–257
+step-by-step with prompt chaining 258–261
+zero-shot CoT prompting 257
+reasoning agents, exercises 270
+reasoning prompts 270
+recommender block 221
+recommender_with_LLM_evaluation flows visual 
+editor 232
+registering
+plugins 111–115
+semantic functions 111–115
+semantic plugins 111–115
+semantic skills 111–115
+skills 111–115
+
+INDEX
+316
+requirements.txt file 77, 246
+retrieval 181
+RLHF (reinforcement learning with human 
+feedback) 16
+rubber ducking 29
+rubrics 228–230
+run_conversation function 104
+S
+save_file action 278
+scoring block 238
+search_wikipedia action 278
+self-consistency prompting 262–266
+semantic functions 111–118, 127
+creating and registering 111–115
+embedding native functions within 117
+semantic memory 204
+semantic plugins, creating 111–115
+semantic search 184–192
+vector similarity search 184–188
+document embeddings 189
+Inverse Document Frequency (IDF) 185
+querying document embeddings from 
+Chroma 190
+Term Frequency (TF) 185
+TF-IDF calculation 185–188
+vector databases and similarity search 188
+semantic services, writing 125
+semantic skills, creating 111–115
+SEO (search engine optimization) 64
+sequential planners 278–285
+sequential planning process 277
+sequential reasoning 9
+single-path reasoning 9
+sk_function decorator 120
+skills
+creating 111–115
+registering 111–115
+skills directory 115
+skills/plugin folder 112
+skills/Recommender/Recommend_Movies 
+folder 112
+skprompt.txt file 112
+SK (Semantic Kernel) 107–111, 128, 160, 244
+as interactive service agent 118–125
+building semantic GPT interface 119–121
+interactive chat with semantic service 
+layer 122–125
+testing semantic services 121
+context variables 109
+semantic functions 108–111
+step-by-step with prompt chaining 258–261
+stepwise planner, OpenAI Strawberry
+285–287
+Stop parameter 221
+Streamlit
+building chat applications 165–168
+creating streaming chat applications 168
+overview 165–170
+st.spinner control 167
+st.write_stream control 169
+system role 18
+T
+temperature conversion plugin 127
+Temperature parameter 221
+TF-IDF (Term Frequency-Inverse Document 
+Frequency) 184–188
+TF (Term Frequency) 185
+tmdb.py file 119
+TMDbService 126
+TMDbService class 119–120, 122
+TMDB (The Movie Database) 118
+tokenization, splitting documents by 
+token with LangChain 195
+ToT (tree of thought) 245
+ToT (tree of thought) prompting
+266–270
+U
+ulk_recommend.jsonl file 235
+unstructured memory/knowledge concepts
+183
+UserProxy agent 78
+user role 18
+V
+vector databases 188
+vector similarity search 184–188
+document embeddings 189
+Inverse Document Frequency (IDF) 185
+querying document embeddings from 
+Chroma 190
+Term Frequency (TF) 185
+TF-IDF calculation 185–188
+vector databases and similarity search
+188
+VS Code
+installing 306
+installing Python extensions 306
+
+INDEX
+317
+VS Code Dev Containers (Docker) 309
+.vscode/launch.json file 167
+VS Code (Visual Studio Code) 16, 51, 70, 
+102, 136, 218
+creating new Python environment 
+with 308
+W
+weather information plugin 127
+web APIs 128
+Windows Subsystem for Linux (WSL)
+79
+with statement 82
+working_dir folder 79
+Write Clear Instructions strategy 26
+WSL (Windows Subsystem for Linux)
+79
+X
+X (formerly Twitter)
+required assistants 152
+required setup 151
+Y
+YouTube
+posting videos to X 150
+required assistants 152
+search and spam 151
+Z
+zero-shot CoT prompting 257
+zero-shot learning 248
+zero-shot prompting 250, 270
+
+For ordering information, go to www.manning.com
+RELATED MANNING TITLES
+Multi-Agent Systems with AutoGen
+by Victor Dibia
+ISBN 9781633436145
+325 pages (estimated), $59.99
+Spring 2025 (estimated)
+Generative AI for the IT Pro
+by Chrissy LeMaire and Brandon Abshire
+ISBN 9781633436428
+350 pages (estimated), $49.99
+Spring 2025 (estimated)
+The Complete Obsolete Guide to Generative AI
+by David Clinton
+ISBN 9781633436985
+240 pages, $39.99
+July 2024
+Generative AI in Action
+by Amit Bahree
+Foreword by Eric Boyd
+ISBN 9781633436947
+464 pages, $59.99
+September 2024
+
+The Manning Early Access Program
+Don’t wait to start learning! In MEAP, the Manning Early Access Program, you can read 
+books as they’re being created and long before they’re available in stores. 
+Here’s how MEAP works.
+•	 Start now. Buy a MEAP and you’ll get all available chapters in PDF, ePub, Kindle, 
+and liveBook formats. 
+•	 Regular updates. New chapters are released as soon as they’re written. We’ll 
+let you know when fresh content is available.
+•	 Finish faster. MEAP customers are the first to get final versions of all books! 
+Pre-order the print book, and it’ll ship as soon as it’s off the press.
+•	 Contribute to the process. The feedback you share with authors makes the end 
+product better.
+•	 No risk. You get a full refund or exchange if we ever have to cancel a MEAP.
+Explore dozens of titles in MEAP at www.manning.com.
+
+A new online reading experience
+liveBook, our online reading platform, adds a new dimension to your Manning books, 
+with features that make reading, learning, and sharing easier than ever. A liveBook 
+version of your book is included FREE with every Manning book.
+This next generation book platform is more than an online reader. It’s packed with 
+unique features to upgrade and enhance your learning experience.
+• Add your own notes and bookmarks
+• One-click code copy
+• Learn from other readers in the discussion forum
+• Audio recordings and interactive exercises
+• Read all your purchased Manning content in any browser, anytime, anywhere
+As an added bonus, you can search every Manning book and video in liveBook—even 
+ones you don’t yet own. Open any liveBook, and you’ll be able to browse the content and 
+read anything you like.*
+Find out more at www.manning.com/livebook-program.
+*Open reading is limited to 10 minutes per book daily
+
+The difference between iterative and planned execution
+Single prompt as a goal:
+search Wikipedia for topic, return
+the top page, and save to a ﬁle.
+Sequential execution of a goal
+Single prompt as a goal:
+search Wikipedia for topic, return
+the top page, and save to a ﬁle.
+Iterative execution of a goal
+Tasks/plan
+Returns a list of page IDs
+search_wikipedia(topic)
+Returns the page content
+get_wikipedia_page(page_id)
+Collects pages
+save_ ﬁle
+All pages combined
+In a planner, this
+aggregation is
+performed
+internally.
+All tasks are
+performed
+internally by
+the agent.
+User submits a goal.
+search_wikipedia(topic)
+Results are displayed, and the
+agent asks to continue to the
+next step.
+Returns a list of page IDs
+get_wikipedia_page(page_id)
+User responds
+with continue.
+Returns are collected and
+displayed to the user. The agent
+asks for further continuation.
+Returns the page content
+save_ ﬁle
+All pages combined
+User responds
+with continue.
+Goal is complete, and user has the output.
+Iterative
+execution
+is default
+behavior
+for an LLM.
+Sequential
+(planned)
+execution is
+standard in
+GPT
+Assistants
+and Claude.
+
+Micheal Lanham
+M
+ost production AI systems require many orchestrated 
+interactions between the user, AI models, and a wide 
+variety of data sources. AI agents capture and organize 
+these interactions into autonomous components that can pro-
+cess information, make decisions, and learn from interactions 
+behind the scenes. Th is book will show you how to create AI 
+agents and connect them together into powerful multi-agent 
+systems.
+In AI Agents in Action, you’ll learn how to build production
+-ready assistants, multi-agent systems, and behavioral agents. 
+You’ll master the essential parts of an agent, including 
+retrieval-augmented knowledge and memory, while you create 
+multi-agent applications that can use software tools, plan tasks 
+autonomously, and learn from experience. As you explore the 
+many interesting examples, you’ll work with state-of-the-art 
+tools like OpenAI Assistants API, GPT Nexus, LangChain, 
+Prompt Flow, AutoGen, and CrewAI.
+What’s Inside
+● Knowledge management and memory systems
+● Feedback loops for continuous agent learning
+● Collaborative multi-agent systems
+● Speech and computer vision
+For intermediate Python programmers.
+Micheal Lanham is a software and technology innovator with 
+over 20 years of industry experience. He has authored books 
+on deep learning, including Manning’s Evolutionary Deep 
+Learning.
+Th e technical editor on this book was Ross Turner.
+For print book owners, all digital formats are free:
+https://www.manning.com/freebook
+AI Agents IN ACTION
+PYTHON/SOFTWARE DEVELOPMENT
+M A N N I N G
+“
+Th is is about to become 
+the hottest area of applied 
+AI. Get a head start with 
+ this book!”
+ 
+—Richard Davies, author of 
+Prompt Engineering in Practice
+“
+Couldn’t put this book 
+down! It’s so comprehensive 
+and clear that I felt like 
+I was learning from a 
+  master teacher.”
+ 
+—Radhika Kanubaddhi, Amazon
+“
+An enlightening journey! 
+Th is book transformed my 
+  questions into answers.”
+—Jose San Leandro, ACM-SL
+“
+Expertly guides through 
+creating agent profi les, using 
+tools, memory, planning, 
+and multi-agent systems.
+ Couldn’t be more timely!”
+—Grigory Sapunov
+author of JAX in Action
+ISBN-13: 978-1-63343-634-3
+See first page

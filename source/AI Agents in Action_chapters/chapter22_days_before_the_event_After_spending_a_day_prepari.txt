@@ -1,0 +1,37 @@
+Chapter 22: days before the event. After spending a day preparing,
+Starting Page: 279
+================================================================================
+
+she attempts to change the event but realizes she has
+actually arrived 2 years early, not 2 days. She then
+decides to wait and live in the past until the event's
+original date. How many days does Sarah spend in the past
+before the day of the event?"
+Chain of Thought:
+Initial Assumption: Sarah thinks she has arrived 2 days before the event.
+Time Spent on Preparation: 1 day spent preparing.
+Realization of Error: Sarah realizes she's actually 2 years early.
+Conversion of Years to Days:
+Listing 10.8
+cot.jinja2
+The evaluated
+score for the
+given solution
+The expected
+answer for the
+problem
+The predicted answer
+shows the reasoning
+steps and output.
+A few example
+problem
+statements
+The solution
+to the problem
+statement, output
+as a sequence of
+reasoning steps
+
+256
+CHAPTER 10
+Agent reasoning and evaluation

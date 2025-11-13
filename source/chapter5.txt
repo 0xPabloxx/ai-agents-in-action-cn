@@ -1,0 +1,1644 @@
+98
+Empowering agents
+with actions
+In this chapter, we explore actions through the use of functions and how agents
+can use them as well. We’ll start by looking at OpenAI function calling and then
+quickly move on to another project from Microsoft called Semantic Kernel (SK),
+which we’ll use to build and manage skills and functions for agents or as agents.
+ We’ll finish the chapter using SK to host our first agent system. This will be a
+complete chapter with plenty of annotated code examples. 
+This chapter covers
+ How an agent acts outside of itself using actions
+ Defining and using OpenAI functions
+ The Semantic Kernel and how to use 
+semantic functions
+ Synergizing semantic and native functions
+ Instantiating a GPT interface with 
+Semantic Kernel
+
+995.1 Defining agent actions
+5.1 Defining agent actions
+ChatGPT plugins were first introduced to provide a session with abilities, skills, or
+tools. With a plugin, you can search the web or create spreadsheets or graphs. Plugins
+provide ChatGPT with the means to extend the platform.
+ Figure 5.1 shows how a ChatGPT plugin works. In this example, a new movie rec-
+ommender plugin has been installed in ChatGPT. When a user asks ChatGPT to rec-
+ommend a new movie, the large language model (LLM) recognizes that it has a
+plugin to manage that action. It then breaks down the user request into actionable
+parameters, which it passes to the new movie recommender.
+The recommender then scrapes a website showcasing new movies and appends that
+information to a new prompt request to an LLM. With this information, the LLM
+Calls the plugin/function
+with parameters
+Here are some new movies
+you may like to see...
+ChatGPT with a new
+movie recommender
+plugin
+ChatGPT user
+Conﬁrms the use of
+the recommender plugin
+GPT-4.5? Plugin calls LLM to get a recommendation
+for the list of new movies.
+Plugin uses a service
+to nd new movie. ﬁ
+Plugin replies with
+recommended new movie.
+New Movie Recommender
+plugin (agent)
+The plugin/agent
+scrapes websites for
+new movies.
+Use External Tools
+Enhances model capabilities.
+Tactics include embeddings-based search, code execution, and access
+to speci c functions. ﬁ Actions
+Memory
+Prompt Engineering Strategies
+Can you recommend
+a new movie?
+A plugin may use the same,
+different, or even multiple
+LLMs.
+Second, the plugin
+uses an LLM to get
+a recommendation.
+First, the plugin scrapes
+a site for a list of new
+movies.
+The LLM recognizes the
+request for a plugin and
+then extracts the input
+parameters required for
+the plugin.
+Figure 5.1 How a ChatGPT plugin operates and how plugins and other external tools (e.g., APIs) align with the 
+Use External Tools prompt engineering strategy
+
+100 CHAPTER 5 Empowering agents with actions
+responds to the recommender, which passes this back to ChatGPT. ChatGPT then
+responds to the user with the recommended request.
+ We can think of plugins as proxies for actions. A plugin generally encapsulates one
+or more abilities, such as calling an API or scraping a website. Actions, therefore, are
+extensions of plugins—they give a plugin its abilities.
+ AI agents can be considered plugins and consumers of plugins, tools, skills, and
+other agents. Adding skills, functions, and tools to an agent/plugin allows it to exe-
+cute well-defined actions—figure 5.2 highlights where agent actions occur and their
+interaction with LLMs and other systems.
+An agent action is an ability that allows it to use a function, skill, or tool. What gets
+confusing is that different frameworks use different terminology. We’ll define an
+action as anything an agent can do to establish some basic definitions.
+ ChatGPT plugins and functions represent an actionable ability that ChatGPT or an
+agent system can use to perform additional actions. Now let’s examine the basis for
+OpenAI plugins and the function definition.
+1. The LLM recognizes the
+request for a plugin/agent
+and then extracts the input
+parameters required to
+activate the agent.
+Calls the agent/plugin
+with parameters
+Agent System
+ChatGPT user
+GPT-4.5?
+Agent replies with
+recommended new movie.
+New Movie Recommender
+plugin (agent)
+2. The agent adds the
+information to a prompt
+used to make a request
+to an LLM.
+The plugin/agent scrapes
+websites for new movies.
+3. The agent uses an action
+to ﬁnd new movies.
+An agent may use the
+same, different, or
+even multiple LLMs.
+Chevron denotes an
+agent action.
+An agent action can be a
+function or skill/tool prompt.
+4. The agent system passes
+the responses to the LLM
+to summarize the results.
+Can you recommend
+a new movie?
+Here are some new movies
+you may like to see...
+Conﬁrms the use of
+a recommender plugin
+Plugin calls LLM to get a
+recommendation for the list of new movies.
+Agent uses a function or
+skill to nd new movie. ﬁ
+Figure 5.2 How an agent uses actions to perform external tasks
+
+1015.2 Executing OpenAI functions
+5.2 Executing OpenAI functions
+OpenAI, with the enablement of plugins, introduced a structure specification for defin-
+ing the interface between functions/plugins an LLM could action. This specification is
+becoming a standard that LLM systems can follow to provide actionable systems.
+ These same function definitions are now also being used to define plugins for
+ChatGPT and other systems. Next, we’ll explore how to use functions directly with
+an LLM call.
+5.2.1 Adding functions to LLM API calls
+Figure 5.3 demonstrates how an LLM recognizes and uses the function definition to
+cast its response as the function call.
+Listing 5.1 shows the details of an LLM API call using tools and a function definition.
+Adding a function definition allows the LLM to reply regarding the function’s input
+parameters. This means the LLM will identify the correct function and parse the rele-
+vant parameters for the user’s request.
+response = client.chat.completions.create(
+        model="gpt-4-1106-preview",
+        messages=[{"role": "system",
+                   "content": "You are a helpful assistant."},
+                  {"role": "user", "content": user_message}],
+Listing 5.1 first_function.py (API call)
+GPT-4
+Make a request to
+LLM using tools. Conﬁrms the request matches
+a particular function deﬁnition
+Extracts parameters matching
+the function de nition from the ﬁ
+original request
+Request
+Model: GPT-4
+Messages:
+System: you are a ...
+User: please recommend a movie.
+Parameters:
+Temperature: .7
+Max tokens: 256
+Tools
+"type": "function",
+:
+Replies with the tool name
+(function) and input parameters
+for the function
+Tools represents plugins or
+functions added to a request.
+The LLM does not
+execute the function.
+If the LLM doesn’t
+match any tools, it
+will respond given
+the expected prompt.
+Figure 5.3 How a single LLM request, including tools, gets interpreted by an LLM
+
+102 CHAPTER 5 Empowering agents with actions
+        temperature=0.7,
+        tools=[    
+            {
+                "type": "function",    
+                "function": {
+                    "name": "recommend",
+                    "description": "Provide a … topic.",    
+                    "parameters": {
+                        "type": "object",    
+                        "properties": {
+                            "topic": {
+                                "type": "string",
+                                "description": 
+                                   "The topic,… for.",    
+                            },
+                            "rating": {
+                                "type": "string",
+                                "description": 
+                          "The rating … given.",    
+                                "enum": ["good",
+                                         "bad", 
+                                         "terrible"]    
+                                },
+                        },
+                        "required": ["topic"],
+                    },
+                },
+                }
+            ]
+        )
+To see how this works, open Visual Studio Code (VS Code) to the book’s source code
+folder: chapter_4/first_function.py. It’s a good practice to open the relevant chapter
+folder in VS Code to create a new Python environment and install the requirements.txt
+file. If you need assistance with this, consult appendix B.
+ Before starting, correctly set up an .env file in the chapter_4 folder with your
+API credentials. Function calling is an extra capability provided by the LLM com-
+mercial service. At the time of writing, this feature wasn’t an option for open
+source LLM deployments.
+ Next, we’ll look at the bottom of the code in first_function.py, as shown in list-
+ing 5.2. Here are just two examples of calls made to an LLM using the request previ-
+ously specified in listing 5.1. Here, each request shows the generated output from
+running the example.
+user = "Can you please recommend me a time travel movie?"
+response = ask_chatgpt(user)    
+print(response)
+Listing 5.2 first_function.py (exercising the API)
+New parameter called tools
+Sets the type of tool to function
+Provides an excellent 
+description of what 
+the function does
+Defines the type of parameters 
+for input; an object represents 
+a JSON document.
+Excellent 
+descriptions 
+for each input 
+parameter
+You can even 
+describe in terms 
+of enumerations.
+Previously 
+defined function
+
+1035.2 Executing OpenAI functions
+###Output
+Function(arguments='{"topic":"time travel movie"}', 
+                      name='recommend')    
+user = "Can you please recommend me a good time travel movie?"
+response = ask_chatgpt(user)    
+print(response)
+###Output
+Function(arguments='{"topic":"time travel movie",
+                     "rating":"good"}',
+ name='recommend')    
+Run the first_function.py Python script in VS Code using the debugger (F5) or the
+terminal to see the same results. Here, the LLM parses the input request to match any
+registered tools. In this case, the tool is the single function definition, that is, the rec-
+ommended function. The LLM extracts the input parameters from this function and
+parses those from the request. Then, it replies with the named function and desig-
+nated input parameters.
+NOTE The actual function isn’t being called. The LLM only returns the sug-
+gested function and the relevant input parameters. The name and parame-
+ters must be extracted and passed into a function matching the signature to
+act on the function. We’ll look at an example of this in the next section.
+5.2.2 Actioning function calls
+Now that we understand that an LLM doesn’t execute the function or plugin directly,
+we can look at an example that executes the tools. Keeping with the recommender
+theme, we’ll look at another example that adds a Python function for simple
+recommendations.
+ Figure 5.4 shows how this simple example will work. We’ll submit a single request
+that includes a tool function definition, asking for three recommendations. The LLM,
+in turn, will reply with the three function calls with input parameters (time travel, rec-
+ipe, and gift). The results from executing the functions are then passed back to the
+LLM, which converts them back to natural language and returns a reply.
+ Now that we understand the example, open parallel_functions.py in VS Code.
+Listing 5.3 shows the Python function that you want to call to give recommendations.
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Returned in 
+the name of the 
+function to call 
+and the extracted 
+input parameters
+Previously 
+defined function
+Returned in the name of the function to 
+call and the extracted input parameters
+
+104 CHAPTER 5 Empowering agents with actions
+def recommend(topic, rating="good"):
+    if "time travel" in topic.lower():    
+        return json.dumps({"topic": "time travel",
+                           "recommendation": "Back to the Future",
+                           "rating": rating})
+    elif "recipe" in topic.lower():    
+        return json.dumps({"topic": "recipe",
+                           "recommendation": "The best thing … ate.",
+                           "rating": rating})
+    elif "gift" in topic.lower():    
+        return json.dumps({"topic": "gift",
+                           "recommendation": "A glorious new...",
+                           "rating": rating})
+    else:    
+        return json.dumps({"topic": topic,
+                           "recommendation": "unknown"})    
+Next, we’ll look at the function called run_conversation, where all the work starts
+with the request construction.
+user = """Can you please make recommendations for the following:
+1. Time travel movies
+2. Recipes
+Listing 5.3 parallel_functions.py (recommend function)
+Listing 5.4 parallel_functions.py (run_conversation, request)
+Make a request to
+LLM using tools. GPT
+Request
+Messages:
+User: Can you please make
+recommendations for the following:
+1. Time travel movies
+2. Recipes
+3. Gifts
+Tools: recommend function de nition ﬁ
+Conﬁrms the request matches a
+particular function deﬁnition and
+there are 3 calls to evaluate
+Returns 3 tool calls to the function recommend “ ”
+Creates 3 function replies, one
+for each recommendation
+Add results of function execution to
+conversation history, and ask LLM to respond.Execute functions.
+Return results of all three recommendations
+in natural language.
+GPT
+Returns the function
+name and parameters
+Could be the same
+or different LLM
+Figure 5.4 A sample request returns three tool function calls and then submits the results back to the LLM 
+to return a natural language response.
+Checks to 
+see if the 
+string is 
+contained 
+within the 
+topic input
+If no topic is 
+detected, returns 
+the default
+Returns a 
+JSON object
+
+1055.2 Executing OpenAI functions
+3. Gifts"""    
+messages = [{"role": "user", "content": user}]    
+tools = [    
+    {
+        "type": "function",
+        "function": {
+            "name": "recommend",
+            "description": 
+                "Provide a recommendation for any topic.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "topic": {
+                        "type": "string",
+                        "description": 
+                              "The topic, … recommendation for.",
+                        },
+                        "rating": {
+                            "type": "string",
+                            "description": "The rating … was given.",
+                            "enum": ["good", "bad", "terrible"]
+                            },
+                        },
+                "required": ["topic"],
+                },
+            },
+        }
+    ]
+Listing 5.5 shows the request being made, which we’ve covered before, but there are a
+few things to note. This call uses a lower model such as GPT-3.5 because delegating
+functions is a more straightforward task and can be done using older, cheaper, less
+sophisticated language models.
+response = client.chat.completions.create(
+    model="gpt-3.5-turbo-1106",    
+    messages=messages,    
+    tools=tools,    
+    tool_choice="auto",  
+)
+response_message = response.choices[0].message    
+At this point, after the API call, the response should hold the information for the
+required function calls. Remember, we asked the LLM to provide us with three recom-
+mendations, which means it should also provide us with three function call outputs, as
+shown in the following listing.
+ 
+Listing 5.5 parallel_functions.py (run_conversation, API call)
+The user message 
+asks for three 
+recommendations.
+Note that there is no 
+system message.
+Adds the function 
+definition to the tools 
+part of the request
+LLMs that delegate to functions 
+can be simpler models.
+Adds the messages and tools definitions
+auto is the default.
+The returned message 
+from the LLM
+
+106 CHAPTER 5 Empowering agents with actions
+tool_calls = response_message.tool_calls    
+if tool_calls:    
+    available_functions = {
+        "recommend": recommend,
+    }    
+    # Step 4: send the info for each function call and function response to 
+the model
+    for tool_call in tool_calls:    
+        function_name = tool_call.function.name
+        function_to_call = available_functions[function_name]
+        function_args = json.loads(tool_call.function.arguments)
+        function_response = function_to_call(
+            topic=function_args.get("topic"),    
+            rating=function_args.get("rating"),
+        )
+        messages.append(    
+            {
+                "tool_call_id": tool_call.id,
+                "role": "tool",
+                "name": function_name,
+                "content": function_response,
+            }
+        )  # extend conversation with function response
+    second_response = client.chat.completions.create(    
+        model="gpt-3.5-turbo-1106",
+        messages=messages,
+    )
+    return second_response.choices[0].message.content    
+The tool call outputs and the calls to the recommender function results are appended
+to the messages. Notice how messages now also contain the history of the first call.
+This is then passed back to the LLM to construct a reply in natural language.
+ Debug this example in VS Code by pressing the F5 key with the file open. The fol-
+lowing listing shows the output of running parallel_functions.py.
+Here are some recommendations for you:
+1. Time travel movies: "Back to the Future"
+2. Recipes: "The best thing you ever ate."
+3. Gifts: "A glorious new..." (the recommendation was cut off, so I 
+couldn't provide the full recommendation)
+I hope you find these recommendations helpful! Let me know if you need 
+more information.
+This completes this simple demonstration. For more advanced applications, the func-
+tions could do any number of things, from scraping websites to calling search engines
+to completing far more complex tasks.
+Listing 5.6 parallel_functions.py (run_conversation, tool_calls)
+Listing 5.7 parallel_functions.py (output)
+If the response contains 
+tool calls, execute them.
+Only one function but 
+could contain several
+Loops through the calls and replays 
+the content back to the LLM
+Executes the recommend 
+function from extracted 
+parameters
+Appends the results of 
+each function call to the 
+set of messages
+Sends another request 
+to the LLM with updated 
+information and returns 
+the message reply
+
+1075.3 Introducing Semantic Kernel
+ Functions are an excellent way to cast outputs for a particular task. However, the
+work of handling functions or tools and making secondary calls can be done in a
+cleaner and more efficient way. The following section will uncover a more robust sys-
+tem of adding actions to agents.
+5.3 Introducing Semantic Kernel
+Semantic Kernel (SK) is another open source project from Microsoft intended to help
+build AI applications, which we call agents. At its core, the project is best used to
+define actions, or what the platform calls semantic plugins, which are wrappers for skills
+and functions.
+ Figure 5.5 shows how the SK can be used as a plugin and a consumer of OpenAI
+plugins. The SK relies on the OpenAI plugin definition to define a plugin. That way, it
+can consume and publish itself or other plugins to other systems.
+An OpenAI plugin definition maps precisely to the function definitions in listing 5.4.
+This means that SK is the orchestrator of API tool calls, aka plugins. That also means
+that SK can help organize multiple plugins with a chat interface or an agent.
+NOTE The team at SK originally labeled the functional modules as skills. How-
+ever, to be more consistent with OpenAI, they have since renamed skills to
+LLM
+Interface is de ned like an OpenAI plugin. ﬁ
+Semantic
+Kernel
+Interface as an OpenAI plugin
+ChatGPT
+Plugins (Semantic Skills and Native Functions)
+Math Plugin
+(native function)
+Recommend Plugin
+(semantic function)
+Get Movies Plugin
+(native plugin)
+Please recommend
+a movie.
+Can be consumed as a plugin
+and also consumes plugins
+Requests can be made
+directly to the kernel
+The kernel itself can be
+registered as a plugin.
+LLM
+Can be the same
+LLM or different
+Figure 5.5 How the Semantic Kernel integrates as a plugin and can also consume plugins
+
+108 CHAPTER 5 Empowering agents with actions
+plugins. What is more confusing is that the code still uses the term skills. There-
+fore, throughout this chapter, we’ll use skills and plugins to mean the same thing.
+SK is a useful tool for managing multiple plugins (actions for agents) and, as we’ll see
+later, can also assist with memory and planning tools. For this chapter, we’ll focus on
+the actions/plugins. In the next section, we look at how to get started using SK.
+5.3.1 Getting started with SK semantic functions
+SK is easy to install and works within Python, Java, and C#. This is excellent news as it also
+allows plugins developed in one language to be consumed in a different language. How-
+ever, you can’t yet develop a native function in one language and use it in another.
+ We’ll continue from where we left off for the Python environment using the
+chapter_4 workspace in VS Code. Be sure you have a workspace configured if you
+want to explore and run any examples.
+ Listing 5.8 shows how to install SK from a terminal within VS Code. You can also
+install the SK extension for VS Code. The extension can be a helpful tool to create
+plugins/skills, but it isn’t required.
+pip uninstall semantic-kernel    
+git clone https://github.com/microsoft/semantic-kernel.git    
+cd semantic-kernel/python    
+pip install -e .    
+Once you finish the installation, open SK_connecting.py i n  V S  C o d e .  L i s t i n g  5 . 9
+shows a demo of running an example quickly through SK. The example creates a chat
+completion service using either OpenAI or Azure OpenAI.
+import semantic_kernel as sk
+selected_service = "OpenAI"    
+kernel = sk.Kernel()    
+service_id = None
+if selected_service == "OpenAI":
+    from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
+    api_key, org_id = sk.openai_settings_from_dot_env()    
+    service_id = "oai_chat_gpt"
+    kernel.add_service(
+        OpenAIChatCompletion(
+            service_id=service_id,
+            ai_model_id="gpt-3.5-turbo-1106",
+Listing 5.8 Installing Semantic Kernel 
+Listing 5.9 SK_connecting.py
+Uninstalls any previous installations of SK
+Clones the 
+repository to 
+a local folderChanges to the source folder
+Installs the editable package 
+from the source folder
+Sets the service you’re using 
+(OpenAI or Azure OpenAI)
+Creates the 
+kernel
+Loads secrets 
+from the .env file 
+and sets them on 
+the chat service
+
+1095.3 Introducing Semantic Kernel
+            api_key=api_key,
+            org_id=org_id,
+        ),
+    )
+elif selected_service == "AzureOpenAI":
+    from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
+    deployment, api_key, endpoint = 
+➥ sk.azure_openai_settings_from_dot_env()  
+    service_id = "aoai_chat_completion"
+    kernel.add_service(
+        AzureChatCompletion(
+            service_id=service_id,
+            deployment_name=deployment,
+            endpoint=endpoint,
+            api_key=api_key,
+        ),
+    )
+#This function is currently broken
+async def run_prompt():
+    result = await kernel.invoke_prompt( 
+              ➥ prompt="recommend a movie about 
+➥ time travel")    
+    print(result)
+# Use asyncio.run to execute the async function
+asyncio.run(run_prompt())    
+###Output
+One highly recommended time travel movie is "Back to the Future" (1985) 
+directed by Robert Zemeckis. This classic film follows the adventures of 
+teenager Marty McFly (Michael J. Fox)…
+Run the example by pressing F5 (debugging), and you should see an output similar to
+listing 5.9. This example demonstrates how a semantic function can be created with SK
+and executed. A semantic function is the equivalent of a prompt template in prompt
+flow, another Microsoft tool. In this example, we define a simple prompt as a function.
+ It’s important to note that this semantic function isn’t defined as a plugin. How-
+ever, the kernel can create the function as a self-contained semantic element that
+can be executed against an LLM. Semantic functions can be used alone or regis-
+tered as plugins, as you’ll see later. Let’s jump to the next section, where we intro-
+duce contextual variables.
+5.3.2 Semantic functions and context variables
+Expanding on the previous example, we can look at adding contextual variables to the
+semantic function. This pattern of adding placeholders to prompt templates is one
+we’ll review over and over. In this example, we look at a prompt template that has
+placeholders for subject, genre, format, and custom.
+Loads secrets 
+from the .env file 
+and sets them on 
+the chat service
+Invokes the 
+prompt
+Calls the function 
+asynchronously
+
+110 CHAPTER 5 Empowering agents with actions
+ Open SK_context_variables.py in VS Code, as shown in the next listing. The
+prompt is equivalent to setting aside a system and user section of the prompt.
+#top section omitted…
+prompt = """    
+system:
+You have vast knowledge of everything and can recommend anything provided 
+you are given the following criteria, the subject, genre, format and any 
+other custom information.
+user:
+Please recommend a {{$format}} with the subject {{$subject}} and {{$genre}}.
+Include the following custom information: {{$custom}}
+"""
+prompt_template_config = sk.PromptTemplateConfig(    
+    template=prompt,
+    name="tldr",
+    template_format="semantic-kernel",
+    input_variables=[
+        InputVariable(
+            name="format", 
+            description="The format to recommend", 
+            is_required=True
+        ),
+        InputVariable(
+            name="suject", 
+            description="The subject to recommend", 
+            is_required=True
+        ),
+        InputVariable(
+            name="genre", 
+            description="The genre to recommend", 
+            is_required=True
+        ),
+        InputVariable(
+            name="custom",
+            description="Any custom information [CA]
+                       to enhance the recommendation",
+            is_required=True,
+        ),
+    ],
+    execution_settings=execution_settings,
+)
+recommend_function = kernel.create_function_from_prompt(    
+    prompt_template_config=prompt_template_config,
+    function_name="Recommend_Movies",
+    plugin_name="Recommendation",
+)
+Listing 5.10 SK_context_variables.py
+Defines a prompt 
+with placeholders
+Configures a 
+prompt template 
+and input variable 
+definitions
+Creates a kernel 
+function from 
+the prompt
+
+1115.4 Synergizing semantic and native functions
+async def run_recommendation(    
+    subject="time travel",
+    format="movie", 
+    genre="medieval", 
+           custom="must be a comedy"
+):
+    recommendation = await kernel.invoke(
+        recommend_function,
+        sk.KernelArguments(subject=subject,
+                      format=format, 
+                      genre=genre, 
+                      custom=custom),    
+    )
+    print(recommendation)
+# Use asyncio.run to execute the async function
+asyncio.run(run_recommendation())
+###Output
+One movie that fits the criteria of being about time travel, set in a 
+medieval period, and being a comedy is "The Visitors" (Les Visiteurs) 
+from 1993. This French film, directed by Jean-Marie Poiré, follows a 
+knight and his squire who are transported to the modern era by a 
+wizard’s spell gone wrong.…
+Go ahead and debug this example (F5), and wait for the output to be generated. That is
+the basis for setting up SK and creating and exercising semantic functions. In the next
+section, we move on to see how a semantic function can be registered as a skill/plugin.
+5.4 Synergizing semantic and native functions
+Semantic functions encapsulate a prompt/profile and execute through interaction with
+an LLM. Native functions are the encapsulation of code that may perform anything
+from scraping websites to searching the web. Both semantic and native functions can
+register as plugins/skills in the SK kernel.
+ A function, semantic or native, can be registered as a plugin and used the same
+way we registered the earlier function directly with our API calls. When a function is
+registered as a plugin, it becomes accessible to chat or agent interfaces, depending on
+the use case. The next section looks at how a semantic function is created and regis-
+tered with the kernel.
+5.4.1 Creating and registering a semantic skill/plugin
+The VS Code extension for SK provides helpful tools for creating plugins/skills. In
+this section, we’ll use the SK extension to create a plugin/skill and then edit the com-
+ponents of that extension. After that, we’ll register and execute the plugin in the SK.
+ Figure 5.6 shows the process for creating a new skill within VS Code using the SK
+extension. (Refer to appendix B for directions if you need to install this extension.)
+You’ll then be given the option for the skill/plugin folder to place the function.
+Always group functions that are similar together. After creating a skill, enter the name
+Creates an asynchronous 
+function to wrap the 
+function call
+Sets the 
+kernel 
+function 
+arguments
+
+112 CHAPTER 5 Empowering agents with actions
+and description of the function you want to develop. Be sure to describe the function
+as if the LLM were going to use it.
+You can see the completed skills and functions by opening the skills/plugin folder
+and reviewing the files. We’ll follow the previously constructed example, so open the
+skills/Recommender/Recommend_Movies folder, as shown in figure 5.7. Inside this folder
+is a config.json file, the function description, and the semantic function/prompt in
+a file called skprompt.txt.
+ Listing 5.11 shows the contents of the semantic function definition, also known as
+the plugin definition. Note that the type is marked as completion and not of type
+function because this is a semantic function. We would define a native function as a
+type function.
+ 
+ 
+ 
+1. Select the icon to create a
+new semantic skill/plugin.
+2. Select an existing skill
+folder, or create a new one.
+3. Name the function.
+4. Then, provide a description.
+Figure 5.6 The process of creating a new skill/plugin
+
+1135.4 Synergizing semantic and native functions
+{
+    "schema": 1,
+    "type": "completion",    
+    "description": "A function to recommend movies based on users list of 
+previously seen movies.",
+    "completion": {    
+        "max_tokens": 256,
+        "temperature": 0,
+        "top_p": 0,
+        "presence_penalty": 0,
+        "frequency_penalty": 0
+    },
+    "input": {
+        "parameters": [
+            {
+                "name": "input",    
+                "description": "The users list of previously seen movies.",
+                "defaultValue": ""
+            }
+        ]
+    },
+    "default_backends": []
+}
+Next, we can look at the definition of the semantic function prompt, as shown in list-
+ing 5.12. The format is a little different, but what we see here matches the earlier
+examples using templating. This prompt recommends movies based on a list of mov-
+ies the user has previously seen.
+You are a wise movie recommender and you have been asked to recommend a 
+movie to a user.
+You are provided a list of movies that the user has watched before.
+You want to recommend a movie that the user has not watched before.
+[INPUT]
+Listing 5.11 Recommend_Movies/config.json
+Listing 5.12 Recommend_Movies/skprompt.txt
+The folder containing
+the /plugin skill
+An inner folder that holds
+the plugin/skill deﬁnitions
+Deﬁnes the function/plugin
+description
+Prompt that deﬁnes the
+semantic function
+Figure 5.7 The file and folder 
+structure of a semantic 
+function skill/plugin
+Semantic functions are 
+functions of type completion.
+We can also set the 
+completion parameters for 
+how the function is called.
+Defines the parameters 
+input into the semantic 
+function
+
+114 CHAPTER 5 Empowering agents with actions
+{{$input}}
+[END INPUT]
+Now, we’ll dive into the code that loads the skill/plugin and executes it in a simple
+example. Open the SK_first_skill.py file in VS Code. The following listing shows
+an abridged version highlighting the new sections.
+kernel = sk.Kernel()
+plugins_directory = "plugins"
+recommender = kernel.import_plugin_from_prompt_directory(
+    plugins_directory,
+    "Recommender",
+)    
+recommend = recommender["Recommend_Movies"]
+seen_movie_list = [    
+    "Back to the Future",
+    "The Terminator",
+    "12 Monkeys",
+    "Looper",
+    "Groundhog Day",
+    "Primer",
+    "Donnie Darko",
+    "Interstellar",
+    "Time Bandits",
+    "Doctor Strange",
+]
+async def run():
+    result = await kernel.invoke(
+        recommend,
+        sk.KernelArguments(    
+            settings=execution_settings, input=", ".join(seen_movie_list)
+        ),
+    )
+    print(result)
+asyncio.run(run())    
+###Output
+Based on the list of movies you've provided, it seems you have an 
+interest in science fiction, time travel, and mind-bending narratives. 
+Given that you've watched a mix of classics and modern films in this 
+genre, I would recommend the following movie that you have not watched 
+before:
+"Edge of Tomorrow" (also known as "Live Die Repeat: Edge of Tomorrow")…
+Listing 5.13 SK_first_skill.py (abridged listing)
+Loads the prompt from 
+the plugins folder
+List of user’s previously 
+seen movies
+Input is set to joined 
+list of seen movies.
+Function is executed 
+asynchronously.
+
+1155.4 Synergizing semantic and native functions
+The code loads the skill/plugin from the skills directory and the plugin folder.
+When a skill is loaded into the kernel and not just created, it becomes a registered
+plugin. That means it can be executed directly as is done here or through an LLM
+chat conversation via the plugin interface.
+ Run the code (F5), and you should see an output like listing 5.13. We now have a
+simple semantic function that can be hosted as a plugin. However, this function
+requires users to input a complete list of movies they have watched. We’ll look at a
+means to fix this by introducing native functions in the next section.
+5.4.2 Applying native functions
+As stated, native functions are code that can do anything. In the following example,
+we’ll introduce a native function to assist the semantic function we built earlier.
+ This native function will load a list of movies the user has previously seen, from a file.
+While this function introduces the concept of memory, we’ll defer that discussion until
+chapter 8. Consider this new native function as any code that could virtually do anything.
+ Native functions can be created and registered using the SK extension. For this exam-
+ple, we’ll create a native function directly in code to make the example easier to follow.
+ Open SK_native_functions.py in VS Code. We’ll start by looking at how the
+native function is defined. A native function is typically defined within a class, which
+simplifies managing and instantiating native functions.
+class MySeenMoviesDatabase:
+    """
+    Description: Manages the list of users seen movies.    
+    """
+    @kernel_function(    
+        description="Loads a list of movies … user has already seen",
+        name="LoadSeenMovies",
+    )
+    def load_seen_movies(self) -> str:    
+        try:
+            with open("seen_movies.txt", 'r') as file:    
+                lines = [line.strip() for line in file.readlines()]
+                comma_separated_string = ', '.join(lines)
+            return comma_separated_string
+        except Exception as e:
+            print(f"Error reading file: {e}")
+            return None
+With the native function defined, we can see how it’s used by scrolling down in the
+file, as shown in the following listing.
+ 
+ 
+Listing 5.14 SK_native_functions.py (MySeenMovieDatabase)
+Provides a description
+for the container class Uses a decorator to 
+provide function 
+description and 
+name
+The actual function 
+returns a list of movies in a 
+comma-separated string.
+Loads seen
+movies from
+the text file
+
+116 CHAPTER 5 Empowering agents with actions
+plugins_directory = "plugins"
+recommender = kernel.import_plugin_from_prompt_directory(
+    plugins_directory,
+    "Recommender",
+)    
+recommend = recommender["Recommend_Movies"]
+seen_movies_plugin = kernel.import_plugin_from_object(
+    MySeenMoviesDatabase(), "SeenMoviesPlugin"
+)    
+load_seen_movies = seen_movies_plugin["LoadSeenMovies"]    
+async def show_seen_movies():
+    seen_movie_list = await load_seen_movies(kernel)
+    return seen_movie_list
+seen_movie_list = asyncio.run(show_seen_movies())    
+print(seen_movie_list)
+async def run():     
+    result = await kernel.invoke(
+        recommend,
+        sk.KernelArguments(
+                settings=execution_settings,
+                input=seen_movie_list),
+    )
+    print(result)
+asyncio.run(run())
+###Output
+The Matrix, The Matrix Reloaded, The Matrix Revolutions, The Matrix 
+Resurrections – output from print statement
+Based on your interest in the "The Matrix" series, it seems you enjoy 
+science fiction films with a strong philosophical undertone and action 
+elements. Given that you've watched all
+One important aspect to note is how the native function was imported into the kernel.
+The act of importing to the kernel registers that function as a plugin/skill. This means
+the function can be used as a skill from the kernel through other conversations or
+interactions. We’ll see how to embed a native function within a semantic function in
+the next section.
+Listing 5.15 SK_native_functions (remaining code)
+Loads the semantic function 
+as shown previously
+Imports the skill 
+into the kernel and 
+registers the function 
+as a plugin
+Loads the native 
+function
+Executes the 
+function and returns 
+the list as a string
+Wraps the 
+plugin call in an 
+asynchronous 
+function and 
+executes
+
+1175.4 Synergizing semantic and native functions
+5.4.3 Embedding native functions within semantic functions
+There are plenty of powerful features within SK, but one beneficial feature is the abil-
+ity to embed native or semantic functions within other semantic functions. The follow-
+ing listing shows how a native function can be embedded within a semantic function.
+sk_prompt = """
+You are a wise movie recommender and you have been asked to recommend a 
+movie to a user.
+You have a list of movies that the user has watched before.
+You want to recommend a movie that 
+the user has not watched before.    
+Movie List: {{MySeenMoviesDatabase.LoadSeenMovies}}.    
+"""
+The next example, SK_semantic_native_functions.py, uses inline native and seman-
+tic functions. Open the file in VS Code, and the following listing shows the code to
+create, register, and execute the functions.
+prompt_template_config = sk.PromptTemplateConfig(
+    template=sk_prompt,
+    name="tldr",
+    template_format="semantic-kernel",
+    execution_settings=execution_settings,
+)    
+recommend_function = kernel.create_function_from_prompt(
+    prompt_template_config=prompt_template_config,
+    function_name="Recommend_Movies",
+    plugin_name="Recommendation",
+)    
+async def run_recommendation():    
+    recommendation = await kernel.invoke(
+        recommend_function,
+        sk.KernelArguments(),
+    )
+    print(recommendation)
+# Use asyncio.run to execute the async function
+asyncio.run(run_recommendation())
+###Output
+Based on the list provided, it seems the user is a fan of the Matrix 
+franchise. Since they have watched all four existing Matrix movies, I 
+would recommend a…
+Listing 5.16 SK_semantic_native_functions.py (skprompt)
+Listing 5.17 SK_semantic_native_functions.py (abridged)
+The exact 
+instruction text 
+as previous
+The native function is referenced and identified
+by class name and function name.
+Creates the prompt template 
+config for the prompt
+Creates an inline semantic 
+function from the prompt
+Executes the semantic 
+function asynchronously
+
+118 CHAPTER 5 Empowering agents with actions
+Run the code, and you should see an output like listing 5.17. One important aspect to
+note is that the native function is registered with the kernel, but the semantic function
+is not. This is important because function creation doesn’t register a function.
+ For this example to work correctly, the native function must be registered with the
+kernel, which uses the import_plugin function call—the first line in listing 5.17. How-
+ever, the semantic function itself isn’t registered. An easy way to register the function
+is to make it a plugin and import it.
+ These simple exercises showcase ways to integrate plugins and skills into chat or
+agent interfaces. In the next section, we’ll look at a complete example demonstrating
+adding a plugin representing a service or GPT interface to a chat function.
+5.5 Semantic Kernel as an interactive service agent
+In chapter 1, we introduced the concept of the GPT interface—a new paradigm in
+connecting services and other components to LLMs via plugins and semantic layers.
+SK provides an excellent abstraction for converting any service to a GPT interface.
+ Figure 5.8 shows a GPT interface constructed around an API service called The
+Movie Database (TMDB; www.themoviedb.org). The TMDB site provides a free API that
+exposes information about movies and TV shows.
+To follow along with the exercises in this section, you must register for a free account
+from TMDB and create an API key. Instructions for getting an API key can be found at
+the TMDB website ( www.themoviedb.org) or by asking a GPT-4 turbo or a more
+recent LLM.
+User
+Web Interface
+The Movie Database
+www.themoviedb.org
+API Interface
+GPT Interface
+Semantic Kernel
+Chat Interface Agent Interface
+A user can access the site now in
+three ways: web, chat, or agent.
+SK acts as an abstraction
+and tool to expose the
+interface as a plugin.
+This is the semantic
+mapping of functions
+to API endpoints.
+This is the developer
+API endpoint exposed
+by the site.
+Figure 5.8 This layer architecture diagram shows the role of a GPT interface and the Semantic 
+Kernel being exposed to chat or agent interfaces.
+
+1195.5 Semantic Kernel as an interactive service agent
+ Over the next set of subsections, we’ll create a GPT interface using an SK set of
+native functions. Then, we’ll use the SK kernel to test the interface and, later in this
+chapter, implement it as plugins into a chat function. In the next section, we look at
+building a GPT interface against the TMDB API.
+5.5.1 Building a semantic GPT interface
+TMDB is an excellent service, but it provides no semantic services or services that can
+be plugged into ChatGPT or an agent. To do that, we must wrap the API calls that
+TMDB exposes in a semantic service layer.
+ A semantic service layer is a GPT interface that exposes functions through natural
+language. As discussed, to expose functions to ChatGPT or other interfaces such as
+agents, they must be defined as plugins. Fortunately, SK can create the plugins for us
+automatically, given that we write our semantic service layer correctly.
+ A native plugin or set of skills can act as a semantic layer. To create a native plugin,
+create a new plugin folder, and put a Python file holding a class containing the set of
+native functions inside that folder. The SK extension currently doesn’t do this well, so
+manually creating the module works best.
+ Figure 5.9 shows the structure of the new plugin called Movies and the semantic
+service layer called tmdb.py. For native functions, the parent folder’s name (Movies) is
+used in the import.
+Open the tmdb.py file in VS Code, and look at the top of the file, as shown in listing
+5.18. This file contains a class called TMDbService, which exposes several functions
+that map to API endpoint calls. The idea is to map the various relevant API function
+calls in this semantic service layer. This will expose the functions as plugins for a chat
+or agent interface.
+from semantic_kernel.functions import kernel_funct
+import requests
+import inspect
+def print_function_call():    
+    #omitted …
+Listing 5.18 tmdb.py (top of file)
+Parent skills folder
+Name of the plugin folder
+File/module containing the class
+and set of native functions
+Figure 5.9 The folder and file 
+structure of the TMDB plugin
+Prints the calls to 
+the functions for 
+debugging
+
+120 CHAPTER 5 Empowering agents with actions
+class TMDbService:    
+    def __init__(self):
+        # enter your TMDb API key here
+        self.api_key = "your-TMDb-api-key"
+    @kernel_function(    
+        description="Gets the movie genre ID for a given genre name",
+        name="get_movie_genre_id",
+        input_description="The movie genre name of the genre_id to get",
+        )
+    def get_movie_genre_id(self, genre_name: str) -> str:    
+        print_function_call()
+        base_url = "https://api.themoviedb.org/3"
+        endpoint = f"{base_url}/genre/movie/list
+                     ➥ ?api_key={self.api_key}&language=en-US"
+        response = requests.get(endpoint)    
+        if response.status_code == 200:    
+            genres = response.json()['genres']
+            for genre in genres:
+                if genre_name.lower() in genre['name'].lower():
+                    return str(genre['id'])    
+        return None
+The bulk of the code for the TMDbService and the functions to call the TMDB end-
+points was written with the help of GPT-4 Turbo. Then, each function was wrapped
+with the sk_function decorator to expose it semantically.
+ A few of the TMDB API calls have been mapped semantically. Listing 5.19 shows
+another example of a function exposed to the semantic service layer. This function
+pulls a current top 10 list of movies playing for a particular genre.
+@kernel_function(    
+        description="””
+Gets a list of currently playing movies for a given genre””",
+        name="get_top_movies_by_genre",
+        input_description="The genre of the movies to get",
+        )
+    def get_top_movies_by_genre(self, genre: str) -> str:
+        print_function_call()
+        genre_id = self.get_movie_genre_id(genre)    
+        if genre_id:
+            base_url = "https://api.themoviedb.org/3
+            playing_movies_endpoint = f"{base_url}/movie/now_playing?
+➥ api_key={self.api_key}&language=en-US"
+            response = requests.get(
+                          playing_movies_endpoint)    
+            if response.status_code != 200:
+                return ""
+Listing 5.19 tmdb.py (get_top_movies_by_genre)
+Top-level service 
+and decorator 
+used to describe 
+the function (good 
+descriptions are 
+important)
+Function wrapped in 
+semantic wrapper; 
+should return str
+Calls the API endpoint, and, 
+if good (code 200), checks 
+for matching genre
+Found the genre, 
+returns the id
+Decorates the function 
+with descriptions
+Finds the genre 
+id for the given 
+genre name
+Gets a list of currently 
+playing movies
+
+1215.5 Semantic Kernel as an interactive service agent
+            playing_movies = response.json()['results'
+            for movie in playing_movies:    
+                movie['genre_ids'] = [str(genre_id)  
+                      ➥ for genre_id in movie['genre_ids']]
+            filtered_movies = [movie for movie 
+➥ in playing_movies if genre_id 
+➥ in movie['genre_ids']][:10]    
+            results = ", ".join([movie['title'] for movie in 
+filtered_movies])
+            return results
+        else:
+            return ""
+Look through the various other API calls mapped semantically. As you can see, there
+is a well-defined pattern for converting API calls to a semantic service. Before we run
+the full service, we’ll test each of the functions in the next section.
+5.5.2 Testing semantic services
+In a real-world application, you’ll likely want to write a complete set of unit or integra-
+tion tests for each semantic service function. We won’t do that here; instead, we’ll
+write a quick helper script to test the various functions.
+ Open test_tmdb_service.py in VS Code, and review the code, as shown in listing
+5.20. You can comment and uncomment any functions to test them in isolation. Be
+sure to have only one function uncommented at a time.
+import semantic_kernel as sk
+from plugins.Movies.tmdb import TMDbService
+async def main():
+    kernel = sk.Kernel()    
+    tmdb_service = kernel.import_plugin_from_object 
+➥ (TMDbService(), "TMDBService")    
+    print(
+        await tmdb_service["get_movie_genre_id"](
+            kernel, sk.KernelArguments(
+                            genre_name="action")    
+        )
+    )    
+    print(
+        await tmdb_service["get_tv_show_genre_id"](
+            kernel, sk.KernelArguments(
+                            genre_name="action")    
+        )
+    )    
+    print(
+        await tmdb_service["get_top_movies_by_genre"](
+            kernel, sk.KernelArguments(
+Listing 5.20 test_tmdb_service.py
+Converts 
+genre_ids 
+to strings
+Checks to see 
+if the genre id 
+matches movie 
+genres
+Instantiates 
+the kernel
+Imports the 
+plugin service
+Inputs parameter 
+to functions, 
+when needed
+Executes and 
+tests the various 
+functions
+Inputs parameter 
+to functions, 
+when needed
+Executes and 
+tests the various 
+functions
+
+122 CHAPTER 5 Empowering agents with actions
+                            genre_name="action")    
+        )
+    )    
+    print(
+        await tmdb_service["get_top_tv_shows_by_genre"](
+            kernel, sk.KernelArguments(
+                            genre_name="action")    
+        )
+    )
+    print(await tmdb_service["get_movie_genres"](
+kernel, sk.KernelArguments()))                       
+    print(await tmdb_service["get_tv_show_genres"](
+kernel, sk.KernelArguments()))                       
+# Run the main function
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(main())    
+###Output
+Function name: get_top_tv_shows_by_genre    
+Arguments:
+  self = <skills.Movies.tmdb.TMDbService object at 0x00000159F52090C0>
+  genre = action
+Function name: get_tv_show_genre_id    
+Arguments:
+  self = <skills.Movies.tmdb.TMDbService object at 0x00000159F52090C0>
+  genre_name = action
+Arcane, One Piece, Rick and Morty, Avatar: The Last Airbender, Fullmetal 
+Alchemist: Brotherhood, Demon Slayer: Kimetsu no Yaiba, Invincible, 
+Attack on Titan, My Hero Academia, Fighting Spirit, The Owl House
+The real power of SK is shown in this test. Notice how the TMDbService class is imported
+as a plugin, but we don’t have to define any plugin configurations other than what we
+already did? By just writing one class that wrapped a few API functions, we’ve exposed
+part of the TMDB API semantically. Now, with the functions exposed, we can look at
+how they can be used as plugins for a chat interface in the next section.
+5.5.3 Interactive chat with the semantic service layer
+With the TMDB functions exposed semantically, we can move on to integrating them
+into a chat interface. This will allow us to converse naturally in this interface to get var-
+ious information, such as current top movies.
+ Open SK_service_chat.py in VS Code. Scroll down to the start of the new section
+of code that creates the functions, as shown in listing 5.21. The functions created here
+are now exposed as plugins, except we filter out the chat function, which we don’t
+want to expose as a plugin. The chat function here allows the user to converse directly
+with the LLM and shouldn’t be a plugin.
+Inputs parameter 
+to functions, 
+when needed
+Executes and tests the various functions
+Executes and tests 
+the various functions
+Executes main 
+asynchronously
+Calls print
+function details
+to notify when
+the function is
+being called
+
+1235.5 Semantic Kernel as an interactive service agent
+system_message = "You are a helpful AI assistant."
+tmdb_service = kernel.import_plugin_from_object(
+TMDbService(), "TMDBService")    
+# extracted section of code
+execution_settings = sk_oai.OpenAIChatPromptExecutionSettings(
+        service_id=service_id,
+        ai_model_id=model_id,
+        max_tokens=2000,
+        temperature=0.7,
+        top_p=0.8,
+        tool_choice="auto",
+        tools=get_tool_call_object(
+            kernel, {"exclude_plugin": ["ChatBot"]}),    
+    )
+prompt_config = sk.PromptTemplateConfig.from_completion_parameters(
+    max_tokens=2000,
+    temperature=0.7,
+    top_p=0.8,
+    function_call="auto",
+    chat_system_prompt=system_message,
+)    
+prompt_template = OpenAIChatPromptTemplate(
+    "{{$user_input}}", kernel.prompt_template_engine, prompt_config
+)    
+history = ChatHistory()
+history.add_system_message("You recommend movies and TV Shows.")
+history.add_user_message("Hi there, who are you?")
+history.add_assistant_message(
+    "I am Rudy, the recommender chat bot. I'm trying to figure out what 
+people need."
+)    
+chat_function = kernel.create_function_from_prompt(
+    prompt_template_config=prompt_template,
+    plugin_name="ChatBot",
+    function_name="Chat",
+)    
+Next, we can continue by scrolling in the same file to review the chat function, as
+shown in the following listing.
+async def chat() -> bool:
+    try:
+        user_input = input("User:> ")    
+    except KeyboardInterrupt:
+Listing 5.21 SK_service_chat.py (function setup)
+Listing 5.22 SK_service_chat.py (chat function)
+Imports the 
+TMDbService 
+as a plugin
+Configures the 
+execution settings and 
+adds filtered tools
+Configures 
+the prompt 
+configuration
+Defines the input 
+template and takes full 
+strings as user input
+Adds the chat history object 
+and populates some history
+Creates the chat function
+Input is taken 
+directly from the 
+terminal/console.
+
+124 CHAPTER 5 Empowering agents with actions
+        print("\n\nExiting chat...")
+        return False
+    except EOFError:
+        print("\n\nExiting chat...")
+        return False
+    if user_input == "exit":    
+        print("\n\nExiting chat...")
+        return False
+    arguments = sk.KernelArguments(    
+        user_input=user_input,
+        history=("\n").join(
+           [f"{msg.role}: {msg.content}" for msg in history]),
+    )
+    result = await chat_completion_with_tool_call(    
+        kernel=kernel,
+        arguments=arguments,
+        chat_plugin_name="ChatBot",
+        chat_function_name="Chat",
+        chat_history=history,
+    )
+    print(f"AI Agent:> {result}")
+    return True
+Lastly, scroll down to the bottom of the file, and review the primary function. This is
+the code that calls the chat function in a loop.
+async def main() -> None:
+    chatting = True
+    context = kernel.create_new_context()
+    print("Welcome to your first AI Agent\    
+\n  Type 'exit' to exit.\
+\n  Ask to get a list of currently playing movies by genre."
+    )
+    while chatting:    
+        chatting, context = await chat(context)    
+if __name__ == "__main__":
+    asyncio.ru n(main())
+Run the chat interface, run the file (F5), and then ask about movies or television
+shows of a particular genre. An example conversation session is shown in listing 5.24.
+This output shows how a request to list movies from two genres made the chat inter-
+face make multiple calls to the get_top_movie_by_genre function.
+Welcome to your first AI Agent
+  Type 'exit' to exit.
+Listing 5.23 SK_service_chat.py (main function)
+Listing 5.24 SK_service_chat.py (example conversation) 
+If the user types 
+exit, then exit 
+the chat.
+Creates arguments to 
+pass to the function
+Uses the utility 
+function to call 
+the function and 
+execute the tool
+Introduction 
+to the user
+Continues until 
+chatting is False
+Calls the 
+chat function 
+asynchronously
+
+1255.6 Thinking semantically when writing semantic services
+  Ask to get a list of currently playing movies by genre.
+User:> Input: can you give me list of the current top playing movies for 
+the action and comedy genres?
+Function name: get_top_movies_by_genre    
+Arguments:
+  genre = action
+Function name: get_movie_genre_id    
+Arguments:
+  genre_name = action
+Function name: get_top_movies_by_genre    
+Arguments:
+  genre = comedy
+Function name: get_movie_genre_id    
+Arguments:
+  genre_name = comedy
+Agent:> Here are the current top-playing movies 
+for the action and comedy genres:
+**Action:**    
+1. The Hunger Games: The Ballad of Songbirds & Snakes
+2. Rebel Moon - Part One: A Child of Fire
+3. Aquaman and the Lost Kingdom
+4. Silent Night
+5. The Family Plan
+6. Freelance
+7. Migration
+8. Sound of Freedom
+9. Godzilla Minus One
+**Comedy:**    
+1. The Family Plan
+2. Wonka
+3. Freelance
+4. Saltburn
+5. Chicken Run: Dawn of the Nugget
+6. Trolls Band Together
+7. There's Something in the Barn
+8. Migration
+Please note that some movies may overlap in both genres, such as 
+"The Family Plan" and "Freelance ."
+Be sure to explore the chat interface’s boundaries and what you can ask for from the
+TMDB service. For example, try asking for a list of genres for movies or television
+shows. This service is a good first try, but we can perhaps do better, as we’ll see in the
+next section.
+5.6 Thinking semantically when writing semantic services
+Now we’ve seen an excellent demonstration of converting an API into a semantic ser-
+vice interface. As it is, the functions return the titles of the top movies and television
+shows currently playing. However, by just returning the titles, we’re limiting the ability
+of the LLM to parse the results on its own.
+LLM makes two calls to 
+get_top_movies_by_genre.
+Internal
+call to
+get the
+genre id
+List of the top 
+current action 
+movies
+List of the top 
+current comedy 
+movies
+
+126 CHAPTER 5 Empowering agents with actions
+ Therefore, we’ll create a v2 version of TMDbService to correct this and return the
+results as JSON strings. Open the file tmdb_v2.py in VS Code, and scroll down to the
+get_top_movies_by_genre function.
+def get_top_movies_by_genre(self, genre: str) -> str:
+        print_function_call()
+        genre_id = self.get_movie_genre_id(genre)
+        if genre_id:
+            #same code …
+            return json.dumps(filtered_movies)    
+        else:
+            return ""
+Now open SK_service_chat.py in VS Code, and comment and uncomment the line
+shown in listing 5.26. This will then use version 2 of the TMDbService that outputs
+results as full JSON documents in a single string.
+#from skills.Movies.tmdb import TMDbService    
+from skills.Movies.tmdb_v2 import TMDbService    
+Rerun the SK_service_chat.py file in VS Code, and alter your query slightly, as
+shown by the output in the following listing.
+User:> get a list of currently playing movies for the 
+action genre and only return movies about space    
+Agent:> To find currently playing action movies that are specifically 
+about space, I will need to manually filter the provided list for those 
+that have space-related themes in their overview. Here's what fits that 
+criteria from the list:
+1. **Rebel Moon - Part One: A Child of Fire**    
+   - Release Date: 2023-12-15
+   - Overview: When a peaceful colony on the edge of the galaxy finds 
+itself threatened by the armies of the tyrannical Regent Balisarius, 
+they dispatch Kora, a young woman with a mysterious past, to seek out 
+warriors from neighboring planets to help them take a stand.
+This is the only movie from the provided list that clearly mentions a 
+space-related theme in its overview. …
+Listing 5.25 tmdb_v2.py (get_top_movies_by_genre)
+Listing 5.26 SK_service_chat.py (modifying imports)
+Listing 5.27 SK_service_chat.py (TMDb_v2 service output)
+Now returns a 
+filtered list as 
+a JSON string
+Comment out this line.
+Uncomment this line to use 
+version 2 of the service.
+New query asks to 
+include an additional 
+filter for space
+The LLM calls the service and then
+reviews the returned results that
+match the filter.
+
+1275.7 Exercises
+Because the semantic service functions now return the complete movie listing in
+JSON, the LLM can apply additional filtering. This is the real power of semantic
+services, allowing you to process the data through the LLM. We won’t see this power
+by just returning a list of titles.
+ This last exercise demonstrated the change in mentality you need to make when
+writing semantic service layers. Generally, you’ll typically want to return as much infor-
+mation as possible. Returning more information takes advantage of the LLM abilities
+to filter, sort, and transform data independently. In the next chapter, we’ll explore
+building autonomous agents using behavior trees.
+5.7 Exercises
+Complete the following exercises to improve your knowledge of the material:
+ Exercise 1—Creating a Basic Plugin for Temperature Conversion 
+Objective—Familiarize yourself with creating a simple plugin for the OpenAI chat
+completions API. 
+Tasks:
+– Develop a plugin that converts temperatures between Celsius and Fahrenheit.
+– Test the plugin by integrating it into a simple OpenAI chat session where
+users can ask for temperature conversions.
+ Exercise 2—Developing a Weather Information Plugin 
+Objective—Learn to create a plugin that performs a unique task. 
+Tasks:
+– Create a plugin for the OpenAI chat completions API that fetches weather
+information from a public API.
+– Ensure the plugin can handle user requests for current weather conditions
+in different cities.
+ Exercise 3—Crafting a Creative Semantic Function 
+Objective—Explore the creation of semantic functions. 
+Tasks:
+– Develop a semantic function that writes a poem or tells a children’s story
+based on user input.
+– Test the function in a chat session to ensure it generates creative and coher-
+ent outputs.
+ Exercise 4—Enhancing Semantic Functions with Native Functions 
+Objective—Understand how to combine semantic and native functions. 
+Tasks:
+– Create a semantic function that uses a native function to enhance its capabilities.
+– For example, develop a semantic function that generates a meal plan and
+uses a native function to fetch nutritional information for the ingredients.
+
+128 CHAPTER 5 Empowering agents with actions
+ Exercise 5—Wrapping an Existing Web API with Semantic Kernel 
+Objective—Learn to wrap existing web APIs as semantic service plugins. 
+Tasks:
+– Use SK to wrap a news API and expose it as a semantic service plugin in a
+chat agent.
+– Ensure the plugin can handle user requests for the latest news articles on
+various topics.
+Summary
+ Agent actions extend the capabilities of an agent system, such as ChatGPT. This
+includes the ability to add plugins to ChatGPT and LLMs to function as proxies
+for actions.
+ OpenAI supports function definitions and plugins within an OpenAI API ses-
+sion. This includes adding function definitions to LLM API calls and under-
+standing how these functions allow the LLM to perform additional actions.
+ The Semantic Kernel (SK) is an open source project from Microsoft that can be
+used to build AI applications and agent systems. This includes the role of seman-
+tic plugins in defining native and semantic functions.
+ Semantic functions encapsulate the prompt/profile template used to engage
+an LLM.
+ Native functions encapsulate code that performs or executes an action using an
+API or other interface.
+ Semantic functions can be combined with other semantic or native functions
+and layered within one another as execution stages.
+ SK can be used to create a GPT interface over the top of API calls in a semantic
+service layer and expose them as chat or agent interface plugins.
+ Semantic services represent the interaction between LLMs and plugins, as well as
+the practical implementation of these concepts in creating efficient AI agents.
+
+129
+Building
+autonomous assistants
+Now that we’ve covered how actions extend the power/capabilities of agents, we
+can look at how behavior trees can guide agentic systems. We’ll start by understand-
+ing the basics of behavior trees and how they control robotics and AI in games. 
+ We’ll return to agentic actions and examine how actions can be implemented
+on the OpenAI Assistants platform using the GPT Assistants Playground project.
+From there, we’ll look at how to build an autonomous agentic behavior tree (ABT)
+using OpenAI assistants. Then, we’ll move on to understanding the need for con-
+trols and guardrails on autonomous agents and using control barrier functions. 
+This chapter covers
+ Behavior trees for robotics and AI apps
+ GPT Assistants Playground and creating 
+assistants and actions
+ Autonomous control of agentic behavior trees
+ Simulating conversational multi-agent systems 
+via agentic behavior trees
+ Using back chaining to create behavior trees 
+for complex systems
+

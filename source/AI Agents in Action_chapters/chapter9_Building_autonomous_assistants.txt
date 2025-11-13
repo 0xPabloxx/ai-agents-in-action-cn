@@ -1,0 +1,58 @@
+Chapter 9: Building autonomous assistants
+Starting Page: 11
+================================================================================
+
+129
+6.1
+Introducing behavior trees
+130
+Understanding behavior tree execution
+131
+■Deciding on
+behavior trees
+132
+■Running behavior trees with Python
+and py_trees
+134
+6.2
+Exploring the GPT Assistants Playground
+136
+Installing and running the Playground
+136
+■Using and
+building custom actions
+138
+■Installing the assistants
+database
+140
+■Getting an assistant to run code locally
+140
+Investigating the assistant process through logs
+142
+6.3
+Introducing agentic behavior trees
+143
+Managing assistants with assistants
+143
+■Building a coding
+challenge ABT
+145
+■Conversational AI systems vs. other
+methods
+149
+■Posting YouTube videos to X
+150
+Required X setup
+151
+6.4
+Building conversational autonomous multi-agents
+153
+
+CONTENTS
+x
+6.5
+Building ABTs with back chaining
+155
+6.6
+Exercises
+156

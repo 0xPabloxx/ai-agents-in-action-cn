@@ -1,0 +1,1690 @@
+Chapter 27: day after returning to the past.
+Starting Page: 311
+================================================================================
+
+Total: 6 + 1 = 7 days.
+Answer: 7
+Because we know the right answer is 27, we know the LLM is wrong, but if we didn’t,
+we could just as easily assume that the work and reasoning were all correct. Problems
+like this can happen when we remove feedback in LLM interactions and agentic sys-
+tems. Feedback can guide the model to correct itself.
+However, what if we didn’t know the correct answer was 27 (26, if you assume he
+doesn’t spend the day to witness the battle) and assumed the LLM or agent was cor-
+rect? Well, this is a problem we can rectify with a couple of simple prompts that can
+engage the LLM in reasoning and planning feedback. However, these techniques are
+more effective with LLMs or wrappers such as the OpenAI Assistants, which provide
+reasoning and planning within the model.
+What we want to do is provide feedback to the LLM, but understanding what that
+feedback is will likely be difficult for us. Fortunately, we can elicit feedback directly
+from the LLM, provided we give the correct answer. Listing 11.8 shows how to gener-
+ate constructive feedback from the LLM concerning our time travel problem.
+the correct answer is 27, please review what you did wrong and suggest
+feedback you could give yourself when trying to solve similar future problems
+Entering this after the model answers the question wrong will generate feedback that
+you can use to guide the model through prompting or as part of system instructions.
+Listing 11.9 shows an example of the feedback provided by o1-preview. You can then
+extract this feedback and augment the instructions the next time you want to tackle
+complex time travel problems.
+Feedback for Future Problems
+Understanding Time Frames in Time Travel:
+Relative Time Frames: Always consider the time periods relative to the
+original point of reference. In this problem, even though Alex jumps
+forward 50 years, he is still in the past relative to his original
+present time.
+Including All Relevant Periods:
+Ensure that all time periods spent in the past (or future) are included
+in the total calculation, even if they involve moving to different
+points in time.
+Time Continuity:
+Listing 11.8
+Generating feedback
+Listing 11.9
+Generated feedback
+
+288
+CHAPTER 11
+Agent planning and feedback
+Remember that while the traveler moves through time, events in other
+time periods continue to progress unless specified otherwise.
+Application:
+Careful Reading:
+Pay close attention to the details provided, such as the durations and
+the sequences of time jumps.
+Visualization:
+It may help to draw a timeline to visualize the sequence of events and
+time periods involved.
+Double-Checking Calculations:
+After solving, revisit each step to ensure all time periods are
+accounted for correctly.
+This feedback technique will consistently work on models such as o1-preview, but
+other models may still struggle to answer correctly, even given this feedback. Over
+time, as models become smarter, this technique will likely generally work on most
+models. However, this feedback mechanism will likely be essential even as models
+get progressively brighter. because language is nuanced, and not every problem we
+challenge LLMs with may have an obvious absolute answer. Take our example prob-
+lem, for instance. This problem is an excellent example of requiring the problem
+solver to make assumptions and draw correlations from the question. There are still
+plenty of areas in science, from geology to behavioral science, where answering the
+same problem may yield a range of answers. Let’s look next at a few techniques for
+how the application of reasoning, planning, evaluation, and feedback can be
+applied to agentic systems.
+11.5
+Applying planning, reasoning, evaluation, and
+feedback to assistant and agentic systems
+In recent chapters, we’ve examined how the agentic components of planning, reason-
+ing, feedback, and evaluation can be implemented. Now we look at how, when, and
+where those components can be integrated into assistant and agentic systems for real-
+time production, research, or development.
+While not all of these components may fit the same into every application, it’s use-
+ful to understand where and when to apply which component. In the next section, we
+look at how planning can be integrated into assistant/agentic systems.
+11.5.1 Application of assistant/agentic planning
+Planning is the component where an assistant or agent can plan to undertake a set of
+tasks, whether they are in series, parallel, or some other combination. We typically
+associate planning with tool use, and, rightfully, any system using tools will likely want
+a capable planner. However, not all systems are created equally, so in table 11.1, we’ll
+review where, when, and how to implement planners.
+
+
+289
+11.5
+Applying planning, reasoning, evaluation, and feedback to assistant and agentic sys-
+Table 11.1 shows several varied application scenarios in which we may find an assis-
+tant or agent deployed to assist in some capacity. To provide further information
+and guidance, this list provides more details about how planning may be employed
+in each application:
+Personal assistant—While this application has been slow to roll out, LLM per-
+sonal assistants promise to surpass Alexa and Siri in the future. Planning will be
+essential to these new assistants/agents to coordinate numerous complex tasks
+and execute tools (actions) in series or parallel.
+Customer service bot—Due to the controlled nature of this environment, it’s
+unlikely that assistants engaged directly with customers will have controlled and
+very specific tools use. This means that these types of assistants will likely not
+require extensive planning.
+Autonomous agent—As we’ve seen in previous chapters, agents with the ability to
+plan can complete a series of complex tasks for various goals. Planning will be
+an essential element of any autonomous agentic system.
+Collaborative workflows—Think of these as agents or assistants that sit alongside
+coders or writers. While these workflows are still in early development, think of
+a workflow where agents are automatically tasked with writing and executing
+test code alongside developers. Planning will be an essential part of executing
+these complex future workflows.
+Table 11.1
+When and where planning is employed and used in various applications
+Application
+Implemented
+Environment
+Purpose
+Timing
+Configuration
+Personal
+assistant
+At or within the
+LLM
+Personal
+device
+Facilitate tool
+use
+During the
+response
+As part of the
+prompt or LLM
+Customer
+service bot
+Not typical;
+restricted
+environment
+Restricted
+environment,
+no tool use
+Autonomous
+agent
+As part of the
+agent prompt
+and within the
+LLM
+Server or
+service
+Facilitate com-
+plex tool use
+and task plan-
+ning
+As part of con-
+structing the
+agent and/or
+during the
+response
+Within the
+agent or LLM
+Collaborative
+workflows
+As part of
+the LLM
+Shared can-
+vas or coding
+Facilitate com-
+plex tool use
+During the
+response
+Within the LLM
+Game AI
+As part of
+the LLM
+Server or
+application
+Complex
+tool use and
+planning
+Before or
+during the
+response
+Within the LLM
+Research
+Anywhere
+Server
+Facilitate tool
+use and engage
+in complex
+task workflows
+Before,
+during, and
+after response
+generation
+Anywhere
+
+290
+CHAPTER 11
+Agent planning and feedback
+Game AI—While applying LLMs to games is still in early stages, it isn’t hard to
+imagine in-game agents or assistants that can assist or challenge the player. Giv-
+ing these agents the ability to plan and execute complex workflows could dis-
+rupt how and with whom we play games.
+Research—Similar to collaborative workflows, these agents will be responsible
+for deriving new ideas from existing sources of information. Finding that infor-
+mation will likely be facilitated through extensive tool use, which will benefit
+from coordination of planning.
+As you can see, planning is an essential part of many LLM applications, whether
+through coordination of tool use or otherwise. In the next section, we look at the next
+component of reasoning and how it can be applied to the same application stack.
+11.5.2 Application of assistant/agentic reasoning
+Reasoning, while often strongly associated with planning and task completion, is a
+component that can also stand by itself. As LLMs mature and get smarter, reasoning is
+often included within the LLM itself. However, not all applications may benefit from
+extensive reasoning, as it often introduces a thinking cycle within the LLM response.
+Table 11.2 describes at a high level how the reasoning component can be integrated
+with various LLM application types.
+Table 11.2
+When and where reasoning is employed and used in various applications
+Application
+Implemented
+Environment
+Purpose
+Timing
+Configuration
+Personal
+assistant
+Within the LLM
+Personal
+device
+Breaking down
+work into steps
+During the
+response
+As part of the
+prompt or LLM
+Customer
+service bot
+Not typical;
+usually just
+informational
+Limited tool
+use and need
+for composite
+tool use
+Autono-
+mous
+agent
+As part of the
+agent prompt
+and within
+the LLM
+Server or
+service
+Facilitate
+complex tool use
+and task planning
+As part of
+LLM, external
+reasoning not
+well suited
+Within the
+agent or LLM
+Collabora-
+tive work-
+flows
+As part of the
+LLM
+Shared can-
+vas or coding
+Assists in break-
+ing work down
+During the
+response
+Within the
+LLM
+Game AI
+As part of
+the LLM
+Server or
+application
+Essential for
+undertaking com-
+plex actions
+Before or
+during the
+response
+Within the
+LLM
+Research
+Anywhere
+Server
+Understand how to
+solve complex
+problems and
+engage in complex
+task workflows
+Before, during,
+and after
+response
+generation
+Anywhere
+
+291
+11.5
+Applying planning, reasoning, evaluation, and feedback to assistant and agentic sys-
+Table 11.2 shows several varied application scenarios in which we may find an assis-
+tant or agent deployed to assist in some capacity. To provide further information
+and guidance, this list provides more details about how reasoning may be employed
+in each application:
+Personal assistant—Depending on the application, the amount of reasoning an
+agent employs may be limited. Reasoning is a process that requires the LLM to
+think through a problem, and this often requires longer response times depend-
+ing on the complexity of the problem and the extent of the prompt. In many
+situations, responses intended to be closer to real-time reasoning may be dis-
+abled or turned down. While this may limit the complexity at which an agent
+can interact, limited or no reasoning can improve response times and increase
+user enjoyment.
+Customer service bot—Again, because of the controlled nature of this environ-
+ment, it’s unlikely that assistants engaged directly with customers will need to
+perform complex or any form of reasoning.
+Autonomous agent—While reasoning is a strong component of autonomous
+agents, we still don’t know how much reasoning is too much. As models such as
+Strawberry become available for agentic workflows, we can gauge at what
+point extensive reasoning may not be needed. This will surely be the case for
+well-defined autonomous agent workflows.
+Collaborative workflows—Again, applying reasoning creates an overhead in the LLM
+interaction. Extensive reasoning may provide benefits for some workflows, while
+other well-defined workflows may suffer. This may mean that these types of work-
+flows will benefit from multiple agents—those with reasoning and those without.
+Game AI—Similar to other applications, heavy-reasoning applications may not
+be appropriate for most game AIs. Games will especially require LLM response
+times to be quick, and this will surely be the application of reasoning for gen-
+eral tactical agents. Of course, that doesn’t preclude the use of other reasoning
+agents that may provide more strategic control.
+Research—Reasoning will likely be essential to any complex research task for sev-
+eral reasons. A good example is the application of the Strawberry model, which
+we’ve already seen in research done in mathematics and the sciences.
+While we often consider reasoning in tandem with planning, there may be conditions
+where the level at which each is implemented may differ. In the next section we con-
+sider the agent pillar of evaluation of various applications.
+11.5.3 Application of evaluation to agentic systems
+Evaluation is the component of agentic/assistant systems that can guide how well the
+system performs. While we demonstrated incorporating evaluation in some agentic
+workflows, evaluation is often an external component in agentic systems. However, it’s
+also a core component of most LLM applications and not something that should be
+
+292
+CHAPTER 11
+Agent planning and feedback
+overlooked in most developments. Table 11.3 describes at a high level how the evalua-
+tion component can be integrated with various LLM application types.
+Table 11.3 shows several varied application scenarios in which we may find an assis-
+tant or agent deployed to assist in some capacity. To provide further information
+and guidance, this list provides more details about how evaluation may be employed
+in each application:
+Personal assistant—In most cases, an evaluation component will be used to process
+and guide the performance of agent responses. In systems primarily employing
+retrieval augmented generation (RAG) for document exploration, the evaluation
+indicates how well the assistant responds to information requests.
+Customer service bot—Evaluating service bots is critical to understanding how well
+the bot responds to customer requests. In many cases, a strong RAG knowledge
+element may be an element of the system that will require extensive and ongoing
+evaluation. Again, with most evaluation components, this element is external to
+Table 11.3
+When and where evaluation is employed and used in various applications
+Application
+Implemented
+Environment
+Purpose
+Timing
+Configuration
+Personal
+assistant
+External
+Server
+Determine how
+well the system
+is working
+After the
+interaction
+Often devel-
+oped externally
+Customer
+service bot
+External
+monitor
+Server
+Evaluate the suc-
+cess of each
+interaction
+After the
+interaction
+External to the
+agent system
+Autonomous
+agent
+External or
+internal
+Server or
+service
+Determine the
+success of the
+system after
+or during task
+completion
+After the
+interaction
+External or
+internal
+Collaborative
+workflows
+External
+Shared can-
+vas or coding
+Evaluate the
+success of the
+collaboration
+After the
+interaction
+External service
+Game AI
+External or
+internal
+Server or
+application
+Evaluate the
+agent or evalu-
+ate the success
+of a strategy or
+action
+After the
+interaction
+External or
+as part of the
+agent or another
+agent
+Research
+Combined
+manual and
+LLM
+Server and
+human
+Evaluate the
+output of the
+research
+developed
+After the
+generated
+output
+Depends on the
+complexity of
+the problem
+and research
+undertaken
+
+293
+11.5
+Applying planning, reasoning, evaluation, and feedback to assistant and agentic sys-
+the main working system and is often run as part of monitoring general perfor-
+mance over several metrics.
+Autonomous agent—In most cases, a manual review of agent output will be a pri-
+mary guide to the success of an autonomous agent. However, in some cases,
+internal evaluation can help guide the agent when it’s undertaking complex
+tasks or as a means of improving the final output. Multiple agent systems, such
+as CrewAI and AutoGen, are examples of autonomous agents that use internal
+feedback to improve the generated output.
+Collaborative workflows—In most direct cases, manual evaluation is ongoing
+within these types of workflows. A user will often immediately and in near
+real time correct the assistant/agent by evaluating the output. Additional
+agents could be added similarly to autonomous agents for more extensive
+collaborative workflows.
+Game AI—Evaluation will often be broken down into development evaluation—
+evaluating how the agent interacts with the game—and in-game evaluation, evalu-
+ating how well an agent succeeded at a task. Implementing the later evaluation
+form is similar to autonomous agents but aims to improve some strategies or
+execution. Such in-game evaluations would also likely benefit from memory
+and a means of feedback.
+Research—Evaluation at this level generally occurs as a manual effort after com-
+pleting the research task. An agent could employ some form of evaluation simi-
+lar to autonomous agents to improve the generated output, perhaps even
+contemplating internally how evaluation of the output could be extended or
+further researched. Because this is currently a new area for agentic develop-
+ment, how well this will be executed remains to be seen.
+Evaluation is an essential element to any agentic or assistant system, especially if that
+system provides real and fundamental information to users. Developing evaluation sys-
+tems for agents and assistants is likely something that could or should have its own
+book. In the final section of this chapter, we’ll look at feedback implementation for
+various LLM applications.
+11.5.4 Application of feedback to agentic/assistant applications
+Feedback as a component of agentic systems is often, if not always, implemented as
+an external component—at least for now. Perhaps confidence in evaluation systems
+may improve to the point where feedback is regularly incorporated into such sys-
+tems. Table 11.4 showcases how feedback can be implemented into various LLM
+applications.
+
+
+
+
+294
+CHAPTER 11
+Agent planning and feedback
+Table 11.4 shows several application scenarios in which we may find an assistant or agent
+deployed to assist in some capacity. To provide further information and guidance, this list
+provides more details about how feedback may be employed in each application:
+Personal assistant—If the assistant or agent interacts with the user in a chat-style
+interface, direct and immediate feedback can be applied by the user. Whether
+this feedback is sustained over future conversations or interactions, it usually
+develops within agentic memory. Assistants such as ChatGPT now incorporate
+memory and can benefit from explicit user feedback.
+Customer service bot—User or system feedback is typically provided through a survey
+after the interaction has completed. This usually means that feedback is regulated
+to an external system that aggregates the feedback for later improvements.
+Autonomous agent—Much like bots, feedback within autonomous agents is typi-
+cally regulated to after the agent has completed a task that a user then reviews.
+The feedback mechanism may be harder to capture because many things can
+Table 11.4
+When and where feedback is employed and used in various applications
+Application
+Implemented
+Environment
+Purpose
+Timing
+Configuration
+Personal
+assistant
+External or
+by the user
+Aggregated to
+the server or
+as part of the
+system
+Provides means
+of system
+improvement
+After or during
+the interaction
+Internal and
+external
+Customer
+service bot
+External
+monitor
+Aggregated to
+the server
+Qualifies and
+provides a means
+for system
+improvement
+After the
+interaction
+External to the
+agent system
+Autonomous
+agent
+External
+Aggregated at
+the server
+Provides a means
+for system
+improvement
+After the
+interaction
+External
+Collaborative
+workflows
+While
+interacting
+Shared can-
+vas or coding
+Provides a mecha-
+nism for immedi-
+ate feedback
+During the
+interaction
+External
+service
+Game AI
+External or
+internal
+Server or
+application
+As part of internal
+evaluation feed-
+back provided
+for dynamic
+improvement
+After or during
+the interaction
+External or
+as part of
+the agent or
+another agent
+Research
+Combined
+manual and
+LLM
+Server and
+human
+Evaluate the out-
+put of the research
+developed
+After the
+generated
+output
+Depends on
+the complexity
+of the problem
+and the
+research
+undertaken
+
+295
+11.5
+Applying planning, reasoning, evaluation, and feedback to assistant and agentic sys-
+be subjective. Methods explored in this chapter for producing feedback can be
+used within prompt engineering improvements.
+Collaborative workflows—Similar to the personal assistant, these types of appli-
+cations can benefit from immediate and direct feedback from the user. Again,
+how this information is persisted across sessions is often an implementation of
+agentic memory.
+Game AI—Feedback can be implemented alongside evaluation through addi-
+tional and multiple agents. This feedback form may again be single-use and
+exist within the current interaction or may persist as memory. Imagine a game
+AI that can evaluate its actions, improve those with feedback, and remember
+those improvements. While this pattern isn’t ideal for games, it will certainly
+improve the gameplay experience.
+Research—Similar to evaluation in the context of research, feedback is typically
+performed offline after the output is evaluated. While some development has
+been done using multiple agent systems incorporating agents for evaluation
+and feedback, these systems don’t always perform well, at least not with the cur-
+rent state-of-the-art models. Instead, it’s often better to isolate feedback and
+evaluation at the end to avoid the common feedback looping problem.
+Feedback is another powerful component of agentic and assistant systems, but it’s not
+always required on the first release. However, incorporating rigorous feedback and
+evaluation mechanisms can greatly benefit agentic systems in the long term concern-
+ing ongoing monitoring and providing the confidence to improve various aspects of
+the system.
+How you implement each of these components in your agentic systems may, in
+part, be guided by the architecture of your chosen agentic platform. Now that you
+understand the nuances of each component, you also have the knowledge to guide
+you in selecting the right agent system that fits your application and business use case.
+Regardless of your application, you’ll want to employ several agentic components in
+almost all cases.
+As agentic systems mature and LLMs themselves get smarter, some of the compo-
+nents we today consider external may be closely integrated. We’ve already seen rea-
+soning and planning be integrated into a model such as Strawberry. Certainly, as we
+approach the theoretical artificial general intelligence milestone, we may see models
+capable of performing long-term self-evaluation and feedback.
+In any case, I hope you enjoyed this journey with me into this incredible frontier of
+a new and emerging technology that will certainly alter our perception of work and
+how we undertake it through agents.
+
+296
+CHAPTER 11
+Agent planning and feedback
+11.6
+Exercises
+Use the following exercises to improve your knowledge of the material:
+Exercise 1—Implement a Simple Planning Agent (Beginner)
+Objective—Learn how to implement a basic planning agent using a prompt to
+generate a sequence of actions.
+Tasks:
+– Create an agent that receives a goal, breaks it into steps, and executes those
+steps sequentially.
+– Define a simple goal, such as retrieving information from Wikipedia and sav-
+ing it to a file.
+– Implement the agent using a basic planner prompt (refer to the planner
+example in section 11.3).
+– Run the agent, and evaluate how well it plans and executes each step.
+Exercise 2—Test Feedback Integration in a Planning Agent (Intermediate)
+Objective—Understand how feedback mechanisms can improve the performance
+of an agentic system.
+Tasks:
+– Modify the agent from exercise 1 to include a feedback loop after each task.
+– Use the feedback to adjust or correct the next task in the sequence.
+– Test the agent by giving it a more complex task, such as gathering data from
+multiple sources, and observe how the feedback improves its performance.
+– Document and compare the agent’s behavior before and after adding feedback.
+Exercise 3—Experiment with Parallel and Sequential Planning (Intermediate)
+Objective—Learn the difference between parallel and sequential actions and
+how they affect agent behavior.
+Tasks:
+– Set up two agents using Nexus: one that executes tasks in parallel and another
+that performs tasks sequentially.
+– Define a multistep goal where some actions depend on the results of previous
+actions (sequential), and some can be done simultaneously (parallel).
+– Compare the performance and output of both agents, noting any errors or
+inefficiencies in parallel execution when sequential steps are required.
+Exercise 4—Build and Integrate a Custom Planner into Nexus (Advanced)
+Objective—Learn how to build a custom planner and integrate it into an agent
+platform.
+Tasks:
+– Write a custom planner using prompt engineering strategies from section 11.3,
+ensuring it supports sequential task execution.
+– Integrate this planner into Nexus, and create an agent that uses it.
+
+297
+Summary
+– Test the planner with a complex goal that involves multiple steps and tools
+(e.g., data retrieval, processing, and saving).
+– Evaluate how the custom planner performs compared to built-in planners in
+Nexus or other platforms.
+Exercise 5—Implement Error Handling and Feedback in Sequential Planning
+(Advanced)
+Objective—Learn how to implement error handling and feedback to refine sequen-
+tial planning in an agentic system.
+Tasks:
+– Using a sequential planner, set up an agent to perform a goal that may encoun-
+ter common errors (e.g., a failed API call, missing data, or invalid input).
+– Implement error-handling mechanisms in the planner to recognize and
+respond to these errors.
+– Add feedback loops to adjust the plan or retry actions based on the error
+encountered.
+– Test the system by deliberately causing errors during execution, and observe
+how the agent recovers or adjusts its plan.
+Summary
+Planning is central to agents and assistants, allowing them to take a goal, break
+it into steps, and execute them. Without planning, agents are reduced to simple
+chatbot-like interactions.
+Agents must differentiate between parallel and sequential actions. Many LLMs
+can handle parallel actions, but only advanced models support sequential plan-
+ning, critical for complex task completion.
+Feedback is crucial in guiding agents to correct their course and improve per-
+formance over time. This chapter demonstrates how feedback mechanisms can
+be integrated with agents to refine their decision-making processes.
+Platforms such as OpenAI Assistants and Anthropic’s Claude support internal
+planning and can execute complex, multistep tasks. Agents using these plat-
+forms can use sequential action planning for sophisticated workflows.
+Properly selecting and limiting agent actions is vital to avoid confusion and
+unintended behavior. Too many actions may overwhelm an agent, while unnec-
+essary tools may be misused.
+Nexus allows for creating and managing agents through a flexible interface,
+where users can implement custom planners, set goals, and assign tools. The
+chapter includes practical examples using Nexus to highlight the difference
+between a raw LLM and a planner-enhanced agent.
+Writing custom planners is straightforward, using prompt engineering strate-
+gies. Tools such as LangChain and Semantic Kernel offer a variety of planners
+that can be adapted or extended to fit specific agentic needs.
+
+298
+CHAPTER 11
+Agent planning and feedback
+Models such as OpenAI Strawberry integrate reasoning, planning, evalua-
+tion, and feedback directly into the LLM, offering more accurate problem-
+solving capabilities.
+Evaluation helps determine how well an agentic system is performing and can
+be implemented internally or externally, depending on the use case.
+As LLMs evolve, reasoning, planning, and feedback mechanisms may become
+deeply integrated into models, paving the way for more autonomous and intelli-
+gent agent systems.
+
+299
+appendix A
+Accessing OpenAI
+large language models
+Although several commercial large language model (LLM) services are available,
+this book recommends using OpenAI services directly or through Azure OpenAI
+Studio. To access either service, you must create an account and register a payment
+method not covered in this appendix. The GPT-4 family of LLMs is considered best
+in class and better suited for agent development. Using open source and alterna-
+tive services is always an option but generally only advisable after you’ve worked
+with GPT-4 for some time.
+A.1
+Accessing OpenAI accounts and keys
+The following general steps can help you quickly set up using OpenAI LLMs for agent
+development. Though using OpenAI and other commercial LLMs comes at a price,
+you can expect to pay less than US$100 to complete all the exercises in this book:
+1
+Go to https://openai.com and log in, or register for an account and log in. If
+this is your first time creating an account, you’ll likely be given free credit in
+some amount. If you already have an account, you must register a payment
+method and type. It’s generally better to purchase a number of credits at a
+time. This will allow you to manage the costs better and avoid overruns.
+2
+After logging in to the platform, select ChatGPT or the API, as shown in
+figure A.1. Choose the API.
+
+
+
+
+300
+APPENDIX A
+Accessing OpenAI large language models
+3
+Open the left menu, and select the API Keys option, as shown in figure A.2.
+Select the API
+.
+.
+Figure A.1
+Selecting the API section of the OpenAI platform
+Select the API
+eys
+K
+Figure A.2
+Selecting
+the API Keys option
+
+301
+A.1
+Accessing OpenAI accounts and keys
+4
+Click the Create button to create a new key, enter a name for the key, and click
+the Create Secret Key button, as shown in figure A.3.
+5
+Copy and paste the key to a notepad or another area for safekeeping using the
+Copy button, as shown in figure A.4. Keep this key secret, and ensure it remains
+only on your development machine.
+After generating a key, you can continue to use it within an .env configuration file or
+through other means of registering an OpenAI key. For most of the packages used in
+this book, configuring OpenAI will generally only require the key. Other services,
+such as Azure OpenAI, will require the configuration of a model deployment and a
+base URL as covered in the next section.
+
+
+
+Enter a helpful name,
+such as GPT-Agents.
+Click to create
+the key.
+Start by clicking the button
+to create a new secret key.
+Figure A.3
+Creating the secret API key
+
+302
+APPENDIX A
+Accessing OpenAI large language models
+A.2
+Azure OpenAI Studio, keys, and deployments
+Through its ongoing relationship with OpenAI, Microsoft hosts the same models at
+the same price within Azure OpenAI Studio. Occasionally, Azure may be a model ver-
+sion behind, but Microsoft generally keeps current with the latest OpenAI models.
+These guidelines will be more general because there are several ways to access
+Azure and methods of creating accounts and accessing the studio (for specific instruc-
+tions, refer to Microsoft documentation):
+1
+Log in to your Azure portal account subscription.
+2
+Create a new Azure OpenAI Studio resource in a region that makes sense to
+you. At the time of writing, not all regions provided access to all models. You may
+need to check which models are available for your region first. This will also be
+specific to your account and usage.
+Within Azure OpenAI, models are exposed through a resource allocation
+called a deployment. Deployments wrap a model, such as GPT-4, and provide
+access to the resource. Figure A.5 shows an example of various models being
+exposed through deployments.
+3
+Click the Create New Deployment button to create a new deployment, and then
+select the model you want to deploy.
+
+Click the Copy button to copy
+the key to the clipboard.
+Make sure to save the
+key right away.
+Click to create the key.
+Figure A.4
+Copying and pasting the key to a well-known safe location
+
+303
+A.2
+Azure OpenAI Studio, keys, and deployments
+4
+After the model is wrapped in a deployment, you must access the parent Azure
+OpenAI resource. From there, you can access the key, endpoint, or base URL
+needed to configure your connection, as shown in figure A.6.
+Again, if you get stuck, the Microsoft documentation can guide you in the right direc-
+tion. The three critical differences to remember when connecting to a resource such
+as Azure OpenAI Studio or another LLM using the OpenAI tooling are listed here:
+The api key to access the model
+The base url or endpoint where the model is located
+The name of the model or deployment name
+If you can’t access a model for whatever reason, a good alternative is open source
+models. Setting up and consuming open source LLMs is covered in chapter 2.
+Deployment name is the name
+referenced as the model name.
+OpenAI model
+name
+Other resource
+information
+Figure A.5
+Deploying a model through an Azure OpenAI Studio deployment
+
+304
+APPENDIX A
+Accessing OpenAI large language models
+Click to copy, and then
+paste the keys as needed.
+The base URL for
+the model service
+Other resource
+information
+
+305
+appendix B
+Python development
+environment
+While this book assumes readers are experienced Python developers, this could
+mean many different things. In this appendix, we look at configuring a Python
+development environment that will function with the code examples in this book.
+You can use other integrated development environments (IDEs), but not all tool-
+ing, especially extensions, will work in all IDEs.
+B.1
+Downloading the source code
+To download and run the source code, install Git, and then pull the repository
+locally. Here are the high-level steps to pull the code from the book’s GitHub
+repository:
+1
+Install Git if you need to. Git can be installed from multiple sources, but a
+good option is the main release, found here: https://git-scm.com/down-
+loads. Follow the instructions to download and install the tool for your oper-
+ating system.
+2
+Open a terminal in a folder you want to download the source to, and then
+enter the following command:
+git clone https://github.com/cxbxmxcx/GPT-Agents.git
+3
+After the code is downloaded, you can begin by opening the chapter folder
+that you’re working on in Visual Studio Code (VS Code). If you need to
+
+306
+APPENDIX B
+Python development environment
+install VS Code or understand how to load a chapter folder as a workspace, con-
+sult section B.5 in this appendix.
+B.2
+Installing Python
+Python is provided through different versions and deployments. This book relies on
+the standard Python installation, version 3.10. Anaconda is another deployment of
+Python that is very popular and could be used. However, all the material in this book
+has been run and tested with a Python 3.10 virtual environment:
+1
+Go to www.python.org/downloads/.
+2
+Locate and download the latest release of Python 3.10 for your operating system.
+3
+Install the release on your machine using the instructions for your operating
+system.
+4
+To confirm your installation, open a terminal, and execute the following
+command:
+python –-version
+The version should be 3.10, but if it isn’t, don't worry. You may have multiple Python
+versions installed. We’ll also confirm the installation when setting up VS Code.
+B.3
+Installing VS Code
+Installing VS Code is relatively straightforward and can be done in just a few steps:
+1
+Go to https://code.visualstudio.com.
+2
+Download a stable release of VS Code for your operating system.
+3
+After the release is downloaded, follow the installation instructions for your
+operating system.
+4
+Launch VS Code for your operating system, and make sure no warnings or
+errors appear. If you encounter problems, try to restart your computer and/or
+reinstall.
+With VS Code running, we can install the necessary extensions. We’ll cover those
+extensions next.
+B.4
+Installing VS Code Python extensions
+Thousands of extensions for VS Code can provide an excellent Python coding envi-
+ronment. The recommended ones are only the start of what you can explore inde-
+pendently. Beware, though, that not all extensions are created equally. When installing
+new extensions, look at the number of installs and ratings. Extensions with fewer than
+four stars are generally to be avoided. To install the extensions, follow these steps:
+
+
+307
+B.4
+Installing VS Code Python extensions
+1
+Launch VS Code, and open the Extensions panel, as shown in figure B.1.
+2
+Install the following list of extensions:
+– Python, for environment and language support
+– Python Extension Pack, for covering other extensions
+– Python Environment Manager, for managing environments
+– Python Indent, for code formatting
+– Flake8, for code formatting/linting
+– Prompt Flow, for testing LLM prompts
+– Semantic Kernel Tools, for working with the Semantic Kernel framework
+– Docker, for managing Docker containers
+– Dev Containers, for running development environments with containers
+You’ll only need to install the extensions for each VS Code environment you’re run-
+ning. Typically, this will mean installing for just your operating system installation of
+VS Code. However, if you run VS Code in containers, you must install extensions for
+each container you’re running. Working with Python in the Dev Containers extension
+will be covered later in this appendix.
+Open the
+Extensions panel.
+Select the
+extensions.
+Enter your search term.
+Click the Install
+button to install.
+Figure B.1
+Installing VS Code extensions
+
+308
+APPENDIX B
+Python development environment
+B.5
+Creating a new Python environment with VS Code
+When developing Python projects, you often want to create isolated virtual environ-
+ments. This will help in managing multiple package dependencies across various tasks
+and tools. In this book, it’s recommended that a new virtual environment be created
+for each new chapter. VS Code can help you create and manage multiple Python envi-
+ronments quickly and efficiently via the following steps:
+1
+Press Ctrl-Shift-P (Cmd-Shift-P) to open the command panel, and select Python:
+Create Environment, as shown in figure B.2.
+2
+Select the environment type, either Venv or Conda. This book demonstrates
+Venv but Conda should also work.
+Open the command panel (Ctrl-Shift-P, Cmd-Shift-P)
+Select to create a new environment.
+Use the Refresh button if your installation is shown.
+Check the requirements.txt ﬁle, which should
+contain all the dependencies for the chapter.
+Select the installation. This list should reﬂect
+the Python versions you have installed.
+Select the type of environment. The
+instructions in this book use an .venv
+environment, but Conda should work
+just as well.
+Figure B.2
+The steps to set up the virtual environment for a chapter
+
+309
+B.6
+Using VS Code Dev Containers (Docker)
+3
+Select the Python installation. The code in this book has been run with Python
+3.10 at a minimum. The agent tools and frameworks featured in this book are
+cutting edge, so they should support later versions of Python.
+4
+Check that the requirements.txt file in the chapter folder is selected. This will
+install all the requirements for the current chapter.
+You should complete these steps for each new chapter of the book. The alternative is
+to use VS Code development containers, which will be covered in the next section.
+B.6
+Using VS Code Dev Containers (Docker)
+When working with advanced agents and agents that can generate and execute
+code, running them in isolated containers is generally recommended. Container
+isolation prevents operating system disruption or corruption and provides a base for
+deploying agents.
+Getting familiar with containers and platforms such as Docker can be an extensive
+undertaking to grasp everything. Fortunately, it takes very little knowledge to start
+using containers, and VS Code extensions make this even more accessible.
+You’ll first need to install a container toolset. Docker is free (provided you use the
+tool as a hobby or you’re a student) and the most accessible. Follow these instructions
+to install Docker and get started working with containers:
+1
+Go to the Docker Desktop download page at www.docker.com/products/
+docker-desktop.
+2
+Download and install Docker for your operating system. Follow any other
+instructions as requested.
+3
+Launch the Docker desktop application. Completing this step will confirm you
+have Docker installed and working as expected.
+4
+Open VS Code, and confirm that the Docker extensions listed in section 1.4 are
+installed.
+With Docker and VS Code configured, you can move on to using Dev Containers by
+following these steps:
+1
+Open a new instance of VS Code.
+2
+Select to open a remote window, as shown in figure B.3.
+3
+Select Open Folder in Container to start a container from a folder, or select
+New Dev Container to start without a folder.
+After the container is launched, your VS Code environment will be con-
+nected. This allows you to develop code on the container without worrying about
+dependencies not working.
+
+310
+APPENDIX B
+Python development environment
+Select Open Folder
+in Container.
+Select Open
+Remote Window.
+Figure B.3
+Opening a remote window to a container in VS Code
+
+311
+index
+A
+ABTs (agentic behavior trees) 143–152
+blackboards in 155
+building with back chaining 155–156
+coding challenge ABT 145–149
+conversational AI systems 149
+managing assistants with assistants 143
+posting YouTube videos to X 150
+required X setup 151
+actions
+and tools, agent platforms 174–179
+defining 99
+empowering agents with 98
+writing semantic services 125
+executing OpenAI functions 101–107
+actioning function calls 103–107
+adding functions to LLM API calls 101
+exercises 127
+native functions 111–118
+semantic functions 111–118
+embedding native functions within
+117
+Semantic Kernel (SK) 107–111
+context variables 109
+semantic functions 108–111
+advanced parameters 221
+agent_action decorator 175
+agent critics 79
+agent engines 172
+agentic systems
+application of
+assistant/agentic planning 288–290
+assistant/agentic reasoning 290–291
+evaluation to agentic systems 292–293
+feedback to agentic/assistant
+applications 293–295
+implementing memory in 200–207
+semantic memory 204
+agent memory, exercises 209
+agentops package 88
+agent personas 216
+agent planning
+exercises 296
+sequential planners 278–285
+agent planning and feedback 272
+agent platforms
+actions and tools 174–179
+agent engines 172
+developing profiles and personas for
+agents 170
+overview of 161–164
+Streamlit 165–170
+building chat applications 165–168
+creating streaming chat applications
+168
+agent profiles 216
+evaluating 224–228
+agent prompts
+agent personas 216
+agent profiles 216
+rubrics and grounding 228–230
+agent reasoning
+direct solution prompting 245–252
+few-shot prompting 248–250
+question and answer prompting
+246–248
+zero-shot prompting 250
+
+INDEX
+312
+agents
+component systems of 4–9
+defining 1–4
+empowering with actions 98
+executing OpenAI functions 101–107
+memory and knowledge
+semantic search and document
+indexing 184–192
+OpenAI Strawberry 285–287
+overview of 12
+planning 273–277
+reasoning and evaluation 244
+rise of 9
+aggregate block 238, 240
+AGI (artificial general intelligence) 9
+AI agents, AI interface 11
+Api parameter 221
+APIs (application programming interfaces),
+deploying prompt flow API 223
+assistant role 18
+assistants
+ABTs (agentic behavior trees) 143–152
+engaging through ChatGPT 40–44
+Playground 136–142
+getting assistant to run code locally 140
+installing and running 136
+installing assistants database 140
+investigating assistant process through
+logs 142
+using and building custom actions 138
+Social Media Assistant 152
+Twitter Post Writer 152
+YouTube Researcher v2 152
+assistant systems, application of
+assistant/agentic planning 288–290
+assistant/agentic reasoning 290–291
+evaluation to agentic systems 292–293
+feedback to agentic/assistant applications
+293–295
+AutoGen Studio, multi-agent systems with
+69–76
+adding skills 73–76
+installing and using 70
+autonomous assistants 129
+behavior trees 130–136
+deciding on 132–134
+execution 131
+running with Python and py_trees 134
+conversational autonomous multi-agents
+153
+exercises 156
+Azure OpenAI Studio 302
+B
+BaseAgent class 172
+BasicNexusPlanner class 282
+behavior trees 130–136
+blackboards in 155
+building with back chaining 155–156
+deciding on 132–134
+execution 131
+running with Python and py_trees 134
+blackboards 155
+C
+chain of thought (CoT) prompting 253–257
+chat completions 16
+ChatGPT, engaging assistants through 40–44
+coding challenge ABT (agentic behavior
+tree) 145–149
+compression
+knowledge 207
+blending knowledge and memory 209
+case for 208
+frequency of application 208
+multiple knowledge stores 209
+multiple passes of 208
+memory 207
+blending knowledge and memory 209
+frequency of application 208
+multiple memory stores 209
+multiple passes of 208
+config.json file 112
+connecting.py code 36
+Connection parameter 221
+context variables 109
+ConversableAgent agent 78
+conversational AI systems 149
+cosine_similarities variable 186
+cosine_similarity function 186
+create_assistant_action_on_thread helper
+function 149
+create_assistant_condition helper function 149
+create_manager_assistant action 144
+create_plan function 282
+CrewAI
+building agent crew with 84–90
+creating jokester crew of CrewAI agents
+84–87
+observing agents working with AgentOps
+87–90
+revisiting coding agents with 90–95
+crewai_agentops.py file 88
+
+INDEX
+313
+crewai package 88
+custom actions 49–55
+connecting custom action to assistant 53
+creating assistant to build assistant 49–53
+D
+DAG (direct acyclic graph) 262
+describe_image function 75
+Direct Prompting 270
+direct solution prompting 245–252
+few-shot prompting 248–250
+question and answer prompting 246–248
+zero-shot prompting 250
+Docker 309
+document indexing 184–192
+document embeddings 189
+querying document embeddings from
+Chroma 190
+vector similarity search 184–188
+Inverse Document Frequency (IDF) 185
+Term Frequency (TF) 185
+TF-IDF calculation 185–188
+vector databases and similarity search 188
+E
+echo block 221
+Embedding components 246
+episodic memory 204
+evaluate_recommendation block 231
+evaluation, employing for consistent
+solutions 261–270
+self-consistency prompting 262–266
+ToT prompting 266–270
+evaluation prompt techniques 271
+F
+feedback
+application of feedback to agentic/assistant
+applications 293–295
+stepwise planner, OpenAI Strawberry
+285–287
+few-shot learning 248
+few-shot model 248
+Few-Shot Prompting 270
+file uploads extending assistants’ knowledge
+using 56–61
+building Calculus Made Easy GPT 56–58
+knowledge search and more with file
+uploads 58–61
+first_function.py Python script 103
+flow.dag.yaml file 236, 240
+for-each function 283
+functions
+actioning function calls 103–107
+adding to LLM API calls 101
+G
+generative models 14
+get_response function 173
+get_response_stream function 176
+get_top_movie_by_genre function 124
+get_top_movies_by_genre function 126
+get_wikipedia_page action 278
+GPT Assistants Playground 136–142
+getting assistant to run code locally 140
+installing and running 136
+installing assistants database 140
+investigating assistant process through logs
+142
+using and building custom actions 138
+GPT (Generative Pretrained Transformer)
+assistants 39
+building 44–48
+exercises 65
+OpenAI Assistants 136–149
+publishing 61–65
+economics of GPTs 63
+expensive GPT assistants 62
+releasing GPT 63
+GPTs (Generative Pretrained Transformers)
+14
+building semantic interface 119–121
+customizing 49–55
+connecting custom action to assistant 53
+creating assistant to build assistant
+49–53
+grounding 228–230
+GroupChat 82
+GroupChatManager 82
+group chat with agents and AutoGen 82
+I
+IDEs (integrated development environments)
+305
+IDF (Inverse Document Frequency) 185
+import_plugin function 118
+initiate_chat call 82
+Inputs block 221
+input tokens 20
+
+INDEX
+314
+interactive service agent, semantic kernel
+as 118–125
+building semantic GPT interface 119–121
+interactive chat with semantic service layer
+122–125
+testing semantic services 121
+J
+Jinja2 templates, creating profiles with 222
+JSON Lines (JSONL) 235
+JSON list document 235
+K
+knowledge 180
+building agent knowledge 196–200
+compression 207
+blending knowledge and memory 209
+case for 208
+extending assistants’ knowledge using file
+uploads 56–61
+building Calculus Made Easy GPT 56–58
+knowledge search with file uploads 58–61
+stores 209
+KnowledgeManager class 199
+knowledge/memory 162
+L
+LangChain, constructing RAG with 192–196
+splitting and loading documents 193–194
+splitting documents by token 195
+launch.json file 168
+LLMs (large language models) 2, 14, 99, 161,
+299
+adding functions to API calls 101
+choosing optimal 34–36
+exercises 14
+grounding evaluation with LLM profile
+230
+OpenAI API 16–20
+connecting to chat completions model 16
+request and response 18–20
+open source LLMs with LM Studio 20–25
+prompt engineering 25–34
+adopting personas 29
+creating detailed queries 28
+providing examples 32
+specifying output length 33
+specifying steps 31
+using delimiters 30
+LM Studio 20–25
+installing and running 20
+serving LLM locally with 23
+load_dotenv function 17
+Local Data File 236
+M
+manager_llm class 92
+max_rpm (maximum requests per minute) 87
+Max_tokens parameter 221
+memory 180
+compression 207
+consuming memory stores in Nexus 202
+implementing in agentic systems 200–207
+retrieval 181
+semantic memory 204
+Model parameter 221
+multi-agent systems 3, 68
+AutoGen 77–82
+cache 81
+enhancing code output with agent critics 79
+installing and consuming 77–79
+building agent crew with CrewAI 84–90
+creating jokester crew of CrewAI agents
+84–87
+observing agents working with AgentOps
+87–90
+exercises 95
+group chat with agents and AutoGen 82
+revisiting coding agents with CrewAI 90–95
+with AutoGen Studio 69–76
+adding skills 73–76
+installing and using 70
+multipath reasoning 9
+N
+native functions 111–118, 127
+applying 115
+embedding within semantic functions 117
+Nexus
+consuming memory stores in 202
+developing 163
+overview of 161–164
+running 162
+NPCs (nonplayer characters) 130
+O
+OAI_CONFIG_LIST file 78
+one-shot learning 248
+
+INDEX
+315
+one-shot model 248
+OpenAI
+accessing accounts and keys 299
+Azure OpenAI Studio 302
+OpenAI API 16–20
+connecting to chat completions model 16
+request and response 18–20
+Outputs block 221
+output tokens 20
+P
+parsing_results block 232
+PCA (principal component analysis)
+190
+personas 29
+developing for agents 170
+pip command 77
+planning 252
+stepwise planner, OpenAI Strawberry
+285–287
+planning agents 273–277
+planning/feedback 162
+plugin folder 115
+plugins, creating and registering 111–115
+procedural memory 204
+profiles
+comparing 232–243
+creating evaluation flow for grounding
+238–241
+exercises 242
+parsing LLM evaluation output 232
+running batch processing in prompt
+flow 235–238
+developing for agents 170
+prompt chaining 258–261
+prompt engineering 9, 25–34
+adopting personas 29
+creating detailed queries 28
+providing examples 32
+reasoning in 252–261
+chain of thought prompting 253–257
+step-by-step with prompt chaining
+258–261
+zero-shot CoT prompting 257
+specifying output length 33
+specifying steps 31
+systematic 213
+using delimiters 30
+prompt_engineering.py file 26, 28
+prompt flow 212
+agent profiles, evaluating 224–228
+comparing profiles 232–243
+creating evaluation flow for grounding
+238–241
+exercises 242
+parsing LLM evaluation output 232
+running batch processing in prompt
+flow 235–238
+grounding evaluation with LLM profile 230
+setting up 217–224
+creating profiles with Jinja2 templates 222
+deploying prompt flow API 223
+prerequisites 218–221
+systematic prompt engineering 213
+PromptTemplateManager 282
+Python
+behavior trees with 134
+creating new environment with VS Code 308
+development environment
+downloading source code 305
+VS Code Dev Containers (Docker) and 309
+installing VS code 306
+installing VS Code extensions 306
+py_trees 134
+py_trees package 147
+Q
+question_answer LLM prompt 246
+R
+RAG (Retrieval Augmented Generation) 177, 182
+applying to building agent knowledge 196–200
+constructing with LangChain 192–196
+splitting and loading documents 193–194
+splitting documents by token 195
+reasoning 252
+in prompt engineering 252–261
+chain of thought prompting 253–257
+step-by-step with prompt chaining 258–261
+zero-shot CoT prompting 257
+reasoning agents, exercises 270
+reasoning prompts 270
+recommender block 221
+recommender_with_LLM_evaluation flows visual
+editor 232
+registering
+plugins 111–115
+semantic functions 111–115
+semantic plugins 111–115
+semantic skills 111–115
+skills 111–115
+
+INDEX
+316
+requirements.txt file 77, 246
+retrieval 181
+RLHF (reinforcement learning with human
+feedback) 16
+rubber ducking 29
+rubrics 228–230
+run_conversation function 104
+S
+save_file action 278
+scoring block 238
+search_wikipedia action 278
+self-consistency prompting 262–266
+semantic functions 111–118, 127
+creating and registering 111–115
+embedding native functions within 117
+semantic memory 204
+semantic plugins, creating 111–115
+semantic search 184–192
+vector similarity search 184–188
+document embeddings 189
+Inverse Document Frequency (IDF) 185
+querying document embeddings from
+Chroma 190
+Term Frequency (TF) 185
+TF-IDF calculation 185–188
+vector databases and similarity search 188
+semantic services, writing 125
+semantic skills, creating 111–115
+SEO (search engine optimization) 64
+sequential planners 278–285
+sequential planning process 277
+sequential reasoning 9
+single-path reasoning 9
+sk_function decorator 120
+skills
+creating 111–115
+registering 111–115
+skills directory 115
+skills/plugin folder 112
+skills/Recommender/Recommend_Movies
+folder 112
+skprompt.txt file 112
+SK (Semantic Kernel) 107–111, 128, 160, 244
+as interactive service agent 118–125
+building semantic GPT interface 119–121
+interactive chat with semantic service
+layer 122–125
+testing semantic services 121
+context variables 109
+semantic functions 108–111
+step-by-step with prompt chaining 258–261
+stepwise planner, OpenAI Strawberry
+285–287
+Stop parameter 221
+Streamlit
+building chat applications 165–168
+creating streaming chat applications 168
+overview 165–170
+st.spinner control 167
+st.write_stream control 169
+system role 18
+T
+temperature conversion plugin 127
+Temperature parameter 221
+TF-IDF (Term Frequency-Inverse Document
+Frequency) 184–188
+TF (Term Frequency) 185
+tmdb.py file 119
+TMDbService 126
+TMDbService class 119–120, 122
+TMDB (The Movie Database) 118
+tokenization, splitting documents by
+token with LangChain 195
+ToT (tree of thought) 245
+ToT (tree of thought) prompting
+266–270
+U
+ulk_recommend.jsonl file 235
+unstructured memory/knowledge concepts
+183
+UserProxy agent 78
+user role 18
+V
+vector databases 188
+vector similarity search 184–188
+document embeddings 189
+Inverse Document Frequency (IDF) 185
+querying document embeddings from
+Chroma 190
+Term Frequency (TF) 185
+TF-IDF calculation 185–188
+vector databases and similarity search
+188
+VS Code
+installing 306
+installing Python extensions 306
+
+INDEX
+317
+VS Code Dev Containers (Docker) 309
+.vscode/launch.json file 167
+VS Code (Visual Studio Code) 16, 51, 70,
+102, 136, 218
+creating new Python environment
+with 308
+W
+weather information plugin 127
+web APIs 128
+Windows Subsystem for Linux (WSL)
+79
+with statement 82
+working_dir folder 79
+Write Clear Instructions strategy 26
+WSL (Windows Subsystem for Linux)
+79
+X
+X (formerly Twitter)
+required assistants 152
+required setup 151
+Y
+YouTube
+posting videos to X 150
+required assistants 152
+search and spam 151
+Z
+zero-shot CoT prompting 257
+zero-shot learning 248
+zero-shot prompting 250, 270
+
+For ordering information, go to www.manning.com
+RELATED MANNING TITLES
+Multi-Agent Systems with AutoGen
+by Victor Dibia
+ISBN 9781633436145

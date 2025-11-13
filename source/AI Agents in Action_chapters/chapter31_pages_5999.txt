@@ -1,0 +1,161 @@
+Chapter 31: pages, $59.99
+Starting Page: 342
+================================================================================
+
+September 2024
+
+The Manning Early Access Program
+Don’t wait to start learning! In MEAP, the Manning Early Access Program, you can read
+books as they’re being created and long before they’re available in stores.
+Here’s how MEAP works.
+•	 Start now. Buy a MEAP and you’ll get all available chapters in PDF, ePub, Kindle,
+and liveBook formats.
+•	 Regular updates. New chapters are released as soon as they’re written. We’ll
+let you know when fresh content is available.
+•	 Finish faster. MEAP customers are the first to get final versions of all books!
+Pre-order the print book, and it’ll ship as soon as it’s off the press.
+•	 Contribute to the process. The feedback you share with authors makes the end
+product better.
+•	 No risk. You get a full refund or exchange if we ever have to cancel a MEAP.
+Explore dozens of titles in MEAP at www.manning.com.
+
+A new online reading experience
+liveBook, our online reading platform, adds a new dimension to your Manning books,
+with features that make reading, learning, and sharing easier than ever. A liveBook
+version of your book is included FREE with every Manning book.
+This next generation book platform is more than an online reader. It’s packed with
+unique features to upgrade and enhance your learning experience.
+• Add your own notes and bookmarks
+• One-click code copy
+• Learn from other readers in the discussion forum
+• Audio recordings and interactive exercises
+• Read all your purchased Manning content in any browser, anytime, anywhere
+As an added bonus, you can search every Manning book and video in liveBook—even
+ones you don’t yet own. Open any liveBook, and you’ll be able to browse the content and
+read anything you like.*
+Find out more at www.manning.com/livebook-program.
+*Open reading is limited to 10 minutes per book daily
+
+The difference between iterative and planned execution
+Single prompt as a goal:
+search Wikipedia for topic, return
+the top page, and save to a ﬁle.
+Sequential execution of a goal
+Single prompt as a goal:
+search Wikipedia for topic, return
+the top page, and save to a ﬁle.
+Iterative execution of a goal
+Tasks/plan
+Returns a list of page IDs
+search_wikipedia(topic)
+Returns the page content
+get_wikipedia_page(page_id)
+Collects pages
+save_ ﬁle
+All pages combined
+In a planner, this
+aggregation is
+performed
+internally.
+All tasks are
+performed
+internally by
+the agent.
+User submits a goal.
+search_wikipedia(topic)
+Results are displayed, and the
+agent asks to continue to the
+next step.
+Returns a list of page IDs
+get_wikipedia_page(page_id)
+User responds
+with continue.
+Returns are collected and
+displayed to the user. The agent
+asks for further continuation.
+Returns the page content
+save_ ﬁle
+All pages combined
+User responds
+with continue.
+Goal is complete, and user has the output.
+Iterative
+execution
+is default
+behavior
+for an LLM.
+Sequential
+(planned)
+execution is
+standard in
+GPT
+Assistants
+and Claude.
+
+Micheal Lanham
+M
+ost production AI systems require many orchestrated
+interactions between the user, AI models, and a wide
+variety of data sources. AI agents capture and organize
+these interactions into autonomous components that can pro-
+cess information, make decisions, and learn from interactions
+behind the scenes. Th is book will show you how to create AI
+agents and connect them together into powerful multi-agent
+systems.
+In AI Agents in Action, you’ll learn how to build production
+-ready assistants, multi-agent systems, and behavioral agents.
+You’ll master the essential parts of an agent, including
+retrieval-augmented knowledge and memory, while you create
+multi-agent applications that can use software tools, plan tasks
+autonomously, and learn from experience. As you explore the
+many interesting examples, you’ll work with state-of-the-art
+tools like OpenAI Assistants API, GPT Nexus, LangChain,
+Prompt Flow, AutoGen, and CrewAI.
+What’s Inside
+● Knowledge management and memory systems
+● Feedback loops for continuous agent learning
+● Collaborative multi-agent systems
+● Speech and computer vision
+For intermediate Python programmers.
+Micheal Lanham is a software and technology innovator with
+over 20 years of industry experience. He has authored books
+on deep learning, including Manning’s Evolutionary Deep
+Learning.
+Th e technical editor on this book was Ross Turner.
+For print book owners, all digital formats are free:
+https://www.manning.com/freebook
+AI Agents IN ACTION
+PYTHON/SOFTWARE DEVELOPMENT
+M A N N I N G
+“
+Th is is about to become
+the hottest area of applied
+AI. Get a head start with
+this book!”
+
+—Richard Davies, author of
+Prompt Engineering in Practice
+“
+Couldn’t put this book
+down! It’s so comprehensive
+and clear that I felt like
+I was learning from a
+master teacher.”
+
+—Radhika Kanubaddhi, Amazon
+“
+An enlightening journey!
+Th is book transformed my
+questions into answers.”
+—Jose San Leandro, ACM-SL
+“
+Expertly guides through
+creating agent profi les, using
+tools, memory, planning,
+and multi-agent systems.
+Couldn’t be more timely!”
+—Grigory Sapunov
+author of JAX in Action
+ISBN-13: 978-1-63343-634-3
+See first page
+

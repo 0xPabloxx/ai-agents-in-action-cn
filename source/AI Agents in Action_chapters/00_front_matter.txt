@@ -1,0 +1,84 @@
+Chapter 0: Front Matter
+Starting Page: 1
+================================================================================
+
+M A N N I N G
+Micheal Lanham
+
+The differences between the LLM interactions from direct action
+compared to using proxy agents, agents, and autonomous agents
+Please explain the
+deﬁnition of agent.
+Large language model
+(ChatGPT)
+LLM: The deﬁnition
+of agent is...
+Show an illustration
+of an agent.
+Large language model
+(ChatGPT)
+"An image of a female
+secret agent of Hispanic
+descent in a nighttime
+urban setting. . .
+Image generation model
+(DALL-E 3)
+No agent or assistant
+direct connection to LLM
+Agent/assistant proxy for
+image generator
+What is the temperature
+in Calgary today?
+Large language model
+(ChatGPT)
+LLM identiﬁes an external
+function API to call and
+parameters to connect
+to a weather service.
+Agent/assistant acting on
+behalf of user
+User conﬁrms
+execution okay.
+Asks user if it’s okay
+to execute the function
+on their behalf.
+Executes the function
+and returns weather
+information.
+Filter my emails by
+importance and notify
+me of the top 5 most
+important emails.
+Large language model
+(ChatGPT)
+LLM identiﬁes an external
+function API to call and
+parameters to connect
+to an email service.
+Notiﬁes the user of
+important emails.
+Autonomous agent making
+decisions on behalf of user
+LLM reads
+and sorts emails by
+what it deems to be
+important.
+Decision step
+LLM reformulates
+weather information and
+responds to the user.
+.
+
+AI Agents in Action
+
+
+AI Agents in Action
+MICHEAL LANHAM
+M A N N I N G
+SHELTER ISLAND
+
+For online information and ordering of this and other Manning books, please visit
+www.manning.com. The publisher offers discounts on this book when ordered in quantity.
+For more information, please contact
+Special Sales Department
+Manning Publications Co.
