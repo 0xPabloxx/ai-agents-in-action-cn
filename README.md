@@ -3,8 +3,8 @@
 ## Building Effective AI Agents | <mark>构建高效 AI 智能体</mark>
 
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-[![Translation Progress](https://img.shields.io/badge/翻译进度-100%25-brightgreen.svg)]()
-[![Chapters Completed](https://img.shields.io/badge/已完成章节-9%2F9-brightgreen.svg)]()
+[![Translation Progress](https://img.shields.io/badge/翻译进度-82%25-yellow.svg)]()
+[![Chapters Completed](https://img.shields.io/badge/已完成章节-9%2F11-yellow.svg)]()
 
 **原书作者 (Author)**: Michael Lanham
 
@@ -41,64 +41,68 @@ This project is a **bilingual Chinese-English translation** of "AI Agents in Act
 ## 📚 章节目录 | Table of Contents
 
 ### 第一部分：基础篇 | Part One: Foundations
-- [第 1 章：智能体及其世界简介](translations/第1章-智能体及其世界简介.md)
-- [第 2 章：驾驭大语言模型的力量](translations/第2章-驾驭大语言模型的力量.md)
+- [第 1 章：智能体及其世界简介](01-Chapter-01-Introduction-to-agents-and-their-world.md)
+- [第 2 章：驾驭大语言模型的力量](02-Chapter-02-Harnessing-the-power-of-large-language-models.md)
 
 ### 第二部分：智能体构建 | Part Two: Building Agents
-- [第 3 章：使用 GPT 助手](translations/第3章-使用GPT助手.md)
-- [第 4 章：探索多智能体系统](translations/第4章-探索多智能体系统.md)
+- [第 3 章：使用 GPT 助手](03-Chapter-03-Engaging-GPT-assistants.md)
+- [第 4 章：探索多智能体系统](04-Chapter-04-Exploring-multi-agent-systems.md)
 
 ### 第三部分：智能体能力扩展 | Part Three: Empowering Agents
-- [第 5 章：使用动作赋能智能体](translations/第5章-使用动作赋能智能体.md)
-- [第 6 章：构建自主助手](translations/第6章-构建自主助手.md)
+- [第 5 章：使用动作赋能智能体](05-Chapter-05-Empowering-agents-with-actions.md)
+- [第 6 章：构建自主助手](06-Chapter-06-Building-autonomous-assistants.md)
 
 ### 第四部分：智能体平台与高级特性 | Part Four: Platforms & Advanced Features
-- [第 7 章：组装和使用智能体平台](translations/第7章-组装和使用智能体平台.md)
-- [第 8 章：理解智能体记忆和知识](translations/第8章-理解智能体记忆和知识.md)
-- [第 9 章：使用 Prompt Flow 掌握智能体提示](translations/第9章-使用PromptFlow掌握智能体提示.md)
+- [第 7 章：组装和使用智能体平台](07-Chapter-07-Assembling-and-using-an-agent-platform.md)
+- [第 8 章：理解智能体记忆和知识](08-Chapter-08-Understanding-agent-memory-and-knowledge.md)
+- [第 9 章：使用 Prompt Flow 掌握智能体提示](09-Chapter-09-Mastering-agent-prompts-with-prompt-flow.md)
+- [第 10 章：智能体推理和评估](10-Chapter-10-Agent-reasoning-and-evaluation.md) ⏳
+- [第 11 章：智能体规划和反馈](11-Chapter-11-Agent-planning-and-feedback.md) ⏳
 
 ---
 
 ## 📋 翻译进度 | Translation Progress
 
-**<mark>总页数：243 页（正文部分）</mark>** | **Total: 243 Pages (Main Content)**
+**<mark>总页数：322 页（正文部分，11 个章节）</mark>** | **Total: 322 Pages (Main Content, 11 Chapters)**
 
 ### 第一部分：基础篇 | Part One: Foundations (62 页)
 
 | 章节 | 英文标题 | 中文标题 | 页码 | 状态 | 译者 | 审校 |
 |------|---------|---------|------|------|------|------|
-| [第 1 章](translations/第1章-智能体及其世界简介.md) | Introduction to agents and their world | 智能体及其世界简介 | 25-37 | ✅ | Claude | ⏳ |
-| [第 2 章](translations/第2章-驾驭大语言模型的力量.md) | Harnessing the power of large language models | 驾驭大语言模型的力量 | 38-62 | ✅ | Claude | ⏳ |
+| [第 1 章](01-Chapter-01-Introduction-to-agents-and-their-world.md) | Introduction to agents and their world | 智能体及其世界简介 | 25-37 | ✅ | Claude | ⏳ |
+| [第 2 章](02-Chapter-02-Harnessing-the-power-of-large-language-models.md) | Harnessing the power of large language models | 驾驭大语言模型的力量 | 38-62 | ✅ | Claude | ⏳ |
 
 ### 第二部分：智能体构建 | Part Two: Building Agents (60 页)
 
 | 章节 | 英文标题 | 中文标题 | 页码 | 状态 | 译者 | 审校 |
 |------|---------|---------|------|------|------|------|
-| [第 3 章](translations/第3章-使用GPT助手.md) | Engaging GPT assistants | 使用 GPT 助手 | 63-91 | ✅ | Claude | ⏳ |
-| [第 4 章](translations/第4章-探索多智能体系统.md) | Exploring multi-agent systems | 探索多智能体系统 | 92-121 | ✅ | Claude | ⏳ |
+| [第 3 章](03-Chapter-03-Engaging-GPT-assistants.md) | Engaging GPT assistants | 使用 GPT 助手 | 63-91 | ✅ | Claude | ⏳ |
+| [第 4 章](04-Chapter-04-Exploring-multi-agent-systems.md) | Exploring multi-agent systems | 探索多智能体系统 | 92-121 | ✅ | Claude | ⏳ |
 
 ### 第三部分：智能体能力扩展 | Part Three: Empowering Agents (62 页)
 
 | 章节 | 英文标题 | 中文标题 | 页码 | 状态 | 译者 | 审校 |
 |------|---------|---------|------|------|------|------|
-| [第 5 章](translations/第5章-使用动作赋能智能体.md) | Empowering agents with actions | 使用动作赋能智能体 | 122-152 | ✅ | Claude | ⏳ |
-| [第 6 章](translations/第6章-构建自主助手.md) | Building autonomous assistants | 构建自主助手 | 153-183 | ✅ | Claude | ⏳ |
+| [第 5 章](05-Chapter-05-Empowering-agents-with-actions.md) | Empowering agents with actions | 使用动作赋能智能体 | 122-152 | ✅ | Claude | ⏳ |
+| [第 6 章](06-Chapter-06-Building-autonomous-assistants.md) | Building autonomous assistants | 构建自主助手 | 153-183 | ✅ | Claude | ⏳ |
 
-### 第四部分：智能体平台与高级特性 | Part Four: Platforms & Advanced Features (59 页)
+### 第四部分：智能体平台与高级特性 | Part Four: Platforms & Advanced Features (138 页)
 
 | 章节 | 英文标题 | 中文标题 | 页码 | 状态 | 译者 | 审校 |
 |------|---------|---------|------|------|------|------|
-| [第 7 章](translations/第7章-组装和使用智能体平台.md) | Assembling and using an agent platform | 组装和使用智能体平台 | 184-203 | ✅ | Claude | ⏳ |
-| [第 8 章](translations/第8章-理解智能体记忆和知识.md) | Understanding agent memory and knowledge | 理解智能体记忆和知识 | 204-235 | ✅ | Claude | ⏳ |
-| [第 9 章](translations/第9章-使用PromptFlow掌握智能体提示.md) | Mastering agent prompts with prompt flow | 使用 Prompt Flow 掌握智能体提示 | 236-267 | ✅ | Claude | ⏳ |
+| [第 7 章](07-Chapter-07-Assembling-and-using-an-agent-platform.md) | Assembling and using an agent platform | 组装和使用智能体平台 | 184-203 | ✅ | Claude | ⏳ |
+| [第 8 章](08-Chapter-08-Understanding-agent-memory-and-knowledge.md) | Understanding agent memory and knowledge | 理解智能体记忆和知识 | 204-235 | ✅ | Claude | ⏳ |
+| [第 9 章](09-Chapter-09-Mastering-agent-prompts-with-prompt-flow.md) | Mastering agent prompts with prompt flow | 使用 Prompt Flow 掌握智能体提示 | 236-267 | ✅ | Claude | ⏳ |
+| [第 10 章](10-Chapter-10-Agent-reasoning-and-evaluation.md) | Agent reasoning and evaluation | 智能体推理和评估 | 268-295 | ⏳ | Claude | ❌ |
+| [第 11 章](11-Chapter-11-Agent-planning-and-feedback.md) | Agent planning and feedback | 智能体规划和反馈 | 296-322 | ⏳ | Claude | ❌ |
 
 ### 翻译进度统计 | Progress Statistics
 
 | 指标 | 数值 | 百分比 |
 |------|------|--------|
-| 已完成章节 | 9 / 9 | 100% |
-| 已翻译页数 | 243 / 243 | 100% |
-| 待翻译页数 | 0 / 243 | 0% |
+| 已完成章节 | 9 / 11 | 82% |
+| 已翻译页数 | 267 / 322 | 83% |
+| 待翻译页数 | 55 / 322 | 17% |
 
 **状态说明 (Status Legend)**：
 - ✅ 已完成 (Completed)
@@ -172,6 +176,19 @@ This project is a **bilingual Chinese-English translation** of "AI Agents in Act
 - Prompt Flow 工具
 - 提示工程高级技术
 - 智能体评估与优化
+
+**第 10 章：智能体推理和评估**
+- 提示工程技术扩展 LLM 功能
+- 推理提示工程技术
+- 评估提示解决未知问题
+- 规划与推理机制
+
+**第 11 章：智能体规划和反馈**
+- LLM 规划实现
+- OpenAI Assistants 平台规划
+- 通用规划器实现与测试
+- 高级模型反馈机制
+- 构建智能体系统的综合应用
 
 ---
 

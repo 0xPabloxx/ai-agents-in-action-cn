@@ -11,27 +11,28 @@ This is a **bilingual Chinese-English translation project** of "AI Agents in Act
 - All content is in Markdown format
 - Uses HTML `<mark>` tags for Chinese text highlighting
 - Follows strict bilingual format with English and Chinese side-by-side
-- Original book has 243 pages across 9 chapters in 4 parts
+- Original book has 322 pages across 11 chapters in 4 parts
 - Publisher: Manning Publications
 
 ## File Structure
 
 ```
-translations/
-  ├── 第1章-智能体及其世界简介.md
-  ├── 第2章-驾驭大语言模型的力量.md
-  ├── 第3章-使用GPT助手.md
-  ├── 第4章-探索多智能体系统.md
-  ├── 第5章-使用动作赋能智能体.md
-  ├── 第6章-构建自主助手.md
-  ├── 第7章-组装和使用智能体平台.md (pending)
-  ├── 第8章-理解智能体记忆和知识.md (pending)
-  └── 第9章-使用PromptFlow掌握智能体提示.md (pending)
+01-Chapter-01-Introduction-to-agents-and-their-world.md
+02-Chapter-02-Harnessing-the-power-of-large-language-models.md
+03-Chapter-03-Engaging-GPT-assistants.md
+04-Chapter-04-Exploring-multi-agent-systems.md
+05-Chapter-05-Empowering-agents-with-actions.md
+06-Chapter-06-Building-autonomous-assistants.md
+07-Chapter-07-Assembling-and-using-an-agent-platform.md
+08-Chapter-08-Understanding-agent-memory-and-knowledge.md
+09-Chapter-09-Mastering-agent-prompts-with-prompt-flow.md
+10-Chapter-10-Agent-reasoning-and-evaluation.md (pending)
+11-Chapter-11-Agent-planning-and-feedback.md (pending)
 
 source/
   ├── AI Agents in Action.pdf
-  ├── chapter1-9.txt (extracted text files)
-  └── AI Agents in Action_chapters/ (chapter extractions)
+  ├── chapter1-11.txt (extracted text files)
+  └── AI Agents in Action_chapters_smart/ (chapter extractions)
 
 scripts/
   ├── pdf_to_text_by_chapter.py
@@ -111,9 +112,9 @@ Reference the technical term dictionary in README.md for consistent translations
 ## Project Status
 
 The project is being translated chapter by chapter:
-- ✅ Completed: Chapters 1-6 (162/243 pages, 67%)
-- ⏳ In Progress: Chapter 7
-- ❌ Pending: Chapters 8-9
+- ✅ Completed: Chapters 1-9 (267/322 pages, 83%)
+- ⏳ In Progress: None
+- ❌ Pending: Chapters 10-11 (55 pages remaining)
 
 Check README.md for detailed progress tracking.
 
@@ -121,7 +122,7 @@ Check README.md for detailed progress tracking.
 
 ### Adding a New Translation
 
-1. Follow the file naming convention: `第X章-章节标题.md`
+1. Follow the file naming convention: `XX-Chapter-XX-English-title.md` (e.g., `10-Chapter-10-Agent-reasoning-and-evaluation.md`)
 2. Apply `<mark>` tags to ALL Chinese text
 3. Preserve original structure and code examples
 4. Follow technical term dictionary for consistency
@@ -172,10 +173,12 @@ The book covers four parts:
 - Chapter 5: Empowering agents with actions
 - Chapter 6: Building autonomous assistants
 
-**Part Four: Platforms & Advanced Features (59 pages)**
+**Part Four: Platforms & Advanced Features (138 pages)**
 - Chapter 7: Assembling and using an agent platform
 - Chapter 8: Understanding agent memory and knowledge
 - Chapter 9: Mastering agent prompts with prompt flow
+- Chapter 10: Agent reasoning and evaluation
+- Chapter 11: Agent planning and feedback
 
 ## Resources
 
