@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **bilingual Chinese-English translation project** of "AI Agents in Action: Building Effective AI Agents" by Michael Wooldridge & Gerardo Reyes. The project provides a comprehensive practical guide covering agent architectures, LLM integration, multi-agent systems, autonomous assistants, and agent platforms.
+This is a **bilingual Chinese-English translation project** of "AI Agents in Action: Building Effective AI Agents" by Michael Lanham. The project provides a comprehensive practical guide covering agent architectures, LLM integration, multi-agent systems, autonomous assistants, and agent platforms.
 
 **Key Characteristics:**
 - Pure documentation/translation project (no code to build, test, or run)

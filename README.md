@@ -6,7 +6,7 @@
 [![Translation Progress](https://img.shields.io/badge/翻译进度-100%25-brightgreen.svg)]()
 [![Chapters Completed](https://img.shields.io/badge/已完成章节-9%2F9-brightgreen.svg)]()
 
-**原书作者 (Author)**: Michael Wooldridge & Gerardo Reyes
+**原书作者 (Author)**: Michael Lanham
 
 **出版社 (Publisher)**: Manning Publications
 
@@ -38,6 +38,27 @@ This project is a **bilingual Chinese-English translation** of "AI Agents in Act
 
 ---
 
+## 📚 章节目录 | Table of Contents
+
+### 第一部分：基础篇 | Part One: Foundations
+- [第 1 章：智能体及其世界简介](translations/第1章-智能体及其世界简介.md)
+- [第 2 章：驾驭大语言模型的力量](translations/第2章-驾驭大语言模型的力量.md)
+
+### 第二部分：智能体构建 | Part Two: Building Agents
+- [第 3 章：使用 GPT 助手](translations/第3章-使用GPT助手.md)
+- [第 4 章：探索多智能体系统](translations/第4章-探索多智能体系统.md)
+
+### 第三部分：智能体能力扩展 | Part Three: Empowering Agents
+- [第 5 章：使用动作赋能智能体](translations/第5章-使用动作赋能智能体.md)
+- [第 6 章：构建自主助手](translations/第6章-构建自主助手.md)
+
+### 第四部分：智能体平台与高级特性 | Part Four: Platforms & Advanced Features
+- [第 7 章：组装和使用智能体平台](translations/第7章-组装和使用智能体平台.md)
+- [第 8 章：理解智能体记忆和知识](translations/第8章-理解智能体记忆和知识.md)
+- [第 9 章：使用 Prompt Flow 掌握智能体提示](translations/第9章-使用PromptFlow掌握智能体提示.md)
+
+---
+
 ## 📋 翻译进度 | Translation Progress
 
 **<mark>总页数：243 页（正文部分）</mark>** | **Total: 243 Pages (Main Content)**
@@ -46,30 +67,30 @@ This project is a **bilingual Chinese-English translation** of "AI Agents in Act
 
 | 章节 | 英文标题 | 中文标题 | 页码 | 状态 | 译者 | 审校 |
 |------|---------|---------|------|------|------|------|
-| Chapter 1 | Introduction to agents and their world | 智能体及其世界简介 | 25-37 | ✅ | Claude | ⏳ |
-| Chapter 2 | Harnessing the power of large language models | 驾驭大语言模型的力量 | 38-62 | ✅ | Claude | ⏳ |
+| [第 1 章](translations/第1章-智能体及其世界简介.md) | Introduction to agents and their world | 智能体及其世界简介 | 25-37 | ✅ | Claude | ⏳ |
+| [第 2 章](translations/第2章-驾驭大语言模型的力量.md) | Harnessing the power of large language models | 驾驭大语言模型的力量 | 38-62 | ✅ | Claude | ⏳ |
 
 ### 第二部分：智能体构建 | Part Two: Building Agents (60 页)
 
 | 章节 | 英文标题 | 中文标题 | 页码 | 状态 | 译者 | 审校 |
 |------|---------|---------|------|------|------|------|
-| Chapter 3 | Engaging GPT assistants | 使用 GPT 助手 | 63-91 | ✅ | Claude | ⏳ |
-| Chapter 4 | Exploring multi-agent systems | 探索多智能体系统 | 92-121 | ✅ | Claude | ⏳ |
+| [第 3 章](translations/第3章-使用GPT助手.md) | Engaging GPT assistants | 使用 GPT 助手 | 63-91 | ✅ | Claude | ⏳ |
+| [第 4 章](translations/第4章-探索多智能体系统.md) | Exploring multi-agent systems | 探索多智能体系统 | 92-121 | ✅ | Claude | ⏳ |
 
 ### 第三部分：智能体能力扩展 | Part Three: Empowering Agents (62 页)
 
 | 章节 | 英文标题 | 中文标题 | 页码 | 状态 | 译者 | 审校 |
 |------|---------|---------|------|------|------|------|
-| Chapter 5 | Empowering agents with actions | 使用动作赋能智能体 | 122-152 | ✅ | Claude | ⏳ |
-| Chapter 6 | Building autonomous assistants | 构建自主助手 | 153-183 | ✅ | Claude | ⏳ |
+| [第 5 章](translations/第5章-使用动作赋能智能体.md) | Empowering agents with actions | 使用动作赋能智能体 | 122-152 | ✅ | Claude | ⏳ |
+| [第 6 章](translations/第6章-构建自主助手.md) | Building autonomous assistants | 构建自主助手 | 153-183 | ✅ | Claude | ⏳ |
 
 ### 第四部分：智能体平台与高级特性 | Part Four: Platforms & Advanced Features (59 页)
 
 | 章节 | 英文标题 | 中文标题 | 页码 | 状态 | 译者 | 审校 |
 |------|---------|---------|------|------|------|------|
-| Chapter 7 | Assembling and using an agent platform | 组装和使用智能体平台 | 184-203 | ✅ | Claude | ⏳ |
-| Chapter 8 | Understanding agent memory and knowledge | 理解智能体记忆和知识 | 204-235 | ✅ | Claude | ⏳ |
-| Chapter 9 | Mastering agent prompts with prompt flow | 使用 Prompt Flow 掌握智能体提示 | 236-267 | ✅ | Claude | ⏳ |
+| [第 7 章](translations/第7章-组装和使用智能体平台.md) | Assembling and using an agent platform | 组装和使用智能体平台 | 184-203 | ✅ | Claude | ⏳ |
+| [第 8 章](translations/第8章-理解智能体记忆和知识.md) | Understanding agent memory and knowledge | 理解智能体记忆和知识 | 204-235 | ✅ | Claude | ⏳ |
+| [第 9 章](translations/第9章-使用PromptFlow掌握智能体提示.md) | Mastering agent prompts with prompt flow | 使用 Prompt Flow 掌握智能体提示 | 236-267 | ✅ | Claude | ⏳ |
 
 ### 翻译进度统计 | Progress Statistics
 
@@ -234,7 +255,7 @@ Agent（智能体）、LLM（大语言模型）、RAG（检索增强生成）
 
 ### 📖 原书版权 | Original Book Copyright
 
-- **作者**: Michael Wooldridge & Gerardo Reyes
+- **作者**: Michael Lanham
 - **出版社**: Manning Publications
 - **版权**: 原书版权归作者和出版社所有
 
