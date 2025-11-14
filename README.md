@@ -3,8 +3,8 @@
 ## Building Effective AI Agents | <mark>构建高效 AI 智能体</mark>
 
 [![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
-[![Translation Progress](https://img.shields.io/badge/翻译进度-67%25-yellow.svg)]()
-[![Chapters Completed](https://img.shields.io/badge/已完成章节-6%2F9-green.svg)]()
+[![Translation Progress](https://img.shields.io/badge/翻译进度-100%25-brightgreen.svg)]()
+[![Chapters Completed](https://img.shields.io/badge/已完成章节-9%2F9-brightgreen.svg)]()
 
 **原书作者 (Author)**: Michael Wooldridge & Gerardo Reyes
 
@@ -67,17 +67,17 @@ This project is a **bilingual Chinese-English translation** of "AI Agents in Act
 
 | 章节 | 英文标题 | 中文标题 | 页码 | 状态 | 译者 | 审校 |
 |------|---------|---------|------|------|------|------|
-| Chapter 7 | Assembling and using an agent platform | 组装和使用智能体平台 | 184-203 | ⏳ | - | ❌ |
-| Chapter 8 | Understanding agent memory and knowledge | 理解智能体记忆和知识 | 204-235 | ⏳ | - | ❌ |
-| Chapter 9 | Mastering agent prompts with prompt flow | 使用 Prompt Flow 掌握智能体提示 | 236-267 | ⏳ | - | ❌ |
+| Chapter 7 | Assembling and using an agent platform | 组装和使用智能体平台 | 184-203 | ✅ | Claude | ⏳ |
+| Chapter 8 | Understanding agent memory and knowledge | 理解智能体记忆和知识 | 204-235 | ✅ | Claude | ⏳ |
+| Chapter 9 | Mastering agent prompts with prompt flow | 使用 Prompt Flow 掌握智能体提示 | 236-267 | ✅ | Claude | ⏳ |
 
 ### 翻译进度统计 | Progress Statistics
 
 | 指标 | 数值 | 百分比 |
 |------|------|--------|
-| 已完成章节 | 6 / 9 | 67% |
-| 已翻译页数 | 162 / 243 | 67% |
-| 待翻译页数 | 81 / 243 | 33% |
+| 已完成章节 | 9 / 9 | 100% |
+| 已翻译页数 | 243 / 243 | 100% |
+| 待翻译页数 | 0 / 243 | 0% |
 
 **状态说明 (Status Legend)**：
 - ✅ 已完成 (Completed)
